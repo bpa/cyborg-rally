@@ -1,0 +1,53 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+use EV;
+use Mojolicious::Lite;
+use lib 'lib';
+use CyborgRally;
+use JSON;
+
+my $json = JSON->new;
+my $game = new CyborgRally;
+
+get '/' => sub {
+    shift->reply->static('index.html');
+};
+
+websocket '/websocket' => sub {
+    my $c = shift;
+    $c->inactivity_timeout(300);
+
+    my $cyborg = $game->on_connect(JsonSocket->new($c));
+
+    $c->on(
+        message => sub {
+            my ( $c, $msg ) = @_;
+            $game->on_message($cyborg, $json->decode($msg));
+        }
+    );
+
+    $c->on(
+        finish => sub {
+            $game->on_disconnect($cyborg);
+        }
+    );
+};
+
+Mojo::Server::Daemon->new( app => app, listen => ['http://*:3000'] )->run;
+
+package JsonSocket;
+
+sub new {
+    my ($pkg, $c) = @_;
+    return bless { sock => $c }, $pkg;
+}
+
+sub send {
+    my ($self, $msg) = @_;
+    $self->{sock}->send($json->encode($msg));
+}
+
+1;
