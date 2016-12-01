@@ -6,6 +6,7 @@ use warnings;
 use EV;
 use Mojolicious::Lite;
 use lib 'lib';
+use Cyborg;
 use CyborgRally;
 use JSON;
 
@@ -20,7 +21,8 @@ websocket '/websocket' => sub {
     my $c = shift;
     $c->inactivity_timeout(300);
 
-    my $cyborg = $game->on_connect(JsonSocket->new($c));
+    my $cyborg = Cyborg->new($c);
+    $game->on_connect($cyborg); 
 
     $c->on(
         message => sub {
@@ -36,18 +38,9 @@ websocket '/websocket' => sub {
     );
 };
 
-Mojo::Server::Daemon->new( app => app, listen => ['http://*:3000'] )->run;
-
-package JsonSocket;
-
-sub new {
-    my ($pkg, $c) = @_;
-    return bless { sock => $c }, $pkg;
+if (!$INC{'Mojo/Server/Morbo.pm'}) {
+    Mojo::Server::Daemon->new( app => app, listen => ['http://*:3000'] )->run;
 }
-
-sub send {
-    my ($self, $msg) = @_;
-    $self->{sock}->send($json->encode($msg));
+else {
+    app->start;
 }
-
-1;
