@@ -21,7 +21,7 @@ websocket '/websocket' => sub {
     my $c = shift;
     $c->inactivity_timeout(300);
 
-    my $cyborg = Cyborg->new($c);
+    my $cyborg = Cyborg->new($c->tx);
     $game->on_connect($cyborg); 
 
     $c->on(

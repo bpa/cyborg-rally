@@ -56,7 +56,7 @@ function on_message(m) {
     let msg = JSON.parse(m.data);
     console.log('>', msg);
     deliver(msg, this);
-    deliver(msg, this.game);
+    deliver(msg, this.view);
 }
 
 class Client extends React.Component {
@@ -78,6 +78,7 @@ class Client extends React.Component {
         rebass: {
           Button: {
              width: '100%',
+             marginBottom: '1em',
           },
           borderRadius: 16,
           rounded: true,
@@ -118,7 +119,10 @@ class Client extends React.Component {
 
     on_login(msg) {
 		window.sessionStorage.token = msg.token;
-        if (msg.game) {
+    }
+
+    on_joined(msg) {
+        if (msg.game === 'Rally') {
             this.setState({view: Playing});
         }
         else {
@@ -128,14 +132,40 @@ class Client extends React.Component {
 }
 
 class Lobby extends React.Component {
+    constructor(props) {
+        super(props);
+        props.ws.send({cmd:'games'});
+        this.state = {games:[]};
+    }
+
+    join(game) {
+        this.props.ws.send({cmd: 'join', name: game.name});
+    }
+
+    game_button(g) {
+        return <Button key={g.name} theme="primary"
+            onClick={this.join.bind(this, g)}>
+                 Join {g.name}
+               </Button>
+    }
+
+    on_games(msg) {
+        this.setState({games: msg.games.map(this.game_button.bind(this))});
+    }
+
+    on_create_game(msg) {
+        let games = this.state.games;
+        games.push(this.game_button(msg));
+        this.setState({games: games});
+    }
+
 	render() { return (
-<Panel theme="info">
+<Panel theme="default">
     <PanelHeader>Lobby</PanelHeader>
-    <Games ws={this.props.ws}/>
-	<Button theme="default" onClick={this.props.setView.bind(null, CreateGame)}>
+    <Games games={this.state.games}/>
+	<Button theme="success" onClick={this.props.setView.bind(null, CreateGame)}>
 		Create Game
 	</Button>
-	<br/><br/>
     <Button theme="warning" onClick={this.props.setView.bind(null, ChooseName)}>
         Name Preferences
     </Button>
@@ -144,26 +174,12 @@ class Lobby extends React.Component {
 }
 
 class Games extends React.Component {
-    constructor(props) {
-        super(props);
-        props.ws.send({cmd:'collectives'});
-        this.state = {collectives:[]};
-    }
-
-    on_collectives(msg) {
-        this.setState({collectives: msg.collectives.map(function(c) {
-            return <Button onClick={this.join.bind(this, c)} theme="success">
-                    {c.name}
-                   </Button>
-        })});
-    }
-
     render() {
-        if (!this.state.collectives) {
-            return <div>{this.state.collectives}</div>;
+        if (this.props.games) {
+            return <div>{this.props.games}</div>;
         }
         return <div style={{width: "100%", textAlign: 'center'}}>
-            <Heading theme="error">No games available</Heading><br/>
+            <Heading theme="error">No games available</Heading>
             </div>
     }
 }
@@ -199,7 +215,7 @@ class CreateGame extends React.Component {
 
     create() {
         if (this.name.value) {
-            let msg = Object.assign({cmd: 'create', name: this.name.value}, this.state);
+            let msg = Object.assign({cmd: 'create_game', name: this.name.value}, this.state);
             delete msg['error'];
             this.props.ws.send(msg);
         }
@@ -209,9 +225,10 @@ class CreateGame extends React.Component {
         }
     }
 
-    on_create(msg) {
-        if (this.state.name === msg.name) {
-            this.pros.ws.send({cmd: 'join', name: msg.name});
+    on_create_game(msg) {
+        console.log(msg, this.state);
+        if (this.name.value === msg.name) {
+            this.props.ws.send({cmd: 'join', name: msg.name});
         }
     }
 
@@ -220,7 +237,7 @@ class CreateGame extends React.Component {
     }
 
 	render() { return (
-<Panel theme="primary">
+<Panel theme="info">
 	<PanelHeader>Create Game</PanelHeader>
 	<Input label="Name" name="name" placeholder="Game Name" 
         message={this.state.error} baseRef={r=>this.name=r}/>
@@ -247,6 +264,7 @@ class CreateGame extends React.Component {
 	    <Checkbox theme="success" name="o" label="Wrench/flag gives option card instead of repairing" checked={this.state.option_for_heal} onClick={this.check.bind(this, 'option_for_heal')} readOnly/>
     </Card>
     <Button theme="primary" onClick={this.create}>Create Game</Button>
+    <Button theme="error" onClick={this.props.back}>Nevermind</Button>
 </Panel>
 	)}
 }
@@ -270,7 +288,6 @@ class ChooseName extends React.Component {
 	<Button theme="error" onClick={this.props.back}>
 		Cancel
 	</Button>
-    <br/><br/>
 	<Button theme="primary" onClick={this.onClick.bind(this)}>
 		Save Preferences
 	</Button>
@@ -279,7 +296,7 @@ class ChooseName extends React.Component {
 }
 
 class Playing extends React.Component {
-    render { return (
+    render() { return (
 <div>Playing...</div>
     )}
 }
