@@ -109,11 +109,12 @@ class Client extends React.Component {
     	if ( window.sessionStorage.token !== undefined ) {
     	  	this.ws.send({
 		  		cmd: 'login',
+		  		name: window.localStorage.name,
 		  		token: window.sessionStorage.token,
 		  	});
     	}
     	else {
-    	  	this.ws.send({ cmd: 'login' });
+    	  	this.ws.send({ cmd: 'login', name: window.localStorage.name });
     	}
 	}
 
@@ -270,34 +271,48 @@ class CreateGame extends React.Component {
 }
 
 class ChooseName extends React.Component {
-    onChange(e) {
-        //console.log(e.target.value);
+    onClick(e) {
+        window.localStorage.name = this.name.value;
+        this.props.ws.send({cmd:'set_name', name:this.name.value});
+        this.props.back();
     }
 
-    onClick(e) {
-        this.props.ws.send({cmd:'setName', name:this.name.value});
-        this.props.back();
+    input(r) {
+        if(r) {
+            this.name = r;
+            r.value=window.localStorage.name;
+        }
     }
 
     render() { return (
 <Panel theme="primary">
 	<PanelHeader>Name Preferences</PanelHeader>
 	<Input label="" name="name" placeholder="Name"
-        onChange={this.onChange.bind(this)}
-        baseRef={(r) => this.name = r}/>
-	<Button theme="error" onClick={this.props.back}>
-		Cancel
-	</Button>
+        baseRef={this.input.bind(this)}/>
 	<Button theme="primary" onClick={this.onClick.bind(this)}>
 		Save Preferences
+	</Button>
+	<Button theme="error" onClick={this.props.back}>
+		Cancel
 	</Button>
 </Panel>
     )}
 }
 
 class Playing extends React.Component {
+    constructor(props) {
+        super(props);
+        this.quit = this.quit.bind(this);
+    }
+
+    quit() {
+        this.props.ws.send({cmd: 'quit'});
+    }
+
     render() { return (
-<div>Playing...</div>
+	<Button theme="error" onClick={this.quit}>
+		Quit
+	</Button>
     )}
 }
 

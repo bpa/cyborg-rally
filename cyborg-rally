@@ -9,6 +9,7 @@ use lib 'lib';
 use Cyborg;
 use CyborgRally;
 use JSON;
+use NullSock;
 
 my $json = JSON->new;
 my $game = new CyborgRally;
@@ -34,6 +35,7 @@ websocket '/websocket' => sub {
     $c->on(
         finish => sub {
             $game->on_disconnect($cyborg);
+            $c->{sock} = NullSock->new;
         }
     );
 };

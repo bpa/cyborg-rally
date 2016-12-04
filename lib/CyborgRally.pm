@@ -23,7 +23,8 @@ sub on_connect {
 }
 
 sub on_disconnect {
-    my ($self) = shift;
+    my ($self, $c) = @_;
+
 }
 
 sub on_message {
@@ -31,7 +32,9 @@ sub on_message {
     return unless $msg->{cmd};
     my $f = "do_" . $msg->{cmd};
     my $rally = $c->{rally};
+    my $g = $c->{game};
 
+    $g->$f($c, $msg) if $g && $g->can($f);
     $rally->$f($c, $msg) if $rally && $rally->can($f);
     $self->$f($c, $msg) if $self->can($f);
 }
@@ -79,15 +82,17 @@ sub do_join {
 
 sub do_login {
     my ($self, $c, $msg) = @_;
-    my %res = (cmd => 'login');
 
-    my $token;
-    if ($msg->{token}) {
-        $token = $msg->{token};
+    $c->{name} = $msg->{name} || 'Somebody';
+
+    my $token = $msg->{token};
+    if ($token) {
+        $c->{uuid} = $token;
         my $cyborg = $cyborg{$token};
         if ($cyborg) {
-            $cyborg->{game}->join($c);
+            $c->{game} = $cyborg->{game};
             $cyborg{$token} = $c;
+            $c->{game}->join($c);
             return;
         }
     }
@@ -96,6 +101,19 @@ sub do_login {
     $cyborg{$token} = $c;
     $c->send({cmd => 'login', token => $token});
     $lobby->join($c);
+}
+
+sub do_set_name {
+    my ($self, $c, $msg) = @_;
+    if (!$msg->{name}) {
+        $c->err('Missing name');
+    }
+
+    return if $msg->{name} eq $c->{name};
+
+    my $g = $c->{game};
+    $g->rename($c, $msg->{name}) if $g;
+    $c->{name} = $msg->{name};
 }
 
 sub do_quit {
