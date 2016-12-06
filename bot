@@ -1,0 +1,122 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use AnyEvent;
+use AnyEvent::Handle;
+use AnyEvent::Socket;
+use Data::Dumper;
+use JSON::XS;
+$Data::Dumper::Terse = 1;
+
+our $| = 1;
+
+my $json = JSON::XS->new;
+my $cv = AnyEvent->condvar;
+my $num = int($ARGV[0]) || 4;
+
+for my $i ( 1 .. $num ) {
+    tcp_connect
+      localhost => 3001,
+      sub {
+        my ($fh) = @_ or die "unable to connect: $!";
+
+        my $bot = Bot->new( "$i/$num", $fh );
+		my $handle;
+        $handle = new AnyEvent::Handle
+          fh      => $fh,
+          on_read => sub {
+			eval {
+				for my $msg ($json->incr_parse($_[0]->rbuf)) {
+					$bot->on_message($msg);
+				}
+			};
+            $_[0]->rbuf = '';
+          },
+          on_error => sub {
+            AE::log error => $_[2];
+            $_[0]->destroy;
+          },
+          on_eof => sub {
+            $handle->destroy;
+            AE::log info => "Done.";
+          };
+
+      };
+}
+
+$cv->wait;
+
+package Bot;
+
+use Term::ANSIColor;
+use Data::Dumper;
+
+sub new {
+    my ( $pkg, $name, $fh ) = @_;
+    return bless { name => $name, fh => $fh }, $pkg;
+}
+
+sub on_message {
+    my ( $self, $msg ) = @_;
+	print Dumper $msg;
+	return unless $msg->{cmd};
+	my $f = "do_" . $msg->{cmd};
+	$self->$f($msg);
+}
+
+sub send {
+    my ( $self, $cmd, $msg ) = @_;
+    $msg ||= {};
+    $msg = { $cmd => $msg } unless ref($msg) eq 'HASH';
+    $msg->{cmd} = $cmd;
+	print color('yellow');
+	print Dumper $msg;
+	print color('reset');
+    syswrite $self->{fh}, $json->encode($msg);
+}
+
+sub do_welcome {
+    my ( $self, $msg ) = @_;
+    $self->send( login => { name => $self->{name} } );
+}
+
+sub do_login {
+    my ( $self, $msg ) = @_;
+	$self->{token} = $msg->{token};
+}
+
+sub do_games {
+    my ( $self, $msg ) = @_;
+    if ( @{$msg->{games}} ) {
+        $self->send( 'join' => { name => $msg->{games}[0]{name} } );
+    }
+	elsif ($self->{name} =~ m#^1/#) {
+		$self->send( create_game => { 
+			name => 'Bot',
+            conveyors => 1,
+            express_conveyors => 1,
+            gears => 1,
+		});
+	}
+}
+
+sub do_joined {
+    my ( $self, $msg ) = @_;
+	if ($msg->{game} eq 'Lobby') {
+    	$self->send('games');
+	}
+}
+
+sub do_error {
+    my ( $self, $msg ) = @_;
+    print Dumper $msg;
+}
+
+sub do_create_game {
+    my ( $self, $msg ) = @_;
+	$self->send('join' => { name => $msg->{name} });
+}
+
+1;

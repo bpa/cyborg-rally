@@ -10,9 +10,13 @@ use Cyborg;
 use CyborgRally;
 use JSON;
 use NullSock;
+use TcpSock;
+use AnyEvent::Handle;
+use AnyEvent::Socket;
 
 my $json = JSON->new;
-my $game = new CyborgRally;
+my $null = NullSock->new;
+my $game = CyborgRally->new;
 
 get '/' => sub {
     shift->reply->static('index.html');
@@ -35,8 +39,38 @@ websocket '/websocket' => sub {
     $c->on(
         finish => sub {
             $game->on_disconnect($cyborg);
-            $c->{sock} = NullSock->new;
+            $cyborg->{sock} = $null;
         }
+    );
+};
+
+tcp_server 0, 3001, sub {
+    my $fh = shift;
+    my $cyborg = Cyborg->new(TcpSock->new($fh));
+    $game->on_connect($cyborg); 
+
+    my $handle;
+    my $disconnect = sub {
+        $game->on_disconnect($cyborg);
+        $cyborg->{sock} = $null;
+        $handle->destroy;
+    };
+
+    $handle = AnyEvent::Handle->new(
+        fh      => $fh,
+        poll    => 'r',
+        on_read => sub {
+			eval {
+				for my $msg ($json->incr_parse($_[0]->rbuf)) {
+					$game->on_message($cyborg, $msg);
+				}
+			};
+            $cyborg->err($@) if $@;
+            $_[0]->rbuf = '';
+			return 1;
+        },
+        on_error => $disconnect,
+        on_eof   => $disconnect,
     );
 };
 
