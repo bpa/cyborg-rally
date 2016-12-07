@@ -14,39 +14,43 @@ our $| = 1;
 
 my $json = JSON::XS->new;
 my $cv = AnyEvent->condvar;
-my $num = int($ARGV[0]) || 4;
+my $num = $ARGV[0] || 4;
 
 for my $i ( 1 .. $num ) {
     tcp_connect
       localhost => 3001,
       sub {
-        my ($fh) = @_ or die "unable to connect: $!";
+        my ($fh) = @_;
+        unless ($fh) {
+            $cv->send;
+            print "unable to connect: $!\n";
+            return;
+        }
 
         my $bot = Bot->new( "$i/$num", $fh );
-		my $handle;
+        my $handle;
         $handle = new AnyEvent::Handle
           fh      => $fh,
           on_read => sub {
-			eval {
-				for my $msg ($json->incr_parse($_[0]->rbuf)) {
-					$bot->on_message($msg);
-				}
-			};
+            eval {
+                for my $msg ($json->incr_parse($_[0]->rbuf)) {
+                    $bot->on_message($msg);
+                }
+            };
             $_[0]->rbuf = '';
           },
           on_error => sub {
-            AE::log error => $_[2];
             $_[0]->destroy;
           },
           on_eof => sub {
             $handle->destroy;
-            AE::log info => "Done.";
+            $cv->send;
           };
 
       };
 }
 
-$cv->wait;
+$cv->recv;
 
 package Bot;
 
