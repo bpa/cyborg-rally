@@ -3,7 +3,7 @@ package Secret;
 use FindBin '$Bin';
 use File::Slurp;
 
-my $secret_file = catfile($Bin, ".secret");
+my $secret_file = catfile( $Bin, ".secret" );
 our $secret;
 if ( -r $secret_file && -s _ ) {
     $secret = read_file($secret_file);

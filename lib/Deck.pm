@@ -3,10 +3,10 @@ package Deck;
 use List::Util;
 
 sub new {
-    my $self = bless {}, shift;
+    my $pkg   = shift;
+    my @cards = map { ref eq 'ARRAY' ? @$_ : $_ } @_;
+    my $self  = bless { _cards => \@cards }, $pkg;
     $self->build(@_) if $self->can('build');
-    $self->reset;
-    $self->shuffle;
     return $self;
 }
 
@@ -14,6 +14,11 @@ sub reset {
     my $self = shift;
     $self->{cards} = $self->generate_cards;
     return $self;
+}
+
+sub generate_cards {
+    my $self = shift;
+    $self->{cards} = [ @{ $self->{_cards} } ];
 }
 
 sub shuffle {

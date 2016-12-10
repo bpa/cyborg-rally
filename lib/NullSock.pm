@@ -2,6 +2,6 @@ package NullSock;
 
 sub new { bless {}, shift }
 
-sub send {}
+sub send { }
 
 1;

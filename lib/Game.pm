@@ -1,6 +1,9 @@
 package Game;
 
+use Data::Dumper;
 use Data::UUID;
+use Carp;
+use State;
 
 my $uuid = Data::UUID->new;
 
@@ -8,13 +11,18 @@ sub new {
     my ( $pkg, $opts ) = @_;
     my $self = bless {
         game    => $pkg,
+        map     => {},
         name    => $opts->{name},
         opts    => {},
         player  => {},
-        public  => {},
-        private => {}, },
+        private => { player => {} },
+        public  => { player => {} },
+        states  => { INITIAL => State->new },
+        state   => State->new, },
       shift;
     $self->BUILD($opts) if $self->can('BUILD');
+    $self->set_state('INITIAL');
+    $self->update;
     return $self;
 }
 
@@ -23,13 +31,25 @@ sub join {
 
     $c->{game} = $self;
 
-    my $p = $self->{player}{ $c->{uuid} };
-    if ($p) {    #Rejoin
-        $p->{sock} = $c;
+    my $id         = $self->{map}{ $c->{uuid} };
+    my $new_player = !$id;
+
+    if ( !$id ) {
+        $id = $uuid->create_str;
+        $self->{map}{ $c->{uuid} } = $id;
     }
-    else {       #Normal
-        $self->{player}{ $c->{uuid} } = $p
-          = { sock => $c, data => {}, uuid => $uuid->create_str };
+
+    if ($new_player) {
+        $self->{public}{player}{$id} = { id => $id, name => $c->{name} };
+        $self->{private}{player}{$id} = {};
+    }
+
+    $c->{public}         = $self->{public}{player}{$id};
+    $c->{private}        = $self->{private}{player}{$id};
+    $c->{id}             = $id;
+    $self->{player}{$id} = $c;
+
+    if ($new_player) {
         $self->on_join($c) if $self->can('on_join');
     }
 
@@ -38,17 +58,41 @@ sub join {
             game    => $self->{game},
             name    => $self->{name},
             public  => $self->{public},
-            private => $p->{data} } );
+            private => $c->{private} } );
 
-    $self->broadcast(
-        { cmd => 'join', uuid => $p->{uuid}, name => $c->{name} } );
+    if ($new_player) {
+        $self->broadcast(
+            { cmd => 'join', uuid => $p->{uuid}, public => $c->{public} } );
+    }
+
 }
 
 sub rename {
     my ( $self, $c, $name ) = @_;
     my $p = $self->{player}{ $c->{uuid} };
-    $self->broadcast({cmd => 'set_name', uuid => $p->{uuid}, name => $name });
+    $self->broadcast(
+        { cmd => 'set_name', uuid => $p->{uuid}, name => $name } );
 }
+
+sub set_state {
+    my ( $self, $state ) = @_;
+    my $next = $self->{states}{$state};
+    if ($next) {
+        $self->{next_state} = $next;
+    }
+    else {
+        carp "Unknown state '$state', options are: "
+          . join( ", ", keys %{ $self->{states} } );
+    } }
+
+sub update {
+    my $self = shift;
+    if ( my $next = delete $self->{next_state} ) {
+        $self->{state}->on_exit($self);
+        $self->{state} = $next;
+        $self->broadcast( { cmd => 'state', state => $next->{name} } );
+        $next->on_enter($self);
+    } }
 
 sub quit {
     my ( $self, $c ) = @_;
@@ -62,7 +106,7 @@ sub quit {
 sub broadcast {
     my ( $self, $msg ) = @_;
     for my $p ( values %{ $self->{player} } ) {
-        $p->{sock}->send($msg);
+        $p->send($msg);
     } }
 
 package Lobby;
