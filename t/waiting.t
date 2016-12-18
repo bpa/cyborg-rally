@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use CyborgTest;
-use Data::Dumper;
 
 my $p1 = Player('1');
 my $p2 = Player('2');

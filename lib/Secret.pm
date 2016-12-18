@@ -1,5 +1,7 @@
 package Secret;
 
+use strict;
+use warnings;
 use FindBin '$Bin';
 use File::Slurp;
 

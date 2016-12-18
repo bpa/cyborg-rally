@@ -1,5 +1,7 @@
 package Cyborg;
 
+use strict;
+use warnings;
 use JSON;
 
 my $json = JSON->new;

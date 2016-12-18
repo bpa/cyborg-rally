@@ -1,5 +1,7 @@
 package Deck;
 
+use strict;
+use warnings;
 use List::Util;
 
 sub new {

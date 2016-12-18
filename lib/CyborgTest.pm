@@ -1,26 +1,45 @@
 package CyborgTest;
 
+use strict;
+use warnings;
 use Test::More;
 use Test::Deep;
 
 require Exporter;
-@ISA    = 'Exporter';
-@EXPORT = qw/done Player/;
+our @ISA    = 'Exporter';
+our @EXPORT = qw/done Player Game/;
 
 use CyborgRally;
+use JSON::XS;
 
+my $json = JSON::XS->new;
 my $rally = CyborgRally->new;
 my %player;
 
+undef &Game::broadcast;
 *Game::broadcast = sub {
     my ( $self, $msg ) = @_;
-    push @{ $self->{packets} }, $msg;
+    push @{ $self->{packets} }, $json->decode( $json->encode($msg) );
 };
 
 sub Player {
     my $name = shift;
     return $player{$name} if defined $player{$name};
     $player{$name} = TestPlayer->new($name);
+}
+
+sub Game {
+    my ($opts, $players) = @_;
+    $players ||= 2;
+    my @ret = $rally->{game}{test} = Rally->new($opts);
+    for my $n (1 .. $players) {
+        my $p = Player($n);
+        $p->join('test');
+        push @ret, $p;
+    }
+    $ret[0]->set_state('SETUP');
+    $ret[0]->update;
+    return @ret;
 }
 
 sub done {
@@ -32,12 +51,8 @@ sub done {
 
 package TestPlayer;
 
-use Data::Dumper;
 use Test::More;
 use Test::Deep ':all';
-use JSON::XS;
-
-my $json = JSON::XS->new;
 
 sub new {
     my ( $pkg, $name ) = @_;
@@ -50,7 +65,7 @@ sub new {
 sub drop_packets {
     my $self = shift;
     $self->{game}{packets} = [];
-    map { $_->{packets} = [] } values %{ $p->{game}{player} };
+    map { $_->{packets} = [] } values %{ $self->{game}{player} };
 }
 
 sub create {

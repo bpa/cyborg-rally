@@ -1,5 +1,8 @@
 package TcpSock;
 
+use strict;
+use warnings;
+
 sub new {
     my ( $pkg, $fh ) = @_;
     bless { fh => $fh }, $pkg;

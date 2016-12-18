@@ -1,5 +1,8 @@
 package State;
 
+use strict;
+use warnings;
+
 sub new {
     my ($pkg) = @_;
     my $self = bless { name => ( split( /::/, $pkg ) )[-1] }, shift;

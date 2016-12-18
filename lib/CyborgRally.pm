@@ -2,7 +2,6 @@ package CyborgRally;
 
 use strict;
 use warnings;
-use Data::Dumper;
 use Data::UUID;
 
 my $uuid = Data::UUID->new;
@@ -117,7 +116,7 @@ sub do_set_name {
     return if $msg->{name} eq $c->{name};
 
     my $g = $c->{game};
-    $g->rename( $c, $msg->{name} ) if $g;
+    $g->on_rename( $c, $msg->{name} ) if $g;
     $c->{name} = $msg->{name};
 }
 

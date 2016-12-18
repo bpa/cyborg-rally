@@ -1,5 +1,7 @@
 package Lobby;
 
-use parent Game;
+use strict;
+use warnings;
+use parent 'Game';
 
 1;

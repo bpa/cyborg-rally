@@ -1,5 +1,7 @@
 package State::Waiting;
 
+use strict;
+use warnings;
 use parent 'State';
 use Deck::Options;
 use Deck::Movement;
@@ -24,12 +26,6 @@ sub do_not_ready {
     my ($self, $c, $game, $msg) = @_;
     $c->{public}{ready} = 0;
     $game->broadcast({ cmd => 'not_ready', player => $c->{id} });
-}
-
-sub on_exit {
-    my ($self, $game) = @_;
-    $game->{options} = Deck::Options->new;
-    $game->{movement} = Deck::Movement->new(scalar(%{$game->{player}}));
 }
 
 1;

@@ -1,6 +1,7 @@
 package Game;
 
-use Data::Dumper;
+use strict;
+use warnings;
 use Data::UUID;
 use Carp;
 use State;
@@ -18,7 +19,8 @@ sub new {
         private => { player => {} },
         public  => { player => {} },
         states  => { INITIAL => State->new },
-        state   => State->new, },
+        state   => State->new,
+      },
       shift;
     $self->BUILD($opts) if $self->can('BUILD');
     $self->set_state('INITIAL');
@@ -40,7 +42,7 @@ sub join {
     }
 
     if ($new_player) {
-        $self->{public}{player}{$id} = { id => $id, name => $c->{name} };
+        $self->{public}{player}{$id} = { name => $c->{name} };
         $self->{private}{player}{$id} = {};
     }
 
@@ -58,20 +60,22 @@ sub join {
             game    => $self->{game},
             name    => $self->{name},
             public  => $self->{public},
-            private => $c->{private} } );
+            private => $c->{private}
+        }
+    );
 
     if ($new_player) {
         $self->broadcast(
-            { cmd => 'join', uuid => $p->{uuid}, public => $c->{public} } );
+            { cmd => 'join', id => $c->{id}, player => $c->{public} } );
     }
 
 }
 
-sub rename {
+sub on_rename {
     my ( $self, $c, $name ) = @_;
-    my $p = $self->{player}{ $c->{uuid} };
+    $c->{public}{name} = $name;
     $self->broadcast(
-        { cmd => 'set_name', uuid => $p->{uuid}, name => $name } );
+        { cmd => 'set_name', id => $c->{id}, name => $name } );
 }
 
 sub set_state {
@@ -82,17 +86,19 @@ sub set_state {
     }
     else {
         carp "Unknown state '$state', options are: "
-          . join( ", ", keys %{ $self->{states} } );
-    } }
+          . CORE::join( ", ", keys %{ $self->{states} } );
+    }
+}
 
 sub update {
     my $self = shift;
-    if ( my $next = delete $self->{next_state} ) {
+    while ( my $next = delete $self->{next_state} ) {
         $self->{state}->on_exit($self);
         $self->{state} = $next;
         $self->broadcast( { cmd => 'state', state => $next->{name} } );
         $next->on_enter($self);
-    } }
+    }
+}
 
 sub quit {
     my ( $self, $c ) = @_;
@@ -107,10 +113,11 @@ sub broadcast {
     my ( $self, $msg ) = @_;
     for my $p ( values %{ $self->{player} } ) {
         $p->send($msg);
-    } }
+    }
+}
 
 package Lobby;
 
-use parent Game;
+use parent 'Game';
 
 1;
