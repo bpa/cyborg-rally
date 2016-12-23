@@ -12,7 +12,13 @@ sub new {
 }
 
 sub send {
-    my ( $self, $msg ) = @_;
+    my ( $self, $cmd, $msg ) = @_;
+    if ( ref($cmd) eq 'HASH') {
+        $msg = $cmd;
+    }
+    else {
+        $msg->{cmd} = $cmd;
+    }
     $self->{sock}->send( $json->encode($msg) );
 }
 

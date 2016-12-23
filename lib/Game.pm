@@ -2,6 +2,7 @@ package Game;
 
 use strict;
 use warnings;
+use AnyEvent;
 use Data::UUID;
 use Carp;
 use State;
@@ -88,6 +89,14 @@ sub set_state {
         carp "Unknown state '$state', options are: "
           . CORE::join( ", ", keys %{ $self->{states} } );
     }
+}
+
+sub timer {
+    my ($self, $delay, $f, @args) = @_;
+    return AE::timer $delay, 0, sub {
+        $f->(@args);
+        $self->update;
+    };
 }
 
 sub update {

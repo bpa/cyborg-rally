@@ -18,7 +18,13 @@ my %player;
 
 undef &Game::broadcast;
 *Game::broadcast = sub {
-    my ( $self, $msg ) = @_;
+    my ( $self, $cmd, $msg ) = @_;
+    if ( ref($cmd) eq 'HASH') {
+        $msg = $cmd;
+    }
+    else {
+        $msg->{cmd} = $cmd;
+    }
     push @{ $self->{packets} }, $json->decode( $json->encode($msg) );
 };
 

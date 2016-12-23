@@ -195,6 +195,7 @@ class CreateGame extends React.Component {
             express_conveyors: true,
             pushers: false,
             gears: true,
+            start_with_4_lives: false,
             start_with_2_damage: false,
             choose_1_of_3_options: false,
             start_with_option: false,
@@ -258,6 +259,7 @@ class CreateGame extends React.Component {
     </Card>
 	<Card>
         <Heading>Special Rules</Heading>
+	    <Checkbox theme="success" name="4" label="All robots start with 4 Lives" checked={this.state.start_with_4_lives} onClick={this.check.bind(this, 'start_with_4_lives')} readOnly/>
 	    <Checkbox theme="success" name="2" label="All robots start with 2 Damage" checked={this.state.start_with_2_damage} onClick={this.check.bind(this, 'start_with_2_damage')} readOnly/>
 	    <Checkbox theme="success" name="1" label="All robots start with one option" checked={this.state.start_with_option} onClick={this.check.bind(this, 'start_with_option')} readOnly/>
 	    <Checkbox theme="success" name="3" label="All robots choose from one of three options" checked={this.state.choose_1_of_3_options} onClick={this.check.bind(this, 'choose_1_of_3_options')} readOnly/>

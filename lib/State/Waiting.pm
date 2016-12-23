@@ -15,7 +15,7 @@ sub do_ready {
     my $ready = grep { $_->{public}{ready} } values %{$game->{player}};
 
     if ($players > 1 && $players == $ready) {
-        $game->set_state('CHOOSE');
+        $game->set_state('SETUP');
     }
     else {
         $game->broadcast({ cmd => 'ready', player => $c->{id} });
