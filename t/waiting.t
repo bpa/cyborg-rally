@@ -6,11 +6,6 @@ use CyborgTest;
 my $p1 = Player('1');
 my $p2 = Player('2');
 
-subtest 'order is random' => sub {
-    #TODO
-    done;
-};
-
 subtest 'need at least two players' => sub {
     my $rally = $p1->create( 'test', {} );
     is( ref( $rally->{state} ), 'State::Waiting' );

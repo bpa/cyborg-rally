@@ -2,10 +2,22 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep ':all';
+use State::Setup;
 use CyborgTest;
 
 my $p1 = Player('1');
 my $p2 = Player('2');
+
+subtest 'order is random' => sub {
+    my ( $rally, @p ) = Game( {}, 8 );
+    my @o;
+    for ( 1 .. 3 ) { #Three times should be enough
+        State::Setup::on_enter($rally->{state}{SETUP}, $rally);
+        push @o, join('', map { $_->{public}{dock} } @p);
+    }
+    ok( $o[0] ne $o[1] && $o[0] ne $o[2] && $o[1] ne $o[2] );
+    done;
+};
 
 subtest 'No game options' => sub {
     my ( $rally, @p ) = Game( {} );
@@ -27,7 +39,7 @@ subtest 'No game options' => sub {
         is( @{ $p->{public}{options} }, 0, 'No options by default' );
         is( @{ $p->{private}{cards} },  9, 'Got cards' );
     }
-    done();
+    done;
 };
 
 subtest 'Start with 4 lives' => sub {
@@ -35,7 +47,7 @@ subtest 'Start with 4 lives' => sub {
     for my $p (@p) {
         is( $p->{public}{lives},  4 );
     }
-    done();
+    done;
 };
 
 subtest 'Start with 2 damage' => sub {
@@ -50,7 +62,7 @@ subtest 'Start with 2 damage' => sub {
         is( @{ $p->{private}{cards} }, 7,
             'Got less cards because of damage' );
     }
-    done();
+    done;
 };
 
 subtest 'Start with option' => sub {
@@ -64,7 +76,7 @@ subtest 'Start with option' => sub {
         is( @{ $p->{public}{options} }, 1, 'Start with an option card' );
         is( @{ $p->{private}{cards} },  9, 'Got cards' );
     }
-    done();
+    done;
 };
 
 subtest 'Choose 1 of 3 options' => sub {
@@ -78,7 +90,7 @@ subtest 'Choose 1 of 3 options' => sub {
         is( @{ $p->{private}{options} }, 3, 'Start with 3 private options' );
         is( @{ $p->{private}{cards} },   0, 'No cards yet' );
     }
-    done();
+    done;
 };
 
 done_testing();

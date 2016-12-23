@@ -3,7 +3,7 @@ package State::Setup;
 use strict;
 use warnings;
 use parent 'State';
-use List::Util;
+use List::Util 'shuffle';
 
 sub on_enter {
     my ( $self, $game ) = @_;
@@ -11,7 +11,9 @@ sub on_enter {
     $game->{options}->shuffle;
     $game->{movement}
       = Deck::Movement->new( scalar( keys %{ $game->{player} } ) );
-    for my $p ( values %{ $game->{player} } ) {
+    my $dock = 1;
+    for my $p ( shuffle values %{ $game->{player} } ) {
+        $p->{public}{dock}    = $dock++;
         $p->{public}{lives}   = $game->{opts}{start_with_4_lives} ? 4 : 3;
         $p->{public}{memory}  = 9;
         $p->{public}{damage}  = $game->{opts}{start_with_2_damage} ? 2 : 0;
