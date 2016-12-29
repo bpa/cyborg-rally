@@ -53,7 +53,9 @@ sub do_create_game {
     $self->{lobby}->broadcast(
         {   cmd  => 'create_game',
             name => $msg->{name},
-            opts => $g->{opts} } );
+            opts => $g->{opts}
+        }
+    );
 }
 
 sub do_games {
@@ -63,7 +65,8 @@ sub do_games {
         push @games,
           { name    => $k,
             players => scalar( %{ $g->{player} } ),
-            opts    => $g->{opts} };
+            opts    => $g->{opts}
+          };
     }
     $c->send( { cmd => 'games', games => \@games } );
 }
@@ -99,7 +102,8 @@ sub do_login {
             $self->{cyborg}{$token} = $c;
             $c->{game}->join($c);
             return;
-        } }
+        }
+    }
 
     $c->{uuid} = $token = $uuid->create_str();
     $self->{cyborg}{$token} = $c;

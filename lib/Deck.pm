@@ -2,8 +2,8 @@ package Deck;
 
 use strict;
 use warnings;
-use List::Util;
-use List::MoreUtils;
+use List::Util 'any';
+use List::MoreUtils 'firstidx';
 
 sub new {
     my $pkg   = shift;
@@ -14,16 +14,26 @@ sub new {
     return $self;
 }
 
+sub TO_JSON {
+    my $self = shift;
+    return $self->{cards};
+}
+
 sub contains {
-    my ($self, $card) = @_;
-    return any { $_->{name} eq $card->{name} } @{$self->{cards}};
+    my ( $self, $card ) = @_;
+    return any { $_ eq $card } @{ $self->{cards} };
+}
+
+sub count {
+    my $self = shift;
+    return scalar( @{ $self->{cards} } );
 }
 
 sub remove {
-    my ($self, $name) = @_;
-    my $idx = firstidx { $_->{name} eq $name } @{$self->{cards}};
-    if ($idx) {
-        return splice @{$self->{cards}}, $idx;
+    my ( $self, $card ) = @_;
+    my $idx = firstidx { $_ eq $card } @{ $self->{cards} };
+    if ($idx != -1) {
+        return splice @{ $self->{cards} }, $idx, 1;
     }
     return;
 }

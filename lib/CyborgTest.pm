@@ -10,16 +10,15 @@ our @ISA    = 'Exporter';
 our @EXPORT = qw/done Player Game/;
 
 use CyborgRally;
-use JSON::XS;
+use JSON;
 
-my $json = JSON::XS->new;
+my $json  = JSON->new->convert_blessed;
 my $rally = CyborgRally->new;
-my %player;
 
 undef &Game::broadcast;
 *Game::broadcast = sub {
     my ( $self, $cmd, $msg ) = @_;
-    if ( ref($cmd) eq 'HASH') {
+    if ( ref($cmd) eq 'HASH' ) {
         $msg = $cmd;
     }
     else {
@@ -28,18 +27,19 @@ undef &Game::broadcast;
     push @{ $self->{packets} }, $json->decode( $json->encode($msg) );
 };
 
-sub Player {
-    my $name = shift;
-    return $player{$name} if defined $player{$name};
-    $player{$name} = TestPlayer->new($name);
-}
+*Game::drop_packets = sub {
+    my $self = shift;
+    $self->{packets} = [];
+    map { $_->{packets} = [] } values %{ $self->{player} };
+};
 
 sub Game {
-    my ($opts, $players) = @_;
+    my ( $opts, $players ) = @_;
+    $opts->{name} = 'test';
     $players ||= 2;
     my @ret = $rally->{game}{test} = Rally->new($opts);
-    for my $n (1 .. $players) {
-        my $p = Player($n);
+    for my $n ( 1 .. $players ) {
+        my $p = TestPlayer->new($n);
         $p->join('test');
         push @ret, $p;
     }
@@ -48,23 +48,36 @@ sub Game {
     return @ret;
 }
 
+sub Player {
+    my ($pkg, $name) = @_;
+    return TestPlayer->new($name);
+}
+
 sub done {
-    map { $rally->do_quit($_) } values %player;
-    map { $_->{packets} = [] } values %player;
-    $rally->{game} = {};
-    done_testing();
+    for my $p ( values %{ $rally->{game}{test}{player} } ) {
+        $rally->do_quit($p);
+        undef $p->{game};
+        undef $p->{public};
+        undef $p->{private};
+    }
+    $rally->{game}   = {};
+    $rally->{cyborg} = {};
+    done_testing;
 }
 
 package TestPlayer;
 
+use strict;
+use warnings;
 use Test::More;
 use Test::Deep ':all';
+use Data::Dumper;
 
 sub new {
     my ( $pkg, $name ) = @_;
     my $self = bless { packets => [], }, $pkg;
     $rally->on_message( $self, { cmd => 'login', name => $name } );
-    $self->drop_packets;
+    $self->{packets} = [];
     return $self;
 }
 
@@ -83,7 +96,7 @@ sub create {
 
 sub join {
     my ( $self, $game ) = @_;
-    $rally->on_message( $self, { cmd => 'join', name => $game } );
+    $rally->{game}{$game}->join( $self, { cmd => 'join', name => $game } );
 }
 
 sub game {
@@ -104,19 +117,27 @@ sub broadcast {
         $comment = pop @_;
     }
     $rally->on_message( $self, $msg );
+    if ($comment && $comment =~ /DEBUG/) {
+        print STDERR Data::Dumper->Dump([$self->{game}{packets}, $self->{packets}], ['Game', 'Player']);
+    }
     cmp_deeply( $self->{game}{packets}, \@_, $comment );
     $self->{game}{packets} = [];
 }
 
 sub send {
-    my ( $self, $msg ) = @_;
+    my ( $self, $cmd, $msg ) = @_;
+    if ( ref($cmd) eq '') {
+        $msg->{cmd} = $cmd;
+    }
+    else {
+        $msg = $cmd;
+    }
     push @{ $self->{packets} }, $json->decode( $json->encode($msg) );
 }
 
 sub err {
     my ( $self, $msg ) = @_;
-    print STDERR "ERROR: $msg\n";
-    $self->send( { cmd => 'error', msg => $msg } );
+    $self->send( { cmd => 'error', reason => $msg } );
 }
 
 1;

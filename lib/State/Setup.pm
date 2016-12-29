@@ -5,6 +5,10 @@ use warnings;
 use parent 'State';
 use List::Util 'shuffle';
 
+# Don't have this be a constant because we need a new copy of each empty program
+sub EMPTY { return { damaged => 0, program => [] } }
+use constant CLEAN => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ];
+
 sub on_enter {
     my ( $self, $game ) = @_;
     $game->{options} = Deck::Options->new;
@@ -13,12 +17,13 @@ sub on_enter {
       = Deck::Movement->new( scalar( keys %{ $game->{player} } ) );
     my $dock = 1;
     for my $p ( shuffle values %{ $game->{player} } ) {
-        $p->{public}{dock}    = $dock++;
-        $p->{public}{lives}   = $game->{opts}{start_with_4_lives} ? 4 : 3;
-        $p->{public}{memory}  = 9;
-        $p->{public}{damage}  = $game->{opts}{start_with_2_damage} ? 2 : 0;
-        $p->{public}{options} = [];
-        $p->{private}{cards}  = [];
+        $p->{public}{dock}      = $dock++;
+        $p->{public}{lives}     = $game->{opts}{start_with_4_lives} ? 4 : 3;
+        $p->{public}{memory}    = 9;
+        $p->{public}{damage}    = $game->{opts}{start_with_2_damage} ? 2 : 0;
+        $p->{public}{options}   = [];
+        $p->{public}{registers} = CLEAN;
+        $p->{private}{cards}    = [];
         if ( $game->{opts}{start_with_option} ) {
             push @{ $p->{public}{options} }, $game->{options}->deal;
         }

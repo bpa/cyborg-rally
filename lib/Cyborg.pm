@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use JSON;
 
-my $json = JSON->new;
+my $json = JSON->new->convert_blessed;
 
 sub new {
     my ( $pkg, $c ) = @_;
@@ -13,18 +13,18 @@ sub new {
 
 sub send {
     my ( $self, $cmd, $msg ) = @_;
-    if ( ref($cmd) eq 'HASH') {
-        $msg = $cmd;
+    if ( ref($cmd) eq '') {
+        $msg->{cmd} = $cmd;
     }
     else {
-        $msg->{cmd} = $cmd;
+        $msg = $cmd;
     }
     $self->{sock}->send( $json->encode($msg) );
 }
 
 sub err {
     my ( $self, $msg ) = @_;
-    $self->send( { cmd => 'error', msg => $msg } );
+    $self->send( { cmd => 'error', reason => $msg } );
 }
 
 1;

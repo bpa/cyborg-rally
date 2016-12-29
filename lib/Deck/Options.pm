@@ -2,19 +2,20 @@ package Deck::Options;
 
 use strict;
 use warnings;
+use Option;
 use parent 'Deck';
 
 my @cards;
 while (<DATA>) {
     chomp;
-    my ($name, $text) = split /:/, $_, 2;
-    push @cards, { name => $name, text => $text };
+    my ( $name, $text ) = split /:/, $_, 2;
+    push @cards, Option->new( { name => $name, text => $text } );
 }
 
 sub generate_cards {
-	my $self = shift;
+    my $self = shift;
     my @copy = @cards;
-	return \@copy;
+    return \@copy;
 }
 
 1;

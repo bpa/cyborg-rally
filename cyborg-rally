@@ -14,7 +14,7 @@ use TcpSock;
 use AnyEvent::Handle;
 use AnyEvent::Socket;
 
-my $json = JSON->new;
+my $json = JSON->new->convert_blessed;
 my $null = NullSock->new;
 my $game = CyborgRally->new;
 

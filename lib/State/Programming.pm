@@ -2,9 +2,19 @@ package State::Programming;
 
 use strict;
 use warnings;
-use List::MoreUtils;
+use Card;
+use Deck;
+use List::MoreUtils 'false';
+use Data::Dumper;
 
 use parent 'State';
+
+use constant NOP => {
+    damaged => 0,
+    program =>
+      [ Card->new( { name => '0', priority => 0, number => 1, total => 1 } ) ]
+};
+use constant DEAD => [ NOP, NOP, NOP, NOP, NOP ];
 
 sub on_enter {
     my ( $self, $game ) = @_;
@@ -13,20 +23,26 @@ sub on_enter {
         if ( $p->{public}{lives} > 0 && !$p->{public}{shutdown} ) {
             $p->{public}{ready} = 0;
             my $cards = $p->{public}{memory} - $p->{public}{damage};
-            $p->{private}{cards} = [ $game->{movement}->deal($cards) ];
+            $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
+            map { $_->{program} = [] unless $_ && $_->{damaged} }
+              @{ $p->{public}{registers} };
+            $p->{private}{registers} = [ @{ $p->{public}{registers} } ];
+            $p->send( { cmd => 'programming', cards => $p->{private}{cards} } );
         }
         else {
-            $p->{public}{ready}  = 1;
-            $p->{private}{cards} = [];
+            $p->{public}{ready}      = 1;
+            $p->{private}{registers} = DEAD;
+            $p->send( { cmd => 'programming' } );
         }
-        $p->send( { cmd => 'programming', cards => $p->{private}{cards} } );
     }
 
     if ( $game->{opts}{timer} eq '30s' ) {
-        $self->{timer} = $game->timer( 30, &Game::change_state, $game, 'ANNOUNCE' );
+        $self->{timer}
+          = $game->timer( 30, \&Game::change_state, $game, 'ANNOUNCE' );
     }
     elsif ( $game->{opts}{timer} eq '1m' ) {
-        $self->{timer} = $game->timer( 60, &Game::change_state, $game, 'ANNOUNCE' );
+        $self->{timer}
+          = $game->timer( 60, \&Game::change_state, $game, 'ANNOUNCE' );
     }
 }
 
@@ -47,7 +63,7 @@ sub do_program {
     for my $i ( 0 .. $#{ $msg->{registers} } ) {
         my $r = $msg->{registers}[$i];
         if (   ref($r) ne 'ARRAY'
-            || locked_but_not_matching( $i, $r, $c )
+            || locked_but_not_matching( $i, $r, $c->{public}{registers} )
             || @$r > 1 )
         {
             $c->err("Invalid program");
@@ -56,29 +72,37 @@ sub do_program {
         push @cards, @$r unless $c->{public}{registers}[$i]{damaged};
     }
 
-    for my $c (@cards) {
-        unless ( $c->{private}{cards}->contains($c) ) {
+    for my $card (@cards) {
+        unless ( $c->{private}{cards}->contains($card) ) {
             $c->err("Invalid card");
             return;
         }
     }
 
-    $c->{private}{registers} = $msg->{registers};
-    $c->send( program => { registers => $msg->{registers} } );
-};
+    for my $i ( 0 .. 4 ) {
+        my $r = $c->{private}{registers}[$i];
+        next if $r->{damaged};
+
+        if ( $msg->{registers}[$i] ) {
+            $r->{program} = $msg->{registers}[$i];
+        }
+        else {
+            $r->{program} = [];
+        }
+    }
+    $c->send( program => { registers => $c->{private}{registers} } );
+}
 
 sub do_ready {
     my ( $self, $c, $game, $msg ) = @_;
 
-    if ( grep ( @$_ > 0, @{ $c->{private}{registers} } ) != 5 ) {
+    if ( false { @{ $_->{program} } } @{ $c->{private}{registers} } ) {
         $c->err('Programming incomplete');
         return;
     }
 
     $c->{public}{ready} = 1;
     $game->broadcast( ready => { player => $c->{id} } );
-    $game->change_state('ANNOUNCING')
-      unless grep { !$_->{public}{ready} } values %{ $game->{players} };
 
     my $not_ready = false { $_->{public}{ready} } values %{ $game->{player} };
     if ( $not_ready == 0 ) {
@@ -89,19 +113,20 @@ sub do_ready {
     return if $self->{timer};
 
     if ( $game->{opts}{timer} eq '1st+30s' || $not_ready == 1 ) {
-        $self->{timer} = $game->timer( 30, &Game::change_state, $game, 'ANNOUNCE' );
+        $self->{timer} = $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
     }
 }
 
 sub locked_but_not_matching {
-    my ( $i, $register, $c ) = @_;
-    return unless $c->{public}{registers}[$i]{damaged};
+    my ( $i, $card, $registers ) = @_;
 
-    my $locked = $c->{public}{registers}[$i]{program};
+    return unless $registers->[$i]{damaged};
 
-    return 1 unless @$register == @$locked;
-    for my $j ( 0 .. $#$register ) {
-        return 1 unless $register->[$j] eq $locked->[$j];
+    my $locked = $registers->[$i]{program};
+
+    return 1 unless @$card == @$locked;
+    for my $j ( 0 .. $#$card ) {
+        return 1 unless $card->[$j] eq $locked->[$j];
     }
 
     return;
@@ -110,27 +135,18 @@ sub locked_but_not_matching {
 sub on_exit {
     my ( $self, $game ) = @_;
     undef $self->{timer};
-    for my $p ( values %{ $game->{players} } ) {
+    for my $p ( values %{ $game->{player} } ) {
+        my $cards = delete $p->{private}{cards};
+
         next if $p->{ready};
 
-        my $cards = Deck->new( $p->{private}{cards}->values );
+        $cards->shuffle;
+        my $registers = delete $p->{private}{registers};
         for my $i ( 0 .. 4 ) {
-            $cards->remove( $p->{private}{registers}[$i] )
-              unless $p->{public}{registers}[$i]{damaged};
-        }
-
-        my @available = shuffle $cards->values;
-        for my $i ( 0 .. 4 ) {
-            $p->{private}{registers}[$i] ||= [];
-            my $r = $p->{private}{registers}[$i];
-            if ( @$r == 0 ) {
-                if ( $p->{public}{registers}[$i]{damaged} ) {
-                    push @$r, @{ $p->{public}{registers}[$i]{program} };
-                }
-                else {
-                    push @$r, shift @available;
-                }
-            }
+            my $r = $registers->[$i];
+            map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
+            $r->{program}[0] = $cards->deal unless @{$r->{program}};
+            $p->{public}{registers}[$i]{program} = $r->{program};
         }
     }
 }
