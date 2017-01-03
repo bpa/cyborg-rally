@@ -3,7 +3,6 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use Data::Dumper;
 
 use constant FULL => {
     damaged => ignore,

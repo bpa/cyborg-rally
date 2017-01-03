@@ -5,7 +5,6 @@ use warnings;
 use Card;
 use Deck;
 use List::MoreUtils 'false';
-use Data::Dumper;
 
 use parent 'State';
 
