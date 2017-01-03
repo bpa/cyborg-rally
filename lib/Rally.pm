@@ -6,6 +6,7 @@ use parent 'Game';
 use State::Announcing;
 use State::BoardElements;
 use State::Cleanup;
+use State::Executing;
 use State::Firing;
 use State::Movement;
 use State::Programming;
@@ -32,6 +33,7 @@ sub BUILD {
         SETUP    => State::Setup->new,
         PROGRAM  => State::Programming->new,
         ANNOUNCE => State::Announcing->new,
+        EXECUTE  => State::Executing->new,
         MOVE     => State::Movement->new,
         BOARD    => State::BoardElements->new,
         FIRE     => State::Firing->new,
