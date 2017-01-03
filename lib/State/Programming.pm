@@ -29,8 +29,10 @@ sub on_enter {
             $p->send( { cmd => 'programming', cards => $p->{private}{cards} } );
         }
         else {
-            $p->{public}{ready}      = 1;
-            $p->{private}{registers} = DEAD;
+            $p->{public}{ready}     = 1;
+            $p->{public}{damage}    = 0;
+            $p->{public}{shutdown}  = '';
+            $p->{public}{registers} = DEAD;
             $p->send( { cmd => 'programming' } );
         }
     }
@@ -135,16 +137,16 @@ sub on_exit {
     my ( $self, $game ) = @_;
     undef $self->{timer};
     for my $p ( values %{ $game->{player} } ) {
-        my $cards = delete $p->{private}{cards};
-
-        next if $p->{ready};
+        my $cards     = delete $p->{private}{cards};
+        my $registers = delete $p->{private}{registers};
+        my $ready     = delete $p->{public}{ready};
+        return if $ready;
 
         $cards->shuffle;
-        my $registers = delete $p->{private}{registers};
         for my $i ( 0 .. 4 ) {
             my $r = $registers->[$i];
             map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
-            $r->{program}[0] = $cards->deal unless @{$r->{program}};
+            $r->{program}[0] = $cards->deal unless @{ $r->{program} };
             $p->{public}{registers}[$i]{program} = $r->{program};
         }
     }

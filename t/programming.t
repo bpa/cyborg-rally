@@ -189,7 +189,8 @@ subtest 'dead' => sub {
     $dead->{public}{lives} = 0;
     $rally->{state}->on_enter($rally);
 
-    cmp_deeply( $dead->{private}{registers}, State::Programming::DEAD );
+    cmp_deeply( $dead->{public}{registers}, State::Programming::DEAD );
+    cmp_deeply( $dead->{public}{ready}, 1 );
     cmp_deeply( $dead->{packets}, [ { cmd => 'programming' } ] );
 
     cmp_deeply( $alive->{private}{registers}, State::Setup::CLEAN );
@@ -258,6 +259,47 @@ subtest 'time up with locked' => sub {
     cmp_deeply( $p2->{public}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
     cmp_deeply( $p1->{public}{registers}[4], reg( 1, $d1 ) );
     cmp_deeply( $p2->{public}{registers}[2], reg( 1, $d2 ) );
+
+    done;
+};
+
+subtest 'powered down' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{state}->on_exit($rally);
+
+    $p1->{public}{shutdown}  = 1;
+    $p1->{public}{damage}    = 5;
+    $p1->{public}{registers} = [
+        { damaged => 0, program => ['3330'] },
+        { damaged => 0, program => ['2100'] },
+        { damaged => 0, program => ['r40'] },
+        { damaged => 0, program => ['l80'] },
+        { damaged => 1, program => ['u20'] }
+    ];
+    $p2->{public}{damage} = 2;
+
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+
+    cmp_deeply( $p1->{public}{ready}, 1 );
+    cmp_deeply( $p1->{public}{registers}, State::Programming::DEAD, 'Registers filled with NOP' );
+    ok( !exists($p1->{private}{registers}), 'private registers not defined' );
+    is( $p1->{public}{damage}, 0, 'Damage cleared' );
+    is( $p1->{public}{shutdown}, '', 'Shutdown cleared' );
+
+    cmp_deeply( $p1->{packets}, [ { cmd => 'programming' } ] );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'programming', cards => cnt(7) } ] );
+    cmp_deeply( $p2->{private}{registers}, State::Setup::CLEAN );
+    is( $p2->{public}{damage}, 2, 'Player 2 not affected by p1 shutdown' ); 
+
+    $rally->{state}->on_exit($rally);
+    cmp_deeply( $p1->{public}{registers}, State::Programming::DEAD, 'Leave NOP registers alone on exit' );
+
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+
+    cmp_deeply( $p1->{private}{registers}, State::Setup::CLEAN );
+    cmp_deeply( $p1->{packets}, [ { cmd => 'programming', cards => cnt(9) } ] );
 
     done;
 };
