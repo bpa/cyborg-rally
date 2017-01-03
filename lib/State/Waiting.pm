@@ -7,7 +7,7 @@ use Deck::Options;
 use Deck::Movement;
 
 sub do_ready {
-    my ($self, $c, $game, $msg) = @_;
+    my ($self, $game, $c, $msg) = @_;
 
     $c->{public}{ready} = 1;
 
@@ -23,7 +23,7 @@ sub do_ready {
 }
 
 sub do_not_ready {
-    my ($self, $c, $game, $msg) = @_;
+    my ($self, $game, $c, $msg) = @_;
     $c->{public}{ready} = 0;
     $game->broadcast({ cmd => 'not_ready', player => $c->{id} });
 }

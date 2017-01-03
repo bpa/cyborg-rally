@@ -13,7 +13,7 @@ sub on_enter {
 }
 
 sub do_shutdown {
-    my ( $self, $c, $game, $msg ) = @_;
+    my ( $self, $game, $c, $msg ) = @_;
     $c->{public}{shutdown} = !!$msg->{activate};
     if ( all { exists $_->{public}{shutdown} } values %{ $game->{player} } ) {
         $game->set_state('MOVE');

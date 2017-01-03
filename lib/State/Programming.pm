@@ -48,7 +48,7 @@ sub on_enter {
 }
 
 sub do_program {
-    my ( $self, $c, $game, $msg ) = @_;
+    my ( $self, $game, $c, $msg ) = @_;
 
     if ( $c->{public}{ready} ) {
         $c->err('Registers are already programmed');
@@ -95,7 +95,7 @@ sub do_program {
 }
 
 sub do_ready {
-    my ( $self, $c, $game, $msg ) = @_;
+    my ( $self, $game, $c, $msg ) = @_;
 
     if ( false { @{ $_->{program} } } @{ $c->{private}{registers} } ) {
         $c->err('Programming incomplete');

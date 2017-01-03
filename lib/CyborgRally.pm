@@ -30,7 +30,7 @@ sub on_message {
     my $g     = $c->{game};
 
     if ($g) {
-        $g->{state}->$f( $c, $g, $msg ) if $g->{state}->can($f);
+        $g->{state}->$f( $g, $c, $msg ) if $g->{state}->can($f);
         $g->$f( $c, $msg ) if $g->can($f);
         $g->update;
     }

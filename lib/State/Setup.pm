@@ -40,7 +40,7 @@ sub on_enter {
 }
 
 sub do_choose {
-    my ( $self, $c, $game, $msg ) = @_;
+    my ( $self, $game, $c, $msg ) = @_;
     if ( !$c->{private}{options} ) {
         $c->err("Already chose option");
         return;
