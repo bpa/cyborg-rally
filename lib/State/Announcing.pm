@@ -9,14 +9,14 @@ use AnyEvent;
 sub on_enter {
     my ( $self, $game ) = @_;
     $game->broadcast( { cmd => 'time', limit => '10s' } );
-    $self->{timer} = $game->timer( 10, \&Game::change_state, $game, 'EXECUTE' );
+    $self->{timer} = $game->timer( 10, \&Game::change_state, $game, 'MOVE' );
 }
 
 sub do_shutdown {
     my ( $self, $c, $game, $msg ) = @_;
     $c->{public}{shutdown} = !!$msg->{activate};
     if ( all { exists $_->{public}{shutdown} } values %{ $game->{player} } ) {
-        $game->set_state('EXECUTE');
+        $game->set_state('MOVE');
     }
 }
 

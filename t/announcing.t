@@ -32,7 +32,7 @@ subtest 'want shutdown' => sub {
     $p1->game( { cmd => 'shutdown', activate => 0 } );
     is( ref( $rally->{state} ), 'State::Announcing' );
     $p2->game( { cmd => 'shutdown', activate => 1 } );
-    is( ref( $rally->{state} ), 'State::Executing' );
+    is( ref( $rally->{state} ), 'State::Movement' );
 
     is( $p1->{public}{shutdown}, '' );
     is( $p2->{public}{shutdown}, 1 );
@@ -49,7 +49,7 @@ subtest 'no shutdown' => sub {
     $p1->game( { cmd => 'shutdown', activate => 0 } );
     $p2->game( { cmd => 'shutdown', activate => 0 } );
 
-    is( ref( $rally->{state} ), 'State::Executing' );
+    is( ref( $rally->{state} ), 'State::Movement' );
     is( $p1->{public}{shutdown}, '' );
     is( $p2->{public}{shutdown}, '' );
 

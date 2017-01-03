@@ -4,10 +4,13 @@ use strict;
 use warnings;
 use parent 'Game';
 use State::Announcing;
-use State::Programming;
+use State::BoardElements;
 use State::Cleanup;
-use State::Executing;
+use State::Firing;
+use State::Movement;
+use State::Programming;
 use State::Setup;
+use State::Touching;
 use State::Waiting;
 
 sub BUILD {
@@ -29,7 +32,10 @@ sub BUILD {
         SETUP    => State::Setup->new,
         PROGRAM  => State::Programming->new,
         ANNOUNCE => State::Announcing->new,
-        EXECUTE  => State::Executing->new,
+        MOVE     => State::Movement->new,
+        BOARD    => State::BoardElements->new,
+        FIRE     => State::Firing->new,
+        TOUCH    => State::Touching->new,
         CLEANUP  => State::Cleanup->new,
     };
 }

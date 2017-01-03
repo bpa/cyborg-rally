@@ -1,4 +1,4 @@
-package State::Executing;
+package State::Movement;
 
 use strict;
 use warnings;
