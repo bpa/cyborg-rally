@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use parent 'Game';
 use State::Announcing;
-use State::BoardElements;
+use State::Board;
 use State::Cleanup;
 use State::Executing;
 use State::Firing;
@@ -35,11 +35,21 @@ sub BUILD {
         ANNOUNCE => State::Announcing->new,
         EXECUTE  => State::Executing->new,
         MOVE     => State::Movement->new,
-        BOARD    => State::BoardElements->new,
         FIRE     => State::Firing->new,
         TOUCH    => State::Touching->new,
         CLEANUP  => State::Cleanup->new,
     };
+    $self->{states}{BOARD} = $self->{states}{FIRE};
+
+    my $last;
+    my $num = '';
+    for my $s (qw/express_conveyors conveyors pushers gears/) {
+        if ($opts->{$s}) {
+            my $board = "BOARD$num";
+            $self->{states}{$board} = $last = State::Board->new($s, "BOARD" . ++$num);
+        }
+    }
+    $last->{next} = 'FIRE' if $last;
 }
 
 1;
