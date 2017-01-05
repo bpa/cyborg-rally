@@ -7,7 +7,7 @@ use List::Util 'shuffle';
 
 # Don't have this be a constant because we need a new copy of each empty program
 sub EMPTY { return { damaged => 0, program => [] } }
-use constant CLEAN => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ];
+sub CLEAN { return [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] };
 
 sub on_enter {
     my ( $self, $game ) = @_;
