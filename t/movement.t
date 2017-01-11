@@ -4,7 +4,6 @@ use Card;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use Data::Dumper;
 
 use constant PERMUTATIONS =>
   [ [ 1, 2, 3 ], [ 1, 3, 2 ], [ 2, 1, 3 ], [ 2, 3, 1 ], [ 3, 1, 2 ], [ 3, 2, 1 ] ];
@@ -100,9 +99,9 @@ subtest 'move order' => sub {
     $p3->broadcast( { cmd => 'ready' },
         { cmd => 'ready', player => $p3->{id}, next => $p2->{id} } );
     $p2->broadcast( { cmd => 'ready' },
-        { cmd => 'state', state => 'BoardElements' } );
+        { cmd => 'state', state => 'Firing' } );
 
-    is( ref( $rally->{state} ), 'State::BoardElements' );
+    is( ref( $rally->{state} ), 'State::Firing' );
 
     done;
 };

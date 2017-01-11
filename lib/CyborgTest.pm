@@ -100,7 +100,13 @@ sub join {
 }
 
 sub game {
-    my ( $self, $msg ) = @_;
+    my ( $self, $cmd, $msg ) = @_;
+    if ( ref($cmd) eq '') {
+        $msg->{cmd} = $cmd;
+    }
+    else {
+        $msg = $cmd;
+    }
     $rally->on_message( $self, $msg );
 }
 

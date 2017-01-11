@@ -9,7 +9,7 @@ subtest 'on_enter for two' => sub {
     $rally->drop_packets;
     $rally->set_state('ANNOUNCE');
     $rally->update;
-    is( ref( $rally->{state} ), 'State::Announcing' );
+    is( ref( $rally->{state} ),  'State::Announcing' );
     is( $p1->{public}{shutdown}, undef );
     is( $p2->{public}{shutdown}, undef );
     cmp_deeply(
@@ -30,9 +30,11 @@ subtest 'want shutdown' => sub {
 
     is( ref( $rally->{state} ), 'State::Announcing' );
     $p1->game( { cmd => 'shutdown', activate => 0 } );
-    is( ref( $rally->{state} ), 'State::Announcing' );
+    is( $p1->{public}{shutdown}, '' );
+    is( ref( $rally->{state} ),  'State::Announcing' );
     $p2->game( { cmd => 'shutdown', activate => 1 } );
-    is( ref( $rally->{state} ), 'State::Movement' );
+    is( $p1->{public}{shutdown}, '' );
+    is( ref( $rally->{state} ),  'State::Movement' );
 
     is( $p1->{public}{shutdown}, '' );
     is( $p2->{public}{shutdown}, 1 );
@@ -49,7 +51,7 @@ subtest 'no shutdown' => sub {
     $p1->game( { cmd => 'shutdown', activate => 0 } );
     $p2->game( { cmd => 'shutdown', activate => 0 } );
 
-    is( ref( $rally->{state} ), 'State::Movement' );
+    is( ref( $rally->{state} ),  'State::Movement' );
     is( $p1->{public}{shutdown}, '' );
     is( $p2->{public}{shutdown}, '' );
 
