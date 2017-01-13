@@ -30,11 +30,17 @@ subtest 'hit first' => sub {
     cmp_deeply( $rally->{state}{pending},
         { $p1->{id} => { laser => { target => $p2->{id}, damage => 1 } } } );
     $p2->broadcast(
-        configrm => { type => 'laser', bot => $p1->{id} },
-        { cmd => 'fire', type => 'laser', bot => $p1->{id}, target => $p2->{id}, damage => 1 }
+        { cmd => 'confirm', type => 'laser', bot => $p1->{id} },
+        {   cmd    => 'fire',
+            type   => 'laser',
+            bot    => $p1->{id},
+            target => $p2->{id},
+            damage => 1
+        },
+        { cmd => 'ready', player => $p1->{id} }
     );
     is( $p2->{public}{damage}, 1 );
-    $p2->broadcast( 'ready' => { cmd => 'state', state => 'Touching' } );
+    $p2->broadcast( 'ready', { cmd => 'state', state => 'Touching' } );
 
     done;
 };
@@ -78,11 +84,13 @@ subtest 'invalid actions' => sub {
         { $p1->{id} => { laser => { target => $p2->{id}, damage => 1 } } } );
 
     $p1->game( fire => { type => 'laser', target => $p1->{id}, damage => 1 } );
-    cmd_deeply( $p1->{packets}, [ { cmd => 'error', reason => 'Shot already pending' } ] );
+    cmd_deeply( $p1->{packets},
+        [ { cmd => 'error', reason => 'Shot already pending' } ] );
 
     $p1->drop_packets;
     $p1->game( fire => { type => 'laser', target => $p3->{id}, damage => 1 } );
-    cmd_deeply( $p1->{packets}, [ { cmd => 'error', reason => 'Shot already pending' } ] );
+    cmd_deeply( $p1->{packets},
+        [ { cmd => 'error', reason => 'Shot already pending' } ] );
 
     $p3->game( confirm => { type => 'laser', bot => $p1->{id} } );
     cmd_deeply( $p3->{packets}, [ { cmd => 'error', reason => 'Invalid shot' } ] );
