@@ -7,12 +7,21 @@ use List::Util 'all';
 
 use constant FIRE_TYPE => { laser => \&on_laser };
 
+sub on_enter {
+    my ( $self, $game ) = @_;
+
+    $self->{pending} = {};
+    for my $p ( values %{ $game->{player} } ) {
+        $self->{pending}{ $p->{id} } = [ {}, {} ];
+    }
+}
+
 sub do_ready {
     my ( $self, $game, $c, $msg ) = @_;
 
     return if $c->{public}{ready};
     $c->{public}{ready} = 1;
-    delete $self->{pending}{$c->{id}};
+    delete $self->{pending}{ $c->{id} };
     if ( all { exists $_->{public}{ready} } values %{ $game->{player} } ) {
         $game->set_state('TOUCH');
     }
@@ -24,14 +33,34 @@ sub do_ready {
 sub do_fire {
     my ( $self, $game, $c, $msg ) = @_;
 
+    if ( $c->{public}{ready} ) {
+        $c->err('Invalid command');
+        return;
+    }
+
     my $action = FIRE_TYPE->{ $msg->{type} };
     if ( !$action ) {
         $c->err('Invalid fire type');
         return;
     }
 
-    if ( $self->{pending}{ $c->{id} }{ $msg->{type} } ) {
+    my $dir = 0;
+    if ( $msg->{type} eq 'rear' ) {
+        if ( !$c->{public}{option}{'Rear-Firing Laser'} ) {
+            $c->err('No rear laser');
+            return;
+        }
+        $dir = 1;
+    }
+
+    my $beam = $self->{pending}{ $c->{id} }[$dir];
+    if ( exists $beam->{target} ) {
         $c->err('Shot already pending');
+        return;
+    }
+
+    if ( exists $beam->{confirmed} ) {
+        $c->err('Shot already resolved');
         return;
     }
 
@@ -41,14 +70,13 @@ sub do_fire {
         return;
     }
 
-    $self->{pending}{ $c->{id} }{ $msg->{type} }
-      = { target => $msg->{target}, damage => $msg->{damage} };
+    $self->{pending}{ $c->{id} }[$dir]
+      = { target => $msg->{target}, type => $msg->{type} };
 
     $target->send(
-        {   cmd    => 'fire',
-            type   => $msg->{type},
-            bot    => $c->{id},
-            damage => $msg->{damage}
+        {   cmd  => 'fire',
+            type => $msg->{type},
+            bot  => $c->{id},
         }
     );
 }
@@ -62,21 +90,22 @@ sub do_confirm {
         return;
     }
 
+    my $dir = $msg->{type} eq 'rear' ? 1 : 0;
     $bot = $self->{pending}{$bot};
-    my $beam = delete $bot->{ $msg->{type} };
-    if ( !$beam ) {
+    my $beam = $bot->[$dir];
+    if ( !exists $beam->{target} || exists $beam->{confirmed} ) {
         $c->err('Invalid shot');
         return;
     }
 
     my $player = $game->{player}{ $msg->{bot} };
     FIRE_TYPE->{ $msg->{type} }( $self, $game, $player, $c, $beam );
-    $self->do_ready($game, $player);
+    $self->do_ready( $game, $player );
 }
 
 sub on_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
-    my $damage = $beam->{damage};
+    my $damage = 1;
     $target->{public}{damage} += $damage;
     $game->broadcast(
         {   cmd    => 'fire',
