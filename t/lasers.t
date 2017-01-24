@@ -131,13 +131,13 @@ subtest 'self resolve dispute' => sub {
     $rally->drop_packets;
 
     is( $p2->{public}{damage}, 0 );
-    $p1->game( laser => { target => $p2->{id}, damage => 1 } );
-    cmp_deeply( $p1->{packets},
-        [ { cmd => 'laser', bot => $p2->{id}, damage => 1 } ] );
-    $p2->broadcast( 'ready' => { cmd => 'state', state => 'Touching' } );
+    $p1->game( fire => { type => 'laser', target => $p2->{id} } );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'fire', type => 'laser', bot => $p1->{id} } ] );
+    $p2->broadcast( 'ready', { cmd => 'ready', player => $p2->{id} } );
     $p1->drop_packets;
     $p2->game( deny => { type => 'laser', bot => $p1->{id} } );
-    cmp_deeply( $p1->{packets}, { cmd => 'dispute', player => $p1->{id} } );
+    cmp_deeply( $p1->{packets}, [ { cmd => 'dispute', player => $p2->{id} } ] );
     $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
     $p1->broadcast( 'ready' => { cmd => 'state', state => 'Touching' } );
     is( $p2->{public}{damage}, 0 );

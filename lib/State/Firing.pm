@@ -81,26 +81,51 @@ sub do_fire {
     );
 }
 
-sub do_confirm {
+sub resolve_beam {
     my ( $self, $game, $c, $msg ) = @_;
 
-    my $bot = $msg->{bot};
-    if ( !$bot ) {
+    my $bot_id = $msg->{bot};
+    my $beams  = $self->{pending}{$bot_id};
+
+    if ( !$beams ) {
         $c->err('Invalid bot');
         return;
     }
 
     my $dir = $msg->{type} eq 'rear' ? 1 : 0;
-    $bot = $self->{pending}{$bot};
-    my $beam = $bot->[$dir];
+    my $beam = $beams->[$dir];
+
     if ( !exists $beam->{target} || exists $beam->{confirmed} ) {
         $c->err('Invalid shot');
         return;
     }
 
-    my $player = $game->{player}{ $msg->{bot} };
-    FIRE_TYPE->{ $msg->{type} }( $self, $game, $player, $c, $beam );
-    $self->do_ready( $game, $player );
+    my $player = $game->{player}{$bot_id};
+    return ( $player, $beam, $dir );
+}
+
+sub do_confirm {
+    my ( $self, $game, $c, $msg ) = @_;
+
+    my ( $bot, $beam ) = $self->resolve_beam( $game, $c, $msg );
+    return unless $bot;
+
+    FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $c, $beam );
+    $self->do_ready( $game, $bot );
+}
+
+sub do_deny {
+    my ( $self, $game, $c, $msg ) = @_;
+
+    my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
+    if ( $bot ) {
+        $self->{pending}{$bot->{id}}[$dir] = {};
+        $bot->send( { cmd => 'dispute', player => $c->{id} } );
+    }
+}
+
+sub do_dispute {
+    my ( $self, $game, $c, $msg ) = @_;
 }
 
 sub on_laser {
@@ -115,30 +140,6 @@ sub on_laser {
             damage => $damage
         }
     );
-}
-
-sub do_deny {
-    my ( $self, $game, $c, $msg ) = @_;
-
-    my $bot = $msg->{bot};
-    if ( !$bot ) {
-        $c->err('Invalid bot');
-        return;
-    }
-
-    $bot = $self->{pending}{$bot};
-    my $beam = delete $bot->{ $msg->{type} };
-    if ( !$beam ) {
-        $c->err('Invalid shot');
-        return;
-    }
-
-    my $player = $game->{player}{ $msg->{bot} };
-    $player->send( { cmd => 'dispute', player => $c->{id} } );
-}
-
-sub do_dispute {
-    my ( $self, $game, $c, $msg ) = @_;
 }
 
 sub on_exit {
