@@ -69,7 +69,9 @@ subtest 'fifth register phase' => sub {
             { cmd => 'heal',   bot => $p[2]->{id}, heal   => 1, new => 2 },
             { cmd => 'option', bot => $p[2]->{id}, option => ignore },
             { cmd => 'heal',   bot => $p[3]->{id}, heal   => 1, new => 2 },
-            { cmd => 'state', state => 'Cleanup' },
+            { cmd => 'state', state => 'Revive' },
+            { cmd => 'state', state => 'PowerDown' },
+            { cmd => 'state', state => 'Programming' },
         )
     );
 

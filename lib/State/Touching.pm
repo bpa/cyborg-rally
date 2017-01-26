@@ -49,7 +49,7 @@ sub do_touch {
 
     if ( $game->{public}{register} == 5 ) {
         delete $game->{public}{register};
-        $game->set_state('CLEANUP');
+        $game->set_state('REVIVE');
         for my $p ( values %{ $game->{player} } ) {
             my $t = VALID->{ $self->{tile}{ $p->{id} } };
             for my $f (@$t) {

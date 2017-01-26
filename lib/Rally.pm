@@ -5,11 +5,12 @@ use warnings;
 use parent 'Game';
 use State::Announcing;
 use State::Board;
-use State::Cleanup;
 use State::Executing;
 use State::Firing;
 use State::Movement;
 use State::Programming;
+use State::PowerDown;
+use State::Revive;
 use State::Setup;
 use State::Touching;
 use State::Waiting;
@@ -37,7 +38,8 @@ sub BUILD {
         MOVE     => State::Movement->new,
         FIRE     => State::Firing->new,
         TOUCH    => State::Touching->new,
-        CLEANUP  => State::Cleanup->new,
+        REVIVE   => State::Revive->new,
+        POWER    => State::PowerDown->new,
     };
     $self->{states}{BOARD} = $self->{states}{FIRE};
 
