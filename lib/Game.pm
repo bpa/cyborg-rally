@@ -61,7 +61,8 @@ sub join {
             game    => $self->{game},
             name    => $self->{name},
             public  => $self->{public},
-            private => $c->{private}
+            private => $c->{private},
+            id      => $c->{id}
         }
     );
 
@@ -104,6 +105,7 @@ sub update {
     while ( my $next = delete $self->{next_state} ) {
         $self->{state}->on_exit($self);
         $self->{state} = $next;
+        $self->{public}{state} = $next->{name};
         $self->broadcast( { cmd => 'state', state => $next->{name} } );
         $next->on_enter($self);
     }

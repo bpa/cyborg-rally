@@ -24,7 +24,7 @@ get '/' => sub {
 
 websocket '/websocket' => sub {
     my $c = shift;
-    $c->inactivity_timeout(300);
+    $c->inactivity_timeout(600);
 
     my $cyborg = Cyborg->new($c->tx);
     $game->on_connect($cyborg); 

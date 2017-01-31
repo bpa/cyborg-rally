@@ -21,7 +21,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin'),
     });
 
 module.exports = {
-    entry: './js/client.js',
+    entry: './js/Client.js',
     output: {
         filename: "cyborg-rally.js",
         path: './public',
@@ -41,7 +41,13 @@ module.exports = {
                 includes: ['./js'],
                 query: {
                     presets: ['es2015', 'react'],
-                    plugins: ['transform-class-properties']
+                    plugins: [
+                        'transform-class-properties',
+                        ['transform-runtime', {
+                            "helpers": false,
+                            "polyfill": false,
+                        }],
+                    ],
                 }
             },
         ]
