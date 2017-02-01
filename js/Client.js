@@ -55,6 +55,9 @@ class Client extends React.Component {
              width: '100%',
              marginBottom: '1em',
           },
+          ButtonOutline: {
+             margin: '.4em',
+          },
           borderRadius: 16,
           rounded: true,
         }
@@ -77,21 +80,11 @@ class Client extends React.Component {
     }
 
     on_ready(msg) {
-        if (msg.player === state.id) {
-            state.my.ready = true;
-        }
-        else {
-            state.game.player[msg.player].ready = true;
-        }
+        state.game.player[msg.player].ready = true;
     }
 
     on_not_ready(msg) {
-        if (msg.player === state.id) {
-            state.my.ready = false;
-        }
-        else {
-            state.game.player[msg.player].ready = false;
-        }
+        state.game.player[msg.player].ready = false;
     }
 
     on_welcome(msg) {
@@ -120,11 +113,11 @@ class Client extends React.Component {
     }
 
     on_joined(msg) {
+        state.id = msg.id;
+        state.game = msg.public;
+        state.private = msg.private;
+        state.me = msg.public.player[msg.id];
         if (msg.game === 'Rally') {
-            state.id = msg.id;
-            state.game = msg.public;
-            state.hidden = msg.private;
-            state.my = msg.public.player[msg.id];
             this.setState({view: Playing});
         }
         else {

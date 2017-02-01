@@ -21,6 +21,7 @@ export default class Playing extends React.Component {
 
     on_state(msg) {
         state.game.state = msg.state;
+        Object.keys(state.game.player).map((p) => delete state.game.player.ready);
         var view = STATE[msg.state];
         if (!view) {
             view = Waiting;

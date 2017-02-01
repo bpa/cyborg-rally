@@ -1,8 +1,21 @@
-import Card from 'rebass/src/Card';
+import ButtonOutline from 'rebass/src/ButtonOutline';
+
+var MAP = {
+    'r': '↱',
+    'l': '↰',
+    'u': '⋂',
+    'b': '⇩'
+};
 
 export default class MovementCard extends React.Component {
     render() {
-        return <Card rounded>Card</Card>
-    }
+        const n = this.props.card.name;
+        const m = MAP[n];
+        return (
+        <ButtonOutline theme="error" style={{borderRadius:6}}
+                onClick={this.props.onClick}>
+            {m ? m : n}
+        </ButtonOutline>
+    )}
 }
 

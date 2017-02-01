@@ -15,9 +15,9 @@ export default class Waiting extends React.Component {
 <div>
     {this.state.players}
     <Footer>
-	<Button theme={state.my.ready?'success':'error'}
-        onClick={this.ready.bind(this, state.my.ready)}>
-		{state.my.ready?'Ready':'Not Ready'}
+	<Button theme={state.me.ready?'success':'error'}
+        onClick={this.ready.bind(this, state.me.ready)}>
+		{state.me.ready?'Ready':'Not Ready'}
 	</Button>
     </Footer>
 </div>
