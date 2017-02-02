@@ -80,6 +80,7 @@ class Client extends React.Component {
     }
 
     on_ready(msg) {
+        console.log(state.game.player);
         state.game.player[msg.player].ready = true;
     }
 

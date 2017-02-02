@@ -122,7 +122,13 @@ sub quit {
 }
 
 sub broadcast {
-    my ( $self, $msg ) = @_;
+    my ( $self, $cmd, $msg ) = @_;
+    if ( ref($cmd) eq 'HASH' ) {
+        $msg = $cmd;
+    }
+    else {
+        $msg->{cmd} = $cmd;
+    }
     for my $p ( values %{ $self->{player} } ) {
         $p->send($msg);
     }

@@ -9,7 +9,7 @@ use AnyEvent;
 sub on_enter {
     my ( $self, $game ) = @_;
     $game->broadcast( { cmd => 'time', limit => '10s' } );
-    $self->{timer} = $game->timer( 10, \&Game::change_state, $game, 'EXECUTE' );
+    $self->{timer} = $game->timer( 10, \&Game::set_state, $game, 'EXECUTE' );
 }
 
 sub do_shutdown {

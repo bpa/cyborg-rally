@@ -1,3 +1,4 @@
+import Button from 'rebass/src/Button';
 import MovementCard from './MovementCard';
 import Panel from 'rebass/src/Panel';
 import PanelHeader from 'rebass/src/PanelHeader';
@@ -13,7 +14,7 @@ export default class Programming extends React.Component {
         if (!state.private.registers) {
             var reg = [];
             for (var i=0; i<5; i++) {
-                reg.append({damaged:0,program:[]});
+                reg.push({damaged:0,program:[]});
             }
             state.private.registers = reg;
         }
@@ -36,18 +37,18 @@ export default class Programming extends React.Component {
     }
 
     choose(card) {
-        const reg = this.state.registers.slice(0);
-        const r = reg.find((r)=>r.program.length==0);
+        const reg = this.state.registers.map((r)=>r.program);
+        const r = reg.find((r)=>r.length==0);
         if (r) {
-            r.program[0] = card;
-            this.props.ws.send({
-                cmd:'program',
-                registers:reg.map((r)=>r.program),
-            });
+            r[0] = card;
+            this.props.ws.send({ cmd:'program', registers:reg });
         }
     }
 
     clear(r) {
+        const reg = this.state.registers.map((r)=>r.program);
+        reg[r] = [];
+        this.props.ws.send({ cmd:'program', registers:reg });
     }
 
     ready() {
@@ -71,6 +72,7 @@ export default class Programming extends React.Component {
     <PanelHeader>Movement Options</PanelHeader>
     {cards}
   </Panel>
+  <Button onClick={this.ready}>Ready</Button>
 </div>
     )}
 }

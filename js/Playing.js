@@ -1,11 +1,13 @@
 import Button from 'rebass/src/Button';
 import Waiting from "./Waiting";
 import Programming from "./Programming";
+import Touching from "./Touching";
 import state from "./State";
 
 var STATE = {
     Waiting: Waiting,
-    Programming: Programming
+    Programming: Programming,
+    Touching: Touching
 };
 
 export default class Playing extends React.Component {

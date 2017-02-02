@@ -140,7 +140,7 @@ sub on_exit {
         my $cards     = delete $p->{private}{cards};
         my $registers = delete $p->{private}{registers};
         my $ready     = delete $p->{public}{ready};
-        return if $ready;
+        next if $ready;
 
         $cards->shuffle;
         for my $i ( 0 .. 4 ) {

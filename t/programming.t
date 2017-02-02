@@ -54,6 +54,7 @@ subtest 'on_enter for two' => sub {
                 {   cmd     => 'joined',
                     game    => 'Rally',
                     name    => 'test',
+                    id      => $p->{id},
                     private => ignore,
                     public  => ignore
                 },
