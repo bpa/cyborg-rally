@@ -19,7 +19,6 @@ sub on_connect {
 
 sub on_disconnect {
     my ( $self, $c ) = @_;
-
 }
 
 sub on_message {
@@ -127,8 +126,18 @@ sub do_set_name {
 sub do_quit {
     my ( $self, $c, $msg ) = @_;
 
+    my $g = $c->{game};
     $c->{game}->quit($c);
     $self->{lobby}->join($c);
+
+    if (!keys %{$g->{player}}) {
+        delete $self->{game}{$g->{name}};
+        $self->{lobby}->broadcast(
+            {   cmd  => 'delete_game',
+                name => $g->{name},
+            }
+        );
+    }
 }
 
 1;

@@ -115,9 +115,10 @@ sub quit {
     my ( $self, $c ) = @_;
     my $p = $self->{player}{ $c->{uuid} };
     $self->on_quit($c) if $self->can('on_quit');
-    delete $self->{player}{ $c->{uuid} };
+    delete $self->{map}{ $c->{uuid} };
+    delete $self->{player}{ $c->{id} };
     $self->broadcast(
-        { cmd => 'quit', uuid => $p->{uuid}, name => $c->{name} } );
+        { cmd => 'quit', id => $c->{id}, name => $c->{name} } );
 }
 
 sub broadcast {

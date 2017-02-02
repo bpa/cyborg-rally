@@ -34,6 +34,11 @@ export default class Lobby extends React.Component {
         this.setState({games: games});
     }
 
+    on_delete_game(msg) {
+        let games = this.state.games.filter((g)=>g.key !== msg.name);
+        this.setState({games: games});
+    }
+
 	render() { return (
 <Panel theme="default">
     <PanelHeader>Lobby</PanelHeader>
