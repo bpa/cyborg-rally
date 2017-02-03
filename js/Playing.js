@@ -1,19 +1,21 @@
 import Button from 'rebass/src/Button';
-import Waiting from "./Waiting";
+import Movement from "./Movement";
 import Programming from "./Programming";
 import Touching from "./Touching";
+import Waiting from "./Waiting";
 import state from "./State";
 
 var STATE = {
-    Waiting: Waiting,
+    Movement: Movement,
     Programming: Programming,
-    Touching: Touching
+    Touching: Touching,
+    Waiting: Waiting,
 };
 
 export default class Playing extends React.Component {
     constructor(props) {
         super(props);
-        var view = STATE[state.game.state];
+        var view = STATE[state.public.state];
         if (!view) {
             view = Waiting;
         }
@@ -22,8 +24,8 @@ export default class Playing extends React.Component {
     }
 
     on_state(msg) {
-        state.game.state = msg.state;
-        Object.keys(state.game.player).map((p) => delete state.game.player.ready);
+        state.public.state = msg.state;
+        Object.keys(state.public.player).map((p) => state.public.player[p].ready = 0);
         var view = STATE[msg.state];
         if (!view) {
             view = Waiting;

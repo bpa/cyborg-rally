@@ -32,7 +32,7 @@ export default class Waiting extends React.Component {
     on_quit(msg) { this.setState({players:this.players()}); }
 
     players() {
-        var player = state.game.player;
+        var player = state.public.player;
         const keys = Object.keys(player).sort();
         return keys.map(function(id) {
             const p = player[id];

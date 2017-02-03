@@ -1,4 +1,3 @@
-import Block from 'rebass/src/Block';
 import MovementCard from './MovementCard';
 
 export default class Register extends React.Component {

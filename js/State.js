@@ -1,2 +1,2 @@
-var state = { game: {}, private: {}, me: {} };
+var state = {};
 export default state;

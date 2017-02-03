@@ -80,12 +80,11 @@ class Client extends React.Component {
     }
 
     on_ready(msg) {
-        console.log(state.game.player);
-        state.game.player[msg.player].ready = true;
+        state.public.player[msg.player].ready = true;
     }
 
     on_not_ready(msg) {
-        state.game.player[msg.player].ready = false;
+        state.public.player[msg.player].ready = false;
     }
 
     on_welcome(msg) {
@@ -102,11 +101,11 @@ class Client extends React.Component {
 	}
 
     on_join(msg) {
-        state.game.player[msg.id] = msg.player;
+        state.public.player[msg.id] = msg.player;
     }
 
     on_quit(msg) {
-        delete state.game.player[msg.id];
+        delete state.public.player[msg.id];
     }
 
     on_login(msg) {
@@ -115,8 +114,9 @@ class Client extends React.Component {
 
     on_joined(msg) {
         state.id = msg.id;
-        state.game = msg.public;
+        state.public = msg.public;
         state.private = msg.private;
+        state.state = msg.state;
         state.me = msg.public.player[msg.id];
         if (msg.game === 'Rally') {
             this.setState({view: Playing});

@@ -8,7 +8,7 @@ import state from './State';
 export default class Programming extends React.Component {
     constructor(props) {
         super(props);
-        const player = state.game.player;
+        const player = state.public.player;
         const keys = Object.keys(player);
         const cards = state.private.cards || []
         if (!state.private.registers) {

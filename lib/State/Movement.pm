@@ -46,7 +46,7 @@ sub do_ready {
         $game->broadcast(
             {   cmd    => 'ready',
                 player => $c->{id},
-                next   => $self->{public}[0]{player}
+                order  => $self->{public}
             }
         );
     }
