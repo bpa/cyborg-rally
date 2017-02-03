@@ -16,7 +16,7 @@ sub on_enter {
         $p->{priority} = $p->{program}[0]{priority};
         $p;
       } values %{ $game->{player} };
-    $self->{order} = \@order;
+    $self->{public} = \@order;
     $game->broadcast( { cmd => 'move', order => \@order } );
 }
 
@@ -30,11 +30,11 @@ sub do_ready {
 
     my $register = $c->{public}{registers}[ $game->{public}{register} ];
     if ( $register->{program}[-1]{name} =~ /[rul]/ ) {
-        my $idx = firstidx { $_->{player} eq $c->{id} } @{ $self->{order} };
-        splice @{ $self->{order} }, $idx, 1;
+        my $idx = firstidx { $_->{player} eq $c->{id} } @{ $self->{public} };
+        splice @{ $self->{public} }, $idx, 1;
     }
-    elsif ( $c->{id} eq $self->{order}[0]{player} ) {
-        shift @{ $self->{order} };
+    elsif ( $c->{id} eq $self->{public}[0]{player} ) {
+        shift @{ $self->{public} };
     }
     else {
         $c->err('Not your turn');
@@ -42,19 +42,16 @@ sub do_ready {
     }
 
     $c->{public}{ready} = 1;
-    if ( @{ $self->{order} } ) {
+    if ( @{ $self->{public} } ) {
         $game->broadcast(
-            ready => { player => $c->{id}, next => $self->{order}[0]{player} } );
+            {   cmd    => 'ready',
+                player => $c->{id},
+                next   => $self->{public}[0]{player}
+            }
+        );
     }
     else {
         $game->set_state('BOARD');
-    }
-}
-
-sub on_exit {
-    my ( $self, $game ) = @_;
-    for my $p ( values %{ $game->{player} } ) {
-        delete $p->{public}{ready};
     }
 }
 

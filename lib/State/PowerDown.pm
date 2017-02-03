@@ -12,35 +12,26 @@ sub on_enter {
             $p->send('declare_shutdown');
         }
         else {
-            $self->{ready}{ $p->{id} } = 1;
+            $p->{public}{ready} = 1;
         }
     }
 
-    if ( scalar( keys %{ $self->{ready} } ) == scalar( keys %{ $game->{player} } ) )
-    {
+    if ( $game->ready ) {
         $game->set_state('PROGRAM');
     }
     else {
-        $game->timer( 10, \&Game::change_state, $game, 'PROGRAM' );
+        $game->timer( 10, \&Game::set_state, $game, 'PROGRAM' );
     }
 }
 
 sub do_shutdown {
     my ( $self, $game, $c, $msg ) = @_;
 
-    return if $self->{ready}{ $c->{id} };
-    $self->{ready}{ $c->{id} } = 1;
+    return if $c->{public}{ready};
+    $c->{public}{ready}    = 1;
     $c->{public}{shutdown} = !!$msg->{activate};
 
-    if ( scalar( keys %{ $self->{ready} } ) == scalar( keys %{ $game->{player} } ) )
-    {
-        $game->set_state('PROGRAM');
-    }
-}
-
-sub on_exit {
-    my ( $self, $game ) = @_;
-    delete $self->{ready};
+    $game->set_state('PROGRAM') if $game->ready;
 }
 
 1;

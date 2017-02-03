@@ -15,7 +15,7 @@ subtest 'on_enter for two' => sub {
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Announcing' },
-            { cmd => 'time',  limit => '10s' }
+            { cmd => 'timer', delay => '10' }
         ]
     );
 

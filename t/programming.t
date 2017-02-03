@@ -56,7 +56,8 @@ subtest 'on_enter for two' => sub {
                     name    => 'test',
                     id      => $p->{id},
                     private => ignore,
-                    public  => ignore
+                    public  => ignore,
+                    state   => ignore,
                 },
                 { cmd => 'programming', cards => cnt(9) }
             ]
@@ -113,7 +114,7 @@ subtest 'programming' => sub {
     );
     $p1->game( { cmd => 'ready' },
         { cmd => 'error', reason => 'Programming incomplete' } );
-    is( $p1->{public}{ready}, 0, 'Ready not set after error' );
+    is( $p1->{public}{ready}, '', 'Ready not set after error' );
 
     #No phantom 6th register
     $p1->game(
@@ -136,7 +137,11 @@ subtest 'programming' => sub {
 
     #Lock program
     program( $rally, $p1, [ 0, 1, 2, 3, 4 ] );
-    $p1->broadcast( { cmd => 'ready' }, { cmd => 'ready', player => $p1->{id} } );
+    $p1->broadcast(
+        { cmd => 'ready' },
+        { cmd => 'ready', player => $p1->{id} },
+        { cmd => 'timer', delay => '30' }
+    );
     program( $rally, $p1, [0], 'Registers are already programmed' );
 
     done;
@@ -191,7 +196,7 @@ subtest 'dead' => sub {
     $rally->{state}->on_enter($rally);
 
     cmp_deeply( $dead->{public}{registers}, State::Programming::DEAD );
-    cmp_deeply( $dead->{public}{ready}, 1 );
+    cmp_deeply( $dead->{public}{ready},     1 );
     cmp_deeply( $dead->{packets}, [ { cmd => 'programming' } ] );
 
     cmp_deeply( $alive->{private}{registers}, State::Setup::CLEAN );
@@ -283,18 +288,20 @@ subtest 'powered down' => sub {
     $rally->{state}->on_enter($rally);
 
     cmp_deeply( $p1->{public}{ready}, 1 );
-    cmp_deeply( $p1->{public}{registers}, State::Programming::DEAD, 'Registers filled with NOP' );
-    ok( !exists($p1->{private}{registers}), 'private registers not defined' );
-    is( $p1->{public}{damage}, 0, 'Damage cleared' );
+    cmp_deeply( $p1->{public}{registers},
+        State::Programming::DEAD, 'Registers filled with NOP' );
+    ok( !exists( $p1->{private}{registers} ), 'private registers not defined' );
+    is( $p1->{public}{damage},   0,  'Damage cleared' );
     is( $p1->{public}{shutdown}, '', 'Shutdown cleared' );
 
     cmp_deeply( $p1->{packets}, [ { cmd => 'programming' } ] );
     cmp_deeply( $p2->{packets}, [ { cmd => 'programming', cards => cnt(7) } ] );
     cmp_deeply( $p2->{private}{registers}, State::Setup::CLEAN );
-    is( $p2->{public}{damage}, 2, 'Player 2 not affected by p1 shutdown' ); 
+    is( $p2->{public}{damage}, 2, 'Player 2 not affected by p1 shutdown' );
 
     $rally->{state}->on_exit($rally);
-    cmp_deeply( $p1->{public}{registers}, State::Programming::DEAD, 'Leave NOP registers alone on exit' );
+    cmp_deeply( $p1->{public}{registers},
+        State::Programming::DEAD, 'Leave NOP registers alone on exit' );
 
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);

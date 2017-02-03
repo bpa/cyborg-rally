@@ -98,8 +98,7 @@ subtest 'move order' => sub {
     $p2->game( { cmd => 'ready' }, { cmd => 'error', reason => 'Not your turn' } );
     $p3->broadcast( { cmd => 'ready' },
         { cmd => 'ready', player => $p3->{id}, next => $p2->{id} } );
-    $p2->broadcast( { cmd => 'ready' },
-        { cmd => 'state', state => 'Firing' } );
+    $p2->broadcast( { cmd => 'ready' }, { cmd => 'state', state => 'Firing' } );
 
     is( ref( $rally->{state} ), 'State::Firing' );
 

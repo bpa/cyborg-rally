@@ -5,7 +5,7 @@ use warnings;
 
 sub new {
     my $pkg = shift;
-    my $self = bless { name => ( split( /::/, $pkg ) )[-1] }, $pkg;
+    my $self = bless { name => ( split( /::/, $pkg ) )[-1], state => {} }, $pkg;
     $self->BUILD(@_) if $self->can('BUILD');
     return $self;
 }

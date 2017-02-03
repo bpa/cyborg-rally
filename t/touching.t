@@ -20,21 +20,21 @@ subtest 'normal' => sub {
     $p[0]->drop_packets;
 
     $p[0]->broadcast( { cmd => 'touch', tile => 'floor' },
-        { cmd => 'touch', bot => $p[0]->{id}, tile => 'floor' } );
+        { cmd => 'touch', player => $p[0]->{id}, tile => 'floor' } );
 
     $p[0]->game( touch => { tile => 'upgrade' } );
     cmp_deeply( $p[0]->{packets},
         [ { cmd => 'error', reason => 'Already declared' } ] );
 
     $p[1]->broadcast( { cmd => 'touch', tile => 'repair' },
-        { cmd => 'touch', bot => $p[1]->{id}, tile => 'repair' } );
+        { cmd => 'touch', player => $p[1]->{id}, tile => 'repair' } );
     $p[2]->broadcast( { cmd => 'touch', tile => 'upgrade' },
-        { cmd => 'touch', bot => $p[2]->{id}, tile => 'upgrade' } );
+        { cmd => 'touch', player => $p[2]->{id}, tile => 'upgrade' } );
     $p[3]->broadcast(
-        { cmd => 'touch', tile  => 'flag' },
-        { cmd => 'touch', bot   => $p[3]->{id}, tile => 'flag' },
-        { cmd => 'state', state => 'Movement' },
-        { cmd => 'move',  order => ignore },
+        { cmd => 'touch', tile   => 'flag' },
+        { cmd => 'touch', player => $p[3]->{id}, tile => 'flag' },
+        { cmd => 'state', state  => 'Movement' },
+        { cmd => 'move',  order  => ignore },
     );
 
     for my $p (@p) {
@@ -56,19 +56,19 @@ subtest 'fifth register phase' => sub {
     }
 
     $p[0]->broadcast( { cmd => 'touch', tile => 'floor' },
-        { cmd => 'touch', bot => $p[0]->{id}, tile => 'floor' } );
+        { cmd => 'touch', player => $p[0]->{id}, tile => 'floor' } );
     $p[1]->broadcast( { cmd => 'touch', tile => 'repair' },
-        { cmd => 'touch', bot => $p[1]->{id}, tile => 'repair' } );
+        { cmd => 'touch', player => $p[1]->{id}, tile => 'repair' } );
     $p[2]->broadcast( { cmd => 'touch', tile => 'upgrade' },
-        { cmd => 'touch', bot => $p[2]->{id}, tile => 'upgrade' } );
+        { cmd => 'touch', player => $p[2]->{id}, tile => 'upgrade' } );
     $p[3]->game( { cmd => 'touch', tile => 'flag' } );
     cmp_deeply(
         $rally->{packets},
-        bag({ cmd => 'touch',  bot => $p[3]->{id}, tile   => 'flag' },
-            { cmd => 'heal',   bot => $p[1]->{id}, heal   => 1, new => 2 },
-            { cmd => 'heal',   bot => $p[2]->{id}, heal   => 1, new => 2 },
-            { cmd => 'option', bot => $p[2]->{id}, option => ignore },
-            { cmd => 'heal',   bot => $p[3]->{id}, heal   => 1, new => 2 },
+        bag({ cmd => 'touch',  player => $p[3]->{id}, tile   => 'flag' },
+            { cmd => 'heal',   player => $p[1]->{id}, heal   => 1, new => 2 },
+            { cmd => 'heal',   player => $p[2]->{id}, heal   => 1, new => 2 },
+            { cmd => 'option', player => $p[2]->{id}, option => ignore },
+            { cmd => 'heal',   player => $p[3]->{id}, heal   => 1, new => 2 },
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
             { cmd => 'state', state => 'Programming' },

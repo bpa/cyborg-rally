@@ -34,10 +34,11 @@ my $card
 cmp_deeply( $card, { name => 4, value => 'x' } );
 
 # This ends up testing to see if the first card can be removed
-my $left = Card->new( { 'total' => 5, 'number' => 5, 'priority' => 120, 'name' => 'l' } );
-my $move = Deck->new( $left );
-my $l = $move->remove($left);
-cmp_deeply($l, $left);
+my $left
+  = Card->new( { 'total' => 5, 'number' => 5, 'priority' => 120, 'name' => 'l' } );
+my $move = Deck->new($left);
+my $l    = $move->remove($left);
+cmp_deeply( $l, $left );
 
 done_testing;
 

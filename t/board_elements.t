@@ -20,8 +20,7 @@ subtest 'conveyors only' => sub {
     $rally->set_state('BOARD');
     $rally->update;
     is( ref( $rally->{state} ), 'State::Board' );
-    cmp_deeply( $rally->{packets},
-        [ { cmd => 'state', state => 'conveyors' }, ] );
+    cmp_deeply( $rally->{packets}, [ { cmd => 'state', state => 'conveyors' }, ] );
 
     $rally->drop_packets;
     $p1->broadcast( { cmd => 'ready' }, { cmd => 'ready', player => $p1->{id} } );
@@ -42,12 +41,12 @@ subtest 'all' => sub {
     is( ref( $rally->{states}{BOARD} ), 'State::Board' );
     is( $rally->{states}{BOARD}{name},  'express_conveyors' );
     is( $rally->{states}{BOARD}{next},  'BOARD1' );
-    is( $rally->{states}{BOARD1}{name},  'conveyors' );
-    is( $rally->{states}{BOARD1}{next},  'BOARD2' );
-    is( $rally->{states}{BOARD2}{name},  'pushers' );
-    is( $rally->{states}{BOARD2}{next},  'BOARD3' );
-    is( $rally->{states}{BOARD3}{name},  'gears' );
-    is( $rally->{states}{BOARD3}{next},  'FIRE' );
+    is( $rally->{states}{BOARD1}{name}, 'conveyors' );
+    is( $rally->{states}{BOARD1}{next}, 'BOARD2' );
+    is( $rally->{states}{BOARD2}{name}, 'pushers' );
+    is( $rally->{states}{BOARD2}{next}, 'BOARD3' );
+    is( $rally->{states}{BOARD3}{name}, 'gears' );
+    is( $rally->{states}{BOARD3}{next}, 'FIRE' );
 
     done;
 };

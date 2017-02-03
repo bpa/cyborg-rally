@@ -33,8 +33,8 @@ subtest 'No game options' => sub {
         is( $p->{public}{lives},  3 );
         is( $p->{public}{memory}, 9 );
         is( $p->{public}{damage}, 0 );
-        is( @{ $p->{public}{options} }, 0, 'No options by default' );
-        is( $p->{private}{cards}->count,  9, 'Got cards' );
+        is( @{ $p->{public}{options} },  0, 'No options by default' );
+        is( $p->{private}{cards}->count, 9, 'Got cards' );
     }
     done;
 };
@@ -55,8 +55,8 @@ subtest 'Start with 2 damage' => sub {
         is( $p->{public}{lives},  3 );
         is( $p->{public}{memory}, 9 );
         is( $p->{public}{damage}, 2 );
-        is( @{ $p->{public}{options} }, 0, 'No options by default' );
-        is( $p->{private}{cards}->count,  7, 'Got less cards because of damage' );
+        is( @{ $p->{public}{options} },  0, 'No options by default' );
+        is( $p->{private}{cards}->count, 7, 'Got less cards because of damage' );
     }
     done;
 };
@@ -69,8 +69,8 @@ subtest 'Start with option' => sub {
         is( $p->{public}{lives},  3 );
         is( $p->{public}{memory}, 9 );
         is( $p->{public}{damage}, 0 );
-        is( @{ $p->{public}{options} }, 1, 'Start with an option card' );
-        is( $p->{private}{cards}->count,  9, 'Got cards' );
+        is( @{ $p->{public}{options} },  1, 'Start with an option card' );
+        is( $p->{private}{cards}->count, 9, 'Got cards' );
     }
     done;
 };

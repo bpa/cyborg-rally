@@ -20,7 +20,6 @@ sub on_enter {
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{lives} > 0 && !$p->{public}{shutdown} ) {
-            $p->{public}{ready} = 0;
             my $cards = $p->{public}{memory} - $p->{public}{damage};
             $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
             map { $_->{program} = [] unless $_ && $_->{damaged} }
@@ -38,10 +37,10 @@ sub on_enter {
     }
 
     if ( $game->{opts}{timer} eq '30s' ) {
-        $game->timer( 30, \&Game::change_state, $game, 'ANNOUNCE' );
+        $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
     }
     elsif ( $game->{opts}{timer} eq '1m' ) {
-        $game->timer( 60, \&Game::change_state, $game, 'ANNOUNCE' );
+        $game->timer( 60, \&Game::set_state, $game, 'ANNOUNCE' );
     }
 }
 
@@ -136,8 +135,8 @@ sub on_exit {
     for my $p ( values %{ $game->{player} } ) {
         my $cards     = delete $p->{private}{cards};
         my $registers = delete $p->{private}{registers};
-        my $ready     = delete $p->{public}{ready};
-        next if $ready;
+
+        next if $p->{public}{ready};
 
         $cards->shuffle;
         for my $i ( 0 .. 4 ) {

@@ -3,16 +3,15 @@ package State::Firing;
 use strict;
 use warnings;
 use parent 'State';
-use List::Util 'all';
 
 use constant FIRE_TYPE => { laser => \&on_laser };
 
 sub on_enter {
     my ( $self, $game ) = @_;
 
-    $self->{pending} = {};
+    $self->{public} = {};
     for my $p ( values %{ $game->{player} } ) {
-        $self->{pending}{ $p->{id} } = [ {}, {} ];
+        $self->{public}{ $p->{id} } = [ {}, {} ];
     }
 }
 
@@ -21,8 +20,8 @@ sub do_ready {
 
     return if $c->{public}{ready};
     $c->{public}{ready} = 1;
-    delete $self->{pending}{ $c->{id} };
-    if ( all { exists $_->{public}{ready} } values %{ $game->{player} } ) {
+    delete $self->{public}{ $c->{id} };
+    if ( $game->ready ) {
         $game->set_state('TOUCH');
     }
     else {
@@ -36,9 +35,9 @@ sub do_fire {
     my ($target) = $self->on_shot( $game, $c, $msg );
     if ($target) {
         $target->send(
-            {   cmd  => 'fire',
-                type => $msg->{type},
-                bot  => $c->{id},
+            {   cmd    => 'fire',
+                type   => $msg->{type},
+                player => $c->{id},
             }
         );
     }
@@ -47,15 +46,15 @@ sub do_fire {
 sub resolve_beam {
     my ( $self, $game, $c, $msg ) = @_;
 
-    my $bot_id = $msg->{bot};
-    if (!$bot_id) {
+    my $bot_id = $msg->{player};
+    if ( !$bot_id ) {
         $c->err('Invalid bot');
         return;
     }
 
-    my $beams  = $self->{pending}{$bot_id};
+    my $beams = $self->{public}{$bot_id};
     if ( !$beams ) {
-        $c->err('Invalid bot');
+        $c->err('Invalid player');
         return;
     }
 
@@ -91,7 +90,7 @@ sub do_deny {
 
     my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
     if ($bot) {
-        $self->{pending}{ $bot->{id} }[$dir] = {};
+        $self->{public}{ $bot->{id} }[$dir] = {};
         $bot->send( { cmd => 'dispute', player => $c->{id} } );
     }
 }
@@ -111,7 +110,7 @@ sub do_dispute {
         $p->send(
             {   cmd    => 'dispute',
                 type   => $msg->{type},
-                bot    => $c->{id},
+                player => $c->{id},
                 target => $target->{id},
             }
         ) unless exists $beam->{voted}{ $p->{id} };
@@ -134,26 +133,27 @@ sub do_vote {
         return;
     }
 
-    my $vote = !!$msg->{hit};
+    my $vote    = !!$msg->{hit};
     my $players = scalar( keys( %{ $game->{player} } ) );
-    my $box = $vote ? 'hit' : 'miss';
+    my $box     = $vote ? 'hit' : 'miss';
     $beam->{voted}{ $c->{id} } = $vote;
     my $count = ++$beam->{$box};
-    my $hit = $beam->{hit};
-    my $miss = $beam->{miss};
+    my $hit   = $beam->{hit};
+    my $miss  = $beam->{miss};
     my $total = $hit + $miss;
-    if ( $total == $players || $count == int( $players / 2 ) + 1) {
-        if ($hit > $miss) {
+    if ( $total == $players || $count == int( $players / 2 ) + 1 ) {
+
+        if ( $hit > $miss ) {
             my $target = $game->{player}{ $beam->{target} };
             FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $target, $beam );
             $self->do_ready( $game, $bot );
         }
         else {
-            $self->{pending}{$msg->{bot}}[$dir] = {};
+            $self->{public}{ $msg->{player} }[$dir] = {};
             $game->broadcast(
                 {   cmd    => 'vote',
                     type   => $msg->{type},
-                    bot    => $msg->{bot},
+                    player => $msg->{player},
                     target => $msg->{target},
                     hit    => 0,
                     final  => 1,
@@ -165,7 +165,7 @@ sub do_vote {
         $game->broadcast(
             {   cmd    => 'vote',
                 type   => $msg->{type},
-                bot    => $msg->{bot},
+                player => $msg->{player},
                 target => $msg->{target},
                 hit    => $beam->{hit},
                 miss   => $beam->{miss},
@@ -197,7 +197,7 @@ sub on_shot {
         $dir = 1;
     }
 
-    my $beam = $self->{pending}{ $c->{id} }[$dir];
+    my $beam = $self->{public}{ $c->{id} }[$dir];
     if ( exists $beam->{target} ) {
         $c->err('Shot already pending');
         return;
@@ -214,7 +214,7 @@ sub on_shot {
         return;
     }
 
-    $beam = $self->{pending}{ $c->{id} }[$dir]
+    $beam = $self->{public}{ $c->{id} }[$dir]
       = { target => $msg->{target}, type => $msg->{type} };
 
     return $target, $beam;
@@ -227,18 +227,11 @@ sub on_laser {
     $game->broadcast(
         {   cmd    => 'fire',
             type   => 'laser',
-            bot    => $bot->{id},
+            player => $bot->{id},
             target => $target->{id},
             damage => $damage
         }
     );
-}
-
-sub on_exit {
-    my ( $self, $game ) = @_;
-    for my $p ( values %{ $game->{player} } ) {
-        delete $p->{public}{ready};
-    }
 }
 
 1;

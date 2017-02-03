@@ -17,7 +17,7 @@ sub on_enter {
 
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{lives} == 0 ) {
-            $self->{tile}{ $p->{id} } = 'floor';
+            $self->{public}{ $p->{id} } = 'floor';
         }
     }
 }
@@ -36,22 +36,22 @@ sub do_touch {
         return;
     }
 
-    if ( exists $self->{tile}{$c->{id}} ) {
+    if ( exists $self->{public}{ $c->{id} } ) {
         $c->err('Already declared');
         return;
     }
 
-    $self->{tile}{$c->{id}} = $tile;
-    $game->broadcast( touch => { bot => $c->{id}, tile => $tile } );
+    $self->{public}{ $c->{id} } = $tile;
+    $game->broadcast( touch => { player => $c->{id}, tile => $tile } );
 
     return
-      if scalar( keys %{ $self->{tile} } ) != scalar( keys %{ $game->{player} } );
+      if scalar( keys %{ $self->{public} } ) != scalar( keys %{ $game->{player} } );
 
     if ( $game->{public}{register} == 5 ) {
         delete $game->{public}{register};
         $game->set_state('REVIVE');
         for my $p ( values %{ $game->{player} } ) {
-            my $t = VALID->{ $self->{tile}{ $p->{id} } };
+            my $t = VALID->{ $self->{public}{ $p->{id} } };
             for my $f (@$t) {
                 $f->( $self, $game, $p );
             }
@@ -67,22 +67,23 @@ sub heal {
     if ( $c->{public}{damage} > 0 ) {
         $c->{public}{damage}--;
         $game->broadcast(
-            heal => { bot => $c->{id}, heal => 1, new => $c->{public}{damage} } );
+            heal => { player => $c->{id}, heal => 1, new => $c->{public}{damage} }
+        );
     }
 }
 
 sub upgrade {
     my ( $self, $game, $c ) = @_;
     my $card = $game->{options}->deal;
-    if (defined $card) {
+    if ( defined $card ) {
         push @{ $c->{public}{options} }, $card;
-        $game->broadcast( option => { bot => $c->{id}, option => $card } );
+        $game->broadcast( option => { player => $c->{id}, option => $card } );
     }
 }
 
 sub on_exit {
     my ( $self, $game ) = @_;
-    delete $self->{tile};
+    delete $self->{public};
 }
 
 1;

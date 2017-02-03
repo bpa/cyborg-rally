@@ -6,6 +6,7 @@ use AnyEvent;
 use Data::UUID;
 use Carp;
 use State;
+use List::MoreUtils 'false';
 
 my $uuid = Data::UUID->new;
 
@@ -62,6 +63,7 @@ sub join {
             name    => $self->{name},
             public  => $self->{public},
             private => $c->{private},
+            state   => $self->{state}{public},
             id      => $c->{id}
         }
     );
@@ -91,6 +93,12 @@ sub set_state {
     }
 }
 
+sub ready {
+    my $self = shift;
+
+    return !false { $_->{public}{ready} } values %{ $self->{player} };
+}
+
 sub timer {
     my ( $self, $delay, $f, @args ) = @_;
     undef $self->{timer};
@@ -108,6 +116,9 @@ sub update {
         $self->{state}->on_exit($self);
         $self->{state} = $next;
         $self->{public}{state} = $next->{name};
+        for my $p (values %{$self->{player}}) {
+            $p->{public}{ready} = '';
+        }
         $self->broadcast( { cmd => 'state', state => $next->{name} } );
         $next->on_enter($self);
     }
