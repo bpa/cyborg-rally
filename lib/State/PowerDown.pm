@@ -21,8 +21,7 @@ sub on_enter {
         $game->set_state('PROGRAM');
     }
     else {
-        $game->broadcast( timer => { time => '10s' } );
-        $self->{timer} = $game->timer( 10, \&Game::change_state, $game, 'PROGRAM' );
+        $game->timer( 10, \&Game::change_state, $game, 'PROGRAM' );
     }
 }
 
@@ -41,7 +40,6 @@ sub do_shutdown {
 
 sub on_exit {
     my ( $self, $game ) = @_;
-    undef $self->{timer};
     delete $self->{ready};
 }
 

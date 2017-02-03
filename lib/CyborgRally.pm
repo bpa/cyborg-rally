@@ -131,6 +131,7 @@ sub do_quit {
     $self->{lobby}->join($c);
 
     if (!keys %{$g->{player}}) {
+        undef $g->{timer};
         delete $self->{game}{$g->{name}};
         $self->{lobby}->broadcast(
             {   cmd  => 'delete_game',

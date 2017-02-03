@@ -38,12 +38,10 @@ sub on_enter {
     }
 
     if ( $game->{opts}{timer} eq '30s' ) {
-        $self->{timer}
-          = $game->timer( 30, \&Game::change_state, $game, 'ANNOUNCE' );
+        $game->timer( 30, \&Game::change_state, $game, 'ANNOUNCE' );
     }
     elsif ( $game->{opts}{timer} eq '1m' ) {
-        $self->{timer}
-          = $game->timer( 60, \&Game::change_state, $game, 'ANNOUNCE' );
+        $game->timer( 60, \&Game::change_state, $game, 'ANNOUNCE' );
     }
 }
 
@@ -111,10 +109,10 @@ sub do_ready {
         return;
     }
 
-    return if $self->{timer};
+    return if $game->{timer};
 
     if ( $game->{opts}{timer} eq '1st+30s' || $not_ready == 1 ) {
-        $self->{timer} = $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
+        $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
     }
 }
 
@@ -135,7 +133,6 @@ sub locked_but_not_matching {
 
 sub on_exit {
     my ( $self, $game ) = @_;
-    undef $self->{timer};
     for my $p ( values %{ $game->{player} } ) {
         my $cards     = delete $p->{private}{cards};
         my $registers = delete $p->{private}{registers};

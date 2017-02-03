@@ -76,8 +76,7 @@ sub join {
 sub on_rename {
     my ( $self, $c, $name ) = @_;
     $c->{public}{name} = $name;
-    $self->broadcast(
-        { cmd => 'set_name', id => $c->{id}, name => $name } );
+    $self->broadcast( { cmd => 'set_name', id => $c->{id}, name => $name } );
 }
 
 sub set_state {
@@ -93,8 +92,10 @@ sub set_state {
 }
 
 sub timer {
-    my ($self, $delay, $f, @args) = @_;
-    return AE::timer $delay, 0, sub {
+    my ( $self, $delay, $f, @args ) = @_;
+    undef $self->{timer};
+    $self->broadcast( { cmd => 'timer', delay => $delay } );
+    $self->{timer} = AE::timer $delay, 0, sub {
         $f->(@args);
         $self->update;
     };
@@ -103,6 +104,7 @@ sub timer {
 sub update {
     my $self = shift;
     while ( my $next = delete $self->{next_state} ) {
+        undef $self->{timer};
         $self->{state}->on_exit($self);
         $self->{state} = $next;
         $self->{public}{state} = $next->{name};
@@ -117,8 +119,7 @@ sub quit {
     $self->on_quit($c) if $self->can('on_quit');
     delete $self->{map}{ $c->{uuid} };
     delete $self->{player}{ $c->{id} };
-    $self->broadcast(
-        { cmd => 'quit', id => $c->{id}, name => $c->{name} } );
+    $self->broadcast( { cmd => 'quit', id => $c->{id}, name => $c->{name} } );
 }
 
 sub broadcast {
