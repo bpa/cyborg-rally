@@ -1,4 +1,5 @@
 import Button from 'rebass/src/Button';
+import Announcing from "./Announcing";
 import Movement from "./Movement";
 import Programming from "./Programming";
 import Touching from "./Touching";
@@ -6,6 +7,7 @@ import Waiting from "./Waiting";
 import state from "./State";
 
 var STATE = {
+    Announcing: Announcing,
     Movement: Movement,
     Programming: Programming,
     Touching: Touching,
