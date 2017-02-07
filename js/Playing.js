@@ -1,5 +1,8 @@
 import Button from 'rebass/src/Button';
+import Panel from 'rebass/src/Panel';
+import PanelHeader from 'rebass/src/PanelHeader';
 import Announcing from "./Announcing";
+import Lasers from "./Lasers";
 import Movement from "./Movement";
 import Programming from "./Programming";
 import Touching from "./Touching";
@@ -8,6 +11,7 @@ import state from "./State";
 
 var STATE = {
     Announcing: Announcing,
+    Lasers: Lasers,
     Movement: Movement,
     Programming: Programming,
     Touching: Touching,
@@ -22,7 +26,7 @@ export default class Playing extends React.Component {
             view = Waiting;
         }
         this.quit = this.quit.bind(this);
-        this.state = { view: view };
+        this.state = { view: view, name: state.public.state };
     }
 
     on_state(msg) {
@@ -32,7 +36,7 @@ export default class Playing extends React.Component {
         if (!view) {
             view = Waiting;
         }
-        this.setState({view:view});
+        this.setState({view:view, name:msg.state});
     }
 
     quit() {
@@ -42,12 +46,15 @@ export default class Playing extends React.Component {
     render() {
         const State = this.state.view;
         return (
-<div>
+<Panel theme="info">
+  <PanelHeader style={{textTransform:'captitalize'}}>
+    {this.state.name.replace('_', ' ')}
+  </PanelHeader>
     <State {...this.props} ref={(e)=>this.view = e}/>
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>
-</div>
+</Panel>
     )}
 }
 

@@ -7,6 +7,7 @@ use State::Announcing;
 use State::Board;
 use State::Executing;
 use State::Firing;
+use State::Lasers;
 use State::Movement;
 use State::Programming;
 use State::PowerDown;
@@ -36,6 +37,7 @@ sub BUILD {
         ANNOUNCE => State::Announcing->new,
         EXECUTE  => State::Executing->new,
         MOVE     => State::Movement->new,
+        LASER    => State::Lasers->new,
         FIRE     => State::Firing->new,
         TOUCH    => State::Touching->new,
         REVIVE   => State::Revive->new,
@@ -46,12 +48,40 @@ sub BUILD {
     my $last;
     my $num = '';
     for my $s (qw/express_conveyors conveyors pushers gears/) {
-        if ($opts->{$s}) {
+        if ( $opts->{$s} ) {
             my $board = "BOARD$num";
-            $self->{states}{$board} = $last = State::Board->new($s, "BOARD" . ++$num);
+            $self->{states}{$board} = $last
+              = State::Board->new( $s, "BOARD" . ++$num );
         }
     }
     $last->{next} = 'FIRE' if $last;
+}
+
+sub damage {
+    my ( $self, $target, $damage ) = @_;
+    $damage = int($damage);
+    return unless $damage;
+    return if $target->{public}{dead};
+
+    $target->{public}{damage} += $damage;
+    if ( $target->{public}{damage} >= $target->{public}{memory} ) {
+        $target->{public}{dead} = 1;
+        $target->{public}{lives}--;
+        $self->broadcast(
+            {   cmd    => 'death',
+                player => $target->{id},
+                lives  => $target->{public}{lives}
+            }
+        );
+    }
+    else {
+        $self->broadcast(
+            {   cmd    => 'damage',
+                player => $target->{id},
+                damage => $damage
+            }
+        );
+    }
 }
 
 1;

@@ -10,9 +10,15 @@ sub on_enter {
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} && $p->{public}{lives} ) {
             $p->{public}{dead}     = '';
-            $p->{public}{damage}   = 2;
+            $p->{public}{ready}    = '';
             $p->{public}{shutdown} = 1;
-            $p->send('revive');
+            $p->{public}{damage}   = 2;
+            $game->broadcast(
+                {   cmd    => 'revive',
+                    player => $p->{id},
+                    damage => $p->{public}{damage}
+                }
+            );
             $all_ready = 0;
         }
         else {
@@ -23,7 +29,7 @@ sub on_enter {
 }
 
 sub do_ready {
-    my ($self, $game, $c, $msg) = @_;
+    my ( $self, $game, $c, $msg ) = @_;
 
     return if $c->{public}{ready};
     $c->{public}{ready} = 1;

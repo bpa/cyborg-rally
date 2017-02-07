@@ -13,6 +13,7 @@ sub on_enter {
     for my $p ( values %{ $game->{player} } ) {
         $self->{public}{ $p->{id} } = [ {}, {} ];
     }
+    $game->set_state('LASER') if $game->ready;
 }
 
 sub do_ready {
@@ -22,7 +23,7 @@ sub do_ready {
     $c->{public}{ready} = 1;
     delete $self->{public}{ $c->{id} };
     if ( $game->ready ) {
-        $game->set_state('TOUCH');
+        $game->set_state('LASER');
     }
     else {
         $game->broadcast( ready => { player => $c->{id} } );
@@ -223,15 +224,7 @@ sub on_shot {
 sub on_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
     my $damage = 1;
-    $target->{public}{damage} += $damage;
-    $game->broadcast(
-        {   cmd    => 'fire',
-            type   => 'laser',
-            player => $bot->{id},
-            target => $target->{id},
-            damage => $damage
-        }
-    );
+    $game->damage($target, $damage);
 }
 
 1;

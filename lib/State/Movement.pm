@@ -15,9 +15,14 @@ sub on_enter {
           = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
         $p->{priority} = $p->{program}[0]{priority};
         $p;
-      } values %{ $game->{player} };
+      } grep { !$_->{public}{dead} } values %{ $game->{player} };
     $self->{public} = \@order;
-    $game->broadcast( { cmd => 'move', order => \@order } );
+    if (@order) {
+        $game->broadcast( { cmd => 'move', order => \@order } );
+    }
+    else {
+        $game->set_state('BOARD');
+    }
 }
 
 sub do_ready {

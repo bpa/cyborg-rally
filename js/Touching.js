@@ -7,21 +7,29 @@ export default class Touching extends React.Component {
 
     render() { return (
 <div>
-    <ButtonOutline style={{width:'45%',paddingBottom:'50%',float:'left'}}
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'floor')}>
         Floor
     </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'50%',float:'left'}}
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'repair')}>
         Repair
     </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'50%',float:'left'}}
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'upgrade')}>
         Upgrade
     </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'50%',float:'left'}}
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'flag')}>
         Flag
+    </ButtonOutline>
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
+        onClick={this.touch.bind(this, 'pit')}>
+        Fell in pit
+    </ButtonOutline>
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
+        onClick={this.touch.bind(this, 'off')}>
+        Off the board
     </ButtonOutline>
 </div>
     )}

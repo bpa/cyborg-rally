@@ -3,12 +3,15 @@ package State::Touching;
 use strict;
 use warnings;
 use parent 'State';
+use List::MoreUtils 'all';
 
 use constant VALID => {
     'floor'   => [],
     'repair'  => [ \&heal ],
     'upgrade' => [ \&heal, \&upgrade ],
-    'flag'    => [ \&heal ]
+    'flag'    => [ \&heal ],
+    'pit'     => [ \&die ],
+    'off'     => [ \&die ],
 };
 
 sub on_enter {
@@ -19,6 +22,11 @@ sub on_enter {
         if ( $p->{public}{lives} == 0 ) {
             $self->{public}{ $p->{id} } = 'floor';
         }
+    }
+
+    if ( $game->ready ) {
+        delete $game->{public}{register};
+        $game->set_state('REVIVE');
     }
 }
 
@@ -43,11 +51,16 @@ sub do_touch {
 
     $self->{public}{ $c->{id} } = $tile;
     $game->broadcast( touch => { player => $c->{id}, tile => $tile } );
+    if ( $tile eq 'pit' || $tile eq 'off' ) {
+        $self->die( $game, $c );
+    }
 
     return
       if scalar( keys %{ $self->{public} } ) != scalar( keys %{ $game->{player} } );
 
-    if ( $game->{public}{register} == 5 ) {
+    if ( $game->{public}{register} == 5
+        || all { $_->{public}{dead} } values %{ $game->{player} } )
+    {
         delete $game->{public}{register};
         $game->set_state('REVIVE');
         for my $p ( values %{ $game->{player} } ) {
@@ -60,6 +73,20 @@ sub do_touch {
     else {
         $game->set_state('MOVE');
     }
+}
+
+sub die {
+    my ( $self, $game, $c ) = @_;
+    return if $c->{public}{dead};
+
+    $c->{public}{dead} = 1;
+    $c->{public}{lives}--;
+    $game->broadcast(
+        {   cmd    => 'death',
+            player => $c->{id},
+            lives  => $c->{public}{lives}
+        }
+    );
 }
 
 sub heal {

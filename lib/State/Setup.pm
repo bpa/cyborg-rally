@@ -18,6 +18,7 @@ sub on_enter {
     my $dock = 1;
     for my $p ( shuffle values %{ $game->{player} } ) {
         $p->{public}{dock}      = $dock++;
+        $p->{public}{dead}      = '';
         $p->{public}{lives}     = $game->{opts}{start_with_4_lives} ? 4 : 3;
         $p->{public}{memory}    = 9;
         $p->{public}{damage}    = $game->{opts}{start_with_2_damage} ? 2 : 0;

@@ -72,7 +72,6 @@ sub join {
         $self->broadcast(
             { cmd => 'join', id => $c->{id}, player => $c->{public} } );
     }
-
 }
 
 sub on_rename {
@@ -117,7 +116,7 @@ sub update {
         $self->{state} = $next;
         $self->{public}{state} = $next->{name};
         for my $p (values %{$self->{player}}) {
-            $p->{public}{ready} = '';
+            $p->{public}{ready} = $p->{public}{dead};
         }
         $self->broadcast( { cmd => 'state', state => $next->{name} } );
         $next->on_enter($self);

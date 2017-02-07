@@ -37,7 +37,7 @@ function on_message(m) {
 class Client extends React.Component {
     constructor() {
         super();
-		this.ws = new Socket(on_message.bind(this));
+        this.ws = new Socket(on_message.bind(this));
         this.state = { view: () => <div>Initializing...</div> };
         this.setView = this.setView.bind(this);
         this.back = this.back.bind(this);
@@ -45,7 +45,7 @@ class Client extends React.Component {
     }
 
     static childContextTypes = {
-		rebass: React.PropTypes.object
+        rebass: React.PropTypes.object
     }
   
     getChildContext () {
@@ -70,7 +70,7 @@ class Client extends React.Component {
     }
 
     back() {
-		this.stack.pop();
+        this.stack.pop();
         this.setState({view: this.stack[this.stack.length-1]});
     }
 
@@ -88,17 +88,17 @@ class Client extends React.Component {
     }
 
     on_welcome(msg) {
-    	if ( window.sessionStorage.token !== undefined ) {
-    	  	this.ws.send({
-		  		cmd: 'login',
-		  		name: window.localStorage.name,
-		  		token: window.sessionStorage.token,
-		  	});
-    	}
-    	else {
-    	  	this.ws.send({ cmd: 'login', name: window.localStorage.name });
-    	}
-	}
+        if ( window.localStorage.token !== undefined ) {
+              this.ws.send({
+                  cmd: 'login',
+                  name: window.localStorage.name,
+                  token: window.localStorage.token,
+              });
+        }
+        else {
+              this.ws.send({ cmd: 'login', name: window.localStorage.name });
+        }
+    }
 
     on_join(msg) {
         state.public.player[msg.id] = msg.player;
@@ -109,7 +109,7 @@ class Client extends React.Component {
     }
 
     on_login(msg) {
-		window.sessionStorage.token = msg.token;
+        window.localStorage.token = msg.token;
     }
 
     on_joined(msg) {
