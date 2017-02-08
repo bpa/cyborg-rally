@@ -1,4 +1,5 @@
 import Button from 'rebass/src/Button';
+import DotIndicator from 'rebass/src/DotIndicator';
 import Panel from 'rebass/src/Panel';
 import PanelHeader from 'rebass/src/PanelHeader';
 import Announcing from "./Announcing";
@@ -28,7 +29,11 @@ export default class Playing extends React.Component {
             view = Waiting;
         }
         this.quit = this.quit.bind(this);
-        this.state = { view: view, name: state.public.state };
+        this.state = {
+            view: view,
+            name: state.public.state,
+            register:state.public.register
+        };
     }
 
     on_state(msg) {
@@ -38,11 +43,35 @@ export default class Playing extends React.Component {
         if (!view) {
             view = Waiting;
         }
-        this.setState({view:view, name:msg.state});
+        if (msg.state === 'Programming') {
+            state.public.register = undefined;
+        }
+        else if (msg.state === 'Movement') {
+            if (state.public.register == undefined)
+                state.public.register = 0;
+            else
+                state.public.register++;
+        }
+        this.setState({
+            view:view,
+            name:msg.state,
+            register:state.public.register
+        });
     }
 
     quit() {
         this.props.ws.send({cmd: 'quit'});
+    }
+
+    register() {
+        if (this.state.register !== undefined) {
+            return (
+            <div style={{right:24, top:16, position:'absolute', textAlign:'center'}}>
+                Register<br/>
+                <DotIndicator active={this.state.register} style={{position:'relative', top:-4}} length={5}/>
+            </div>);
+        }
+        return <span/>
     }
 
     render() {
@@ -50,7 +79,7 @@ export default class Playing extends React.Component {
         return (
 <Panel theme="info">
   <PanelHeader style={{textTransform:'captitalize'}}>
-    {this.state.name.replace('_', ' ')}
+    {this.state.name.replace('_', ' ')} {this.register()}
   </PanelHeader>
     <State {...this.props} ref={(e)=>this.view = e}/>
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
