@@ -12,7 +12,7 @@ subtest 'no hits' => sub {
     $rally->drop_packets;
 
     $p1->broadcast( 'ready', { cmd => 'ready', player => $p1->{id} } );
-    $p2->broadcast( 'ready', { cmd => 'state', state  => 'Lasers' } );
+    $p2->broadcast( 'ready', { cmd => 'state', state  => 'Touching' } );
 
     done;
 };
@@ -42,7 +42,7 @@ subtest 'hit first' => sub {
         { cmd => 'ready', player => $p1->{id} }
     );
     is( $p2->{public}{damage}, 1 );
-    $p2->broadcast( 'ready', { cmd => 'state', state => 'Lasers' } );
+    $p2->broadcast( 'ready', { cmd => 'state', state => 'Touching' } );
 
     done;
 };
@@ -67,7 +67,7 @@ subtest 'hit second' => sub {
             player => $p2->{id},
             damage => 1,
         },
-        { cmd => 'state', state => 'Lasers' }
+        { cmd => 'state', state => 'Touching' }
     );
     is( $p2->{public}{damage}, 1 );
 
@@ -142,7 +142,7 @@ subtest 'self resolve dispute' => sub {
     $p2->game( deny => { type => 'laser', player => $p1->{id} } );
     cmp_deeply( $p1->{packets}, [ { cmd => 'dispute', player => $p2->{id} } ] );
     $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
-    $p1->broadcast( 'ready' => { cmd => 'state', state => 'Lasers' } );
+    $p1->broadcast( 'ready' => { cmd => 'state', state => 'Touching' } );
     is( $p2->{public}{damage}, 0 );
 
     done;

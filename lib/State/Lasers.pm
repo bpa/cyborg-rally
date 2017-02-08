@@ -8,7 +8,7 @@ use constant DIR => qw/n e s w/;
 
 sub on_enter {
     my ($self, $game) = @_;
-    $game->set_state('TOUCH') if $game->ready;
+    $game->set_state('FIRE') if $game->ready;
 }
 
 sub do_laser {
@@ -27,7 +27,7 @@ sub do_laser {
     }
 
     if ($game->ready) {
-        $game->set_state('TOUCH');
+        $game->set_state('FIRE');
     }
 }
 

@@ -18,17 +18,18 @@ use State::Waiting;
 
 sub BUILD {
     my ( $self, $opts ) = @_;
-    $self->{opts}{timer}               = $opts->{timer}               || '1st+30s';
-    $self->{opts}{conveyors}           = $opts->{conveyors}           || 1;
-    $self->{opts}{express_conveyors}   = $opts->{express_conveyors}   || 1;
-    $self->{opts}{pushers}             = $opts->{pushers}             || 0;
-    $self->{opts}{gears}               = $opts->{gears}               || 1;
-    $self->{opts}{start_with_4_lives}  = $opts->{start_with_4_lives}  || 0;
-    $self->{opts}{start_with_2_damage} = $opts->{start_with_2_damage} || 0;
-    $self->{opts}{choose_1_of_3_options} = $opts->{choose_1_of_3_options} || 0;
-    $self->{opts}{start_with_option}     = $opts->{start_with_option}     || 0;
-    $self->{opts}{no_power_down}         = $opts->{no_power_down}         || 0;
-    $self->{opts}{option_for_heal}       = $opts->{option_for_heal}       || 0;
+    $self->{opts}{timer}                 = $opts->{timer} || '1st+30s';
+    $self->{opts}{board_lasers}          = !!$opts->{board_lasers};
+    $self->{opts}{conveyors}             = !!$opts->{conveyors};
+    $self->{opts}{express_conveyors}     = !!$opts->{express_conveyors};
+    $self->{opts}{pushers}               = !!$opts->{pushers};
+    $self->{opts}{gears}                 = !!$opts->{gears};
+    $self->{opts}{start_with_4_lives}    = !!$opts->{start_with_4_lives};
+    $self->{opts}{start_with_2_damage}   = !!$opts->{start_with_2_damage};
+    $self->{opts}{choose_1_of_3_options} = !!$opts->{choose_1_of_3_options};
+    $self->{opts}{start_with_option}     = !!$opts->{start_with_option};
+    $self->{opts}{no_power_down}         = !!$opts->{no_power_down};
+    $self->{opts}{option_for_heal}       = !!$opts->{option_for_heal};
 
     $self->{states} = {
         INITIAL  => State::Waiting->new,
@@ -43,7 +44,6 @@ sub BUILD {
         REVIVE   => State::Revive->new,
         POWER    => State::PowerDown->new,
     };
-    $self->{states}{BOARD} = $self->{states}{FIRE};
 
     my $last;
     my $num = '';
@@ -54,7 +54,15 @@ sub BUILD {
               = State::Board->new( $s, "BOARD" . ++$num );
         }
     }
-    $last->{next} = 'FIRE' if $last;
+
+    my $next = $self->{opts}{board_lasers} ? 'LASER' : 'FIRE';
+
+    if ($last) {
+        $last->{next} = $next;
+    }
+    else {
+        $self->{states}{BOARD} = $self->{states}{$next};
+    }
 }
 
 sub damage {

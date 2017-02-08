@@ -14,6 +14,7 @@ export default class CreateGame extends React.Component {
 		this.state = {
             timer: '1st+30s',
             conveyors: true,
+            board_lasers: true,
             express_conveyors: true,
             pushers: false,
             gears: true,
@@ -73,6 +74,7 @@ export default class CreateGame extends React.Component {
     </Card>
 	<Card>
         <Heading>Active Elements</Heading>
+	    <Checkbox theme="success" name="l" label="Board lasers" checked={this.state.board_lasers} onClick={this.check.bind(this, 'board_lasers')} readOnly/>
 	    <Checkbox theme="success" name="c" label="Conveyor Belts" checked={this.state.conveyors} onClick={this.check.bind(this, 'conveyors')} readOnly/>
 	    <Checkbox theme="success" name="e" label="Express Conveyor Belts" checked={this.state.express_conveyors} onClick={this.check.bind(this, 'express_conveyors')} readOnly/>
 	    <Checkbox theme="success" name="p" label="Pushers" checked={this.state.pushers} onClick={this.check.bind(this, 'pushers')} readOnly/>
