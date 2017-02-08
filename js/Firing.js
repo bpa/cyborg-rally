@@ -6,18 +6,20 @@ export default class Firing extends React.Component {
     constructor(props) {
         super(props);
         this.state = {players:this.players()};
-        const keys = Object.keys(state.state);
-        keys.map(function(k) {
-            var p = state.state[k];
-            if (p[0] && p[0].target === state.id) {
-                props.ws.send({
-                    cmd: 'confirm',
-                    player: k,
-                    type: p[0].type,
-                    confirmed: true
-                });
-            }
-        });
+        if (state.state) {
+            const keys = Object.keys(state.state);
+            keys.map(function(k) {
+                var p = state.state[k];
+                if (p[0] && p[0].target === state.id) {
+                    props.ws.send({
+                        cmd: 'confirm',
+                        player: k,
+                        type: p[0].type,
+                        confirmed: true
+                    });
+                }
+            });
+        }
     }
 
     ready(r) {

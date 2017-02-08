@@ -9,7 +9,7 @@ export default class Touching extends React.Component {
 <div>
     <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'floor')}>
-        Floor
+        None
     </ButtonOutline>
     <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'repair')}>
