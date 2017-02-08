@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use parent 'State';
 use List::Util 'all';
-use AnyEvent;
 
 sub on_enter {
     my ( $self, $game ) = @_;

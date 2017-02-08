@@ -2,11 +2,11 @@ package Game;
 
 use strict;
 use warnings;
-use AnyEvent;
 use Data::UUID;
 use Carp;
 use State;
 use List::MoreUtils 'false';
+use EV;
 
 my $uuid = Data::UUID->new;
 
@@ -102,7 +102,7 @@ sub timer {
     my ( $self, $delay, $f, @args ) = @_;
     undef $self->{timer};
     $self->broadcast( { cmd => 'timer', delay => $delay } );
-    $self->{timer} = AE::timer $delay, 0, sub {
+    $self->{timer} = EV::timer $delay, 0, sub {
         $f->(@args);
         $self->update;
     };

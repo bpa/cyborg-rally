@@ -24,6 +24,14 @@ export default class Movement extends React.Component {
         this.setState({order:msg.order});
     }
 
+    players() {
+        if (this.state.order.map) {
+            return this.state.order.map(this.player);
+        }
+        else {
+            return <div/>
+        }
+    }
     player(bot) {
         const p = state.public.player[bot.player];
         return (
@@ -36,7 +44,7 @@ export default class Movement extends React.Component {
     render() {
     return (
 <div>
-    {this.state.order.map(this.player)}
+    {this.players()}
     <Footer>
 	<Button theme={state.me.ready?'success':'error'}
         onClick={this.ready.bind(this, state.me.ready)}>

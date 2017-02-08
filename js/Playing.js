@@ -2,6 +2,7 @@ import Button from 'rebass/src/Button';
 import Panel from 'rebass/src/Panel';
 import PanelHeader from 'rebass/src/PanelHeader';
 import Announcing from "./Announcing";
+import Firing from "./Firing";
 import Lasers from "./Lasers";
 import Movement from "./Movement";
 import Programming from "./Programming";
@@ -11,6 +12,7 @@ import state from "./State";
 
 var STATE = {
     Announcing: Announcing,
+    Firing: Firing,
     Lasers: Lasers,
     Movement: Movement,
     Programming: Programming,
