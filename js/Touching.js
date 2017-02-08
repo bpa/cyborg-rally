@@ -5,7 +5,15 @@ export default class Touching extends React.Component {
         this.props.ws.send({cmd:'touch', tile:tile});
     }
 
-    render() { return (
+    on_ready(msg) {
+        this.setState({players: state.public.player});
+    }
+
+    render() {
+        return state.me.ready ? waiting() : normal();
+    }
+
+    normal() { return (
 <div>
     <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
         onClick={this.touch.bind(this, 'floor')}>
@@ -33,4 +41,8 @@ export default class Touching extends React.Component {
     </ButtonOutline>
 </div>
     )}
+
+    waiting() {
+        return <Button theme="success">Waiting...</Button>;
+    }
 }

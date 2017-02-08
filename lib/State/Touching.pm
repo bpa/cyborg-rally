@@ -19,7 +19,7 @@ sub on_enter {
     $game->{public}{register}++;
 
     for my $p ( values %{ $game->{player} } ) {
-        if ( $p->{public}{lives} == 0 ) {
+        if ( $p->{public}{lives} == 0 || $p->{public}{dead} ) {
             $self->{public}{ $p->{id} } = 'floor';
         }
     }

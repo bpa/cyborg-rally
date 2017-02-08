@@ -57,6 +57,12 @@ sub do_create_game {
     );
 }
 
+sub do_error {
+    my ( $self, $c, $msg ) = @_;
+    print STDERR "Error from ", $c->{public}{name}, "\n",
+                $msg->{message}, "\n";
+}
+
 sub do_games {
     my ( $self, $c, $msg ) = @_;
     my @games;

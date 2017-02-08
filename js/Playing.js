@@ -63,6 +63,10 @@ export default class Playing extends React.Component {
         this.props.ws.send({cmd: 'quit'});
     }
 
+    options() {
+        return <div/>
+    }
+
     register() {
         if (this.state.register !== undefined) {
             return (
@@ -82,6 +86,7 @@ export default class Playing extends React.Component {
     {this.state.name.replace('_', ' ')} {this.register()}
   </PanelHeader>
     <State {...this.props} ref={(e)=>this.view = e}/>
+    {options()}
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>

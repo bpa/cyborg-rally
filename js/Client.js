@@ -37,7 +37,14 @@ function on_message(m) {
 class Client extends React.Component {
     constructor() {
         super();
-        this.ws = new Socket(on_message.bind(this));
+        var ws = this.ws = new Socket(on_message.bind(this));
+        window.onerror =  function(messageOrEvent, source, lineno, colno, error) {
+            console.log(source, lineno);
+            ws.send({cmd: 'error',
+                message: error.message,
+                stack: error.stack
+            });
+        }
         this.state = { view: () => <div>Initializing...</div> };
         this.setView = this.setView.bind(this);
         this.back = this.back.bind(this);
