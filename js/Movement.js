@@ -10,6 +10,7 @@ export default class Movement extends React.Component {
     constructor(props) {
         super(props);
         this.state = {order:state.state || []};
+        this.ready = this.ready.bind(this);
     }
     
     on_move(msg) {
@@ -41,16 +42,13 @@ export default class Movement extends React.Component {
 </Container> )
     }
 
-    render() {
-    return (
-<div>
-    {this.players()}
-    <Footer>
-	<Button theme={state.me.ready?'success':'error'}
-        onClick={this.ready.bind(this, state.me.ready)}>
-		{state.me.ready?'Ready':'Not Ready'}
-	</Button>
-    </Footer>
-</div>
+    render() { return (
+        <div>
+            <Button theme="success" onClick={this.ready}>
+                {state.me.ready ? 'Waiting...' : 'Ready'}
+            </Button>
+            <hr/>
+            {this.players()}
+        </div>
     )}
 }

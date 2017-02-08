@@ -42,13 +42,12 @@ export default class Firing extends React.Component {
     render() {
     return (
 <div>
-    {this.state.players}
-    <Footer>
 	<Button theme={state.me.ready?'success':'error'}
         onClick={this.ready.bind(this, state.me.ready)}>
 		{state.me.ready?'Waiting...':'No one in line of sight'}
 	</Button>
-    </Footer>
+    <hr/>
+    {this.state.players}
 </div>
     )}
 

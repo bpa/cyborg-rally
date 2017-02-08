@@ -6,22 +6,32 @@ export default class Waiting extends React.Component {
     constructor(props) {
         super(props);
         this.state = {players:this.players()};
+        this.ready = this.ready.bind(this);
+        this.not_ready = this.not_ready.bind(this);
     }
-    ready(r) {
-        this.props.ws.send({cmd: r ? 'not_ready' : 'ready'});
+    not_ready() {
+        this.props.ws.send({cmd: 'not_ready'});
+    }
+    ready() {
+        this.props.ws.send({cmd: 'ready'});
     }
     render() {
-    return (
+        const btn
+            = !state.me.ready ?
+                <Button theme="success" onClick={this.ready}>Ready</Button>
+            : state.public.state === 'Waiting' ?
+                <Button theme="error" onClick={this.not_ready}>Not Ready</Button>
+            :   <Button theme="success">Waiting...</Button>;
+                
+        return (
 <div>
+	{btn}
+    <hr/>
     {this.state.players}
-    <Footer>
-	<Button theme={state.me.ready?'success':'error'}
-        onClick={this.ready.bind(this, state.me.ready)}>
-		{state.me.ready?'Ready':'Not Ready'}
-	</Button>
-    </Footer>
 </div>
     )}
+
+    on_state(msg) { this.setState({players:this.players()}); }
 
     on_ready(msg) { this.setState({players:this.players()}); }
 

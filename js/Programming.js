@@ -64,7 +64,7 @@ export default class Programming extends React.Component {
                         onClick={this.choose.bind(this,c)}/>);
         return (
 <div>
-  <Panel theme="success">
+  <Panel theme="warning">
     <PanelHeader>Registers</PanelHeader>
     {registers}
   </Panel>
@@ -72,7 +72,9 @@ export default class Programming extends React.Component {
     <PanelHeader>Movement Options</PanelHeader>
     {cards}
   </Panel>
-  <Button onClick={this.ready}>Ready</Button>
+  <Button theme={state.me.ready?'error':'success'} onClick={this.ready}>
+    {state.me.ready?'Not Ready':'Ready'}
+  </Button>
 </div>
     )}
 }
