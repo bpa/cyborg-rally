@@ -33,30 +33,12 @@ sub do_ready {
         return;
     }
 
-    my $register = $c->{public}{registers}[ $game->{public}{register} ];
-    if ( $register->{program}[-1]{name} =~ /[rul]/ ) {
-        my $idx = firstidx { $_->{player} eq $c->{id} } @{ $self->{public} };
-        splice @{ $self->{public} }, $idx, 1;
-    }
-    elsif ( $c->{id} eq $self->{public}[0]{player} ) {
-        shift @{ $self->{public} };
-    }
-    else {
-        $c->err('Not your turn');
-        return;
-    }
-
     $c->{public}{ready} = 1;
-    if ( @{ $self->{public} } ) {
-        $game->broadcast(
-            {   cmd    => 'ready',
-                player => $c->{id},
-                order  => $self->{public}
-            }
-        );
+    if ( $game->ready ) {
+        $game->set_state('BOARD');
     }
     else {
-        $game->set_state('BOARD');
+        $game->broadcast( { cmd => 'ready', player => $c->{id}, } );
     }
 }
 

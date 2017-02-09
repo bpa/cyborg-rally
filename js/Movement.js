@@ -22,7 +22,7 @@ export default class Movement extends React.Component {
     }
 
     on_ready(msg) {
-        this.setState({order:msg.order});
+        this.setState({player:state.public.player});
     }
 
     players() {

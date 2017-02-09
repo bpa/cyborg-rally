@@ -90,26 +90,13 @@ subtest 'move order' => sub {
 
     $p1->broadcast(
         { cmd => 'ready' },
-        {   cmd    => 'ready',
-            player => $p1->{id},
-            order  => [
-                { player => $p3->{id}, priority => 30, program => ignore },
-                { player => $p2->{id}, priority => 20, program => ignore }
-            ]
-        },
+        { cmd => 'ready', player => $p1->{id}, },
         'Rotations can move any time'
     );
     $p1->game( { cmd => 'ready' }, { cmd => 'error', reason => 'Already moved' } );
 
-    $p2->game( { cmd => 'ready' }, { cmd => 'error', reason => 'Not your turn' } );
-    $p3->broadcast(
-        { cmd => 'ready' },
-        {   cmd    => 'ready',
-            player => $p3->{id},
-            order  => [ { player => $p2->{id}, priority => 20, program => ignore } ]
-        }
-    );
-    $p2->broadcast( { cmd => 'ready' }, { cmd => 'state', state => 'Firing' } );
+    $p2->broadcast( { cmd => 'ready' }, { cmd => 'ready', player => $p2->{id}, } );
+    $p3->broadcast( { cmd => 'ready' }, { cmd => 'state', state  => 'Firing' } );
 
     is( ref( $rally->{state} ), 'State::Firing' );
 
@@ -124,18 +111,12 @@ subtest 'player died' => sub {
     $rally->update;
     $rally->drop_packets;
 
-    is($p1->{public}{ready}, 1, 'dead players are ready');
+    is( $p1->{public}{ready}, 1, 'dead players are ready' );
     $p1->game('ready');
-    cmp_deeply( $p1->{packets}, [{ cmd => 'error', reason => 'Already moved' } ]);
+    cmp_deeply( $p1->{packets}, [ { cmd => 'error', reason => 'Already moved' } ] );
 
-    $p3->broadcast(
-        { cmd => 'ready' },
-        {   cmd    => 'ready',
-            player => $p3->{id},
-            order  => [ { player => $p2->{id}, priority => 20, program => ignore } ]
-        }
-    );
-    $p2->broadcast( { cmd => 'ready' }, { cmd => 'state', state => 'Firing' } );
+    $p3->broadcast( { cmd => 'ready' }, { cmd => 'ready', player => $p3->{id} } );
+    $p2->broadcast( { cmd => 'ready' }, { cmd => 'state', state  => 'Firing' } );
 
     is( ref( $rally->{state} ), 'State::Firing' );
 

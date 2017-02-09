@@ -86,7 +86,7 @@ export default class Playing extends React.Component {
     {this.state.name.replace('_', ' ')} {this.register()}
   </PanelHeader>
     <State {...this.props} ref={(e)=>this.view = e}/>
-    {options()}
+    {this.options()}
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>

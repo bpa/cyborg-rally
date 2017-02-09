@@ -1,4 +1,5 @@
 import ButtonOutline from 'rebass/src/ButtonOutline';
+import state from './State';
 
 export default class Touching extends React.Component {
     touch(tile) {
@@ -10,7 +11,7 @@ export default class Touching extends React.Component {
     }
 
     render() {
-        return state.me.ready ? waiting() : normal();
+        return state.me.ready ? this.waiting() : this.normal();
     }
 
     normal() { return (
