@@ -110,7 +110,7 @@ sub upgrade {
 
 sub on_exit {
     my ( $self, $game ) = @_;
-    delete $self->{public};
+    $self->{public} = {};
 }
 
 1;

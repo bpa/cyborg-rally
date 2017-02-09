@@ -1,49 +1,46 @@
+import Button from 'rebass/src/Button';
 import ButtonOutline from 'rebass/src/ButtonOutline';
 import state from './State';
 
 export default class Touching extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {tiles: state.state || {}};
+        console.log("constructor");
+    }
+
     touch(tile) {
         this.props.ws.send({cmd:'touch', tile:tile});
     }
 
-    on_ready(msg) {
-        this.setState({players: state.public.player});
+    on_touch(msg) {
+        const tiles = this.state.tiles;
+        tiles[msg.player] = msg.tile;
+        this.setState({tiles: tiles});
     }
 
-    render() {
-        return state.me.ready ? this.waiting() : this.normal();
+    button(label, key) {
+        if (this.state.tiles[state.id] === key) { return (
+    <Button theme="info" style={{width:'45%',paddingBottom:'30%',
+            margin:'.4em',marginBottom:'.4em'}}>
+        {label}
+    </Button>
+        )}
+        else { return (
+    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
+        onClick={this.touch.bind(this, key)}>
+        {label}
+    </ButtonOutline>
+        )}
     }
-
-    normal() { return (
-<div>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'floor')}>
-        None
-    </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'repair')}>
-        Repair
-    </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'upgrade')}>
-        Upgrade
-    </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'flag')}>
-        Flag
-    </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'pit')}>
-        Fell in pit
-    </ButtonOutline>
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        onClick={this.touch.bind(this, 'off')}>
-        Off the board
-    </ButtonOutline>
-</div>
+    render() { return (
+        <div>
+            {this.button('None', 'floor')}
+            {this.button('Repair', 'repair')}
+            {this.button('Upgrade', 'upgrade')}
+            {this.button('Flag', 'flag')}
+            {this.button('Fell in pit', 'pit')}
+            {this.button('Off the board', 'off')}
+        </div>
     )}
-
-    waiting() {
-        return <Button theme="success">Waiting...</Button>;
-    }
 }

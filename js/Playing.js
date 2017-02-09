@@ -37,6 +37,7 @@ export default class Playing extends React.Component {
     }
 
     on_state(msg) {
+        state.state = {};
         state.public.state = msg.state;
         Object.keys(state.public.player).map((p) => state.public.player[p].ready = 0);
         var view = STATE[msg.state];
