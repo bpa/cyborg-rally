@@ -39,7 +39,6 @@ class Client extends React.Component {
         super();
         var ws = this.ws = new Socket(on_message.bind(this));
         window.onerror =  function(messageOrEvent, source, lineno, colno, error) {
-            console.log(source, lineno);
             ws.send({cmd: 'error',
                 message: error.message,
                 stack: error.stack

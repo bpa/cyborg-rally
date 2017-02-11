@@ -86,7 +86,7 @@ export default class Playing extends React.Component {
   <PanelHeader style={{textTransform:'captitalize'}}>
     {this.state.name.replace('_', ' ')} {this.register()}
   </PanelHeader>
-    <State {...this.props} ref={(e)=>this.view = e}/>
+    <State {...this.props} state={this.state.name} ref={(e)=>this.view = e}/>
     {this.options()}
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
