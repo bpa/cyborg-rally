@@ -30,7 +30,6 @@ sub on_enter {
         else {
             $p->{public}{ready}     = 1;
             $p->{public}{damage}    = 0;
-            $p->{public}{shutdown}  = '';
             $p->{public}{registers} = DEAD;
             $p->send( { cmd => 'programming' } );
         }

@@ -291,8 +291,8 @@ subtest 'powered down' => sub {
     cmp_deeply( $p1->{public}{registers},
         State::Programming::DEAD, 'Registers filled with NOP' );
     ok( !exists( $p1->{private}{registers} ), 'private registers not defined' );
-    is( $p1->{public}{damage},   0,  'Damage cleared' );
-    is( $p1->{public}{shutdown}, '', 'Shutdown cleared' );
+    is( $p1->{public}{damage},   0, 'Damage cleared' );
+    is( $p1->{public}{shutdown}, 1, 'Stay shutdown until cleanup' );
 
     cmp_deeply( $p1->{packets}, [ { cmd => 'programming' } ] );
     cmp_deeply( $p2->{packets}, [ { cmd => 'programming', cards => cnt(7) } ] );
@@ -303,6 +303,7 @@ subtest 'powered down' => sub {
     cmp_deeply( $p1->{public}{registers},
         State::Programming::DEAD, 'Leave NOP registers alone on exit' );
 
+    $p1->{public}{shutdown} = '';
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
 
