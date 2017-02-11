@@ -7,7 +7,7 @@ use Test::Deep;
 
 require Exporter;
 our @ISA    = 'Exporter';
-our @EXPORT = qw/done Player Game/;
+our @EXPORT = qw/clone done Player Game/;
 
 use CyborgRally;
 use JSON;
@@ -32,6 +32,10 @@ undef &Game::broadcast;
     $self->{packets} = [];
     map { $_->{packets} = [] } values %{ $self->{player} };
 };
+
+sub clone {
+    return $json->decode( $json->encode(shift) );
+}
 
 sub Game {
     my ( $opts, $players ) = @_;

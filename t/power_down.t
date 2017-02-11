@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep;
-use Data::Dumper;
 use CyborgTest;
 
 subtest 'powered down decision' => sub {

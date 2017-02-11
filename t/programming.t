@@ -225,6 +225,29 @@ subtest 'time up' => sub {
     done;
 };
 
+subtest 'time up partial program' => sub {
+    my ( $rally, @p ) = Game( {} );
+
+    my @r;
+    my $n = 0;
+    for my $p (@p) {
+        push @r, $n++;
+        program( $rally, $p, \@r );
+    }
+
+    $rally->{state}->on_exit($rally);
+
+    for my $p (@p) {
+        is( $p->{private}{registers}, undef, "private registers no longer exist" );
+        cmp_deeply( $p->{public}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
+    }
+    my $reg = $p[1]->{public}{registers};
+    cmp_deeply($p[0]->{program}, noclass([$p[0]->{public}{registers}[0]{program}]));
+    cmp_deeply($p[1]->{program}, noclass([$reg->[0]{program}, $reg->[1]{program}]));
+
+    done;
+};
+
 subtest 'time up with locked' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
@@ -334,6 +357,7 @@ sub program {
             push @program, [ $hand->[$c] ];
         }
     }
+    $player->{program} = clone(\@program);
     $player->game( { cmd => 'program', registers => \@program } );
     if ($reason) {
         cmp_deeply( $player->{packets}, [ { cmd => 'error', reason => $reason } ],
