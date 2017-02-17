@@ -3,19 +3,19 @@ package State::Movement;
 use strict;
 use warnings;
 use parent 'State';
-use List::MoreUtils 'firstidx';
 
 sub on_enter {
     my ( $self, $game ) = @_;
 
     my $r = $game->{public}{register};
+    $game->set_ready_to_dead_or_shutdown;
     my @order = sort { $b->{priority} <=> $a->{priority} }
       map {
         my $p
           = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
         $p->{priority} = $p->{program}[0]{priority};
         $p;
-      } grep { !$_->{public}{dead} } values %{ $game->{player} };
+      } grep { !$_->{public}{ready} } values %{ $game->{player} };
     $self->{public} = \@order;
     if (@order) {
         $game->broadcast( { cmd => 'move', order => \@order } );

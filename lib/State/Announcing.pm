@@ -7,15 +7,27 @@ use List::Util 'all';
 
 sub on_enter {
     my ( $self, $game ) = @_;
-    $game->timer( 10, \&Game::set_state, $game, 'EXECUTE' );
+
+    $game->set_ready_to_dead_or_shutdown;
+
+    if ( $game->ready ) {
+        $game->set_state('EXECUTE');
+    }
+    else {
+        $game->timer( 10, \&Game::set_state, $game, 'EXECUTE' );
+    }
 }
 
 sub do_shutdown {
     my ( $self, $game, $c, $msg ) = @_;
-    $c->{public}{shutdown} = !!$msg->{activate};
-    if ( all { exists $_->{public}{shutdown} } values %{ $game->{player} } ) {
-        $game->set_state('EXECUTE');
+    if ( $c->{public}{ready} ) {
+        $c->err('Already declared');
+        return;
     }
+    $c->{public}{ready}    = 1;
+    $c->{public}{shutdown} = !!$msg->{activate};
+
+    $game->set_state('EXECUTE') if $game->ready;
 }
 
 1;

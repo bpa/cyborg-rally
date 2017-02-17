@@ -98,6 +98,20 @@ sub ready {
     return !false { $_->{public}{ready} } values %{ $self->{player} };
 }
 
+sub set_ready_to_dead_or_shutdown {
+    my $self = shift;
+    for my $p ( values %{ $self->{player} } ) {
+        $p->{public}{ready} = !!($p->{public}{dead} || $p->{public}{shutdown});
+    }
+}
+
+sub set_ready_to_dead {
+    my $self = shift;
+    for my $p ( values %{ $self->{player} } ) {
+        $p->{public}{ready} = $p->{public}{dead};
+    }
+}
+
 sub timer {
     my ( $self, $delay, $f, @args ) = @_;
     undef $self->{timer};
@@ -115,9 +129,6 @@ sub update {
         $self->{state}->on_exit($self);
         $self->{state} = $next;
         $self->{public}{state} = $next->{name};
-        for my $p (values %{$self->{player}}) {
-            $p->{public}{ready} = $p->{public}{dead};
-        }
         $self->broadcast( { cmd => 'state', state => $next->{name} } );
         $next->on_enter($self);
     }

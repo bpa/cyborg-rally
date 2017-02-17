@@ -24,10 +24,7 @@ sub on_enter {
         }
     }
 
-    if ( $game->ready ) {
-        delete $game->{public}{register};
-        $game->set_state('REVIVE');
-    }
+    $self->check_for_done($game);
 }
 
 sub do_touch {
@@ -54,6 +51,12 @@ sub do_touch {
     if ( $tile eq 'pit' || $tile eq 'off' ) {
         $self->die( $game, $c );
     }
+
+    $self->check_for_done($game);
+}
+
+sub check_for_done {
+    my ( $self, $game ) = @_;
 
     return
       if scalar( keys %{ $self->{public} } ) != scalar( keys %{ $game->{player} } );

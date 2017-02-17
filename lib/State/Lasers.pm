@@ -8,6 +8,7 @@ use constant DIR => qw/n e s w/;
 
 sub on_enter {
     my ($self, $game) = @_;
+    $game->set_ready_to_dead;
     $game->set_state('FIRE') if $game->ready;
 }
 

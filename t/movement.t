@@ -107,19 +107,51 @@ subtest 'player died' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
     set_registers( $p1, $p2, $p3 );
     $p1->{public}{dead} = 1;
+    $rally->drop_packets;
     $rally->set_state('EXECUTE');
     $rally->update;
-    $rally->drop_packets;
 
     is( $p1->{public}{ready}, 1, 'dead players are ready' );
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'Movement' },
+            {   cmd   => 'move',
+                order => [
+                    move( $p3, 30, [ '2', 31, 30 ] ),
+                    move( $p2, 20, [ '1', 21, 20 ] ),
+                ]
+            },
+        ]
+    );
+
+    $rally->drop_packets;
     $p1->game('ready');
     cmp_deeply( $p1->{packets}, [ { cmd => 'error', reason => 'Already moved' } ] );
+    done;
+};
 
-    $p3->broadcast( { cmd => 'ready' }, { cmd => 'ready', player => $p3->{id} } );
-    $p2->broadcast( { cmd => 'ready' }, { cmd => 'state', state  => 'Firing' } );
+subtest 'shutdown' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    set_registers( $p1, $p2, $p3 );
+    $p1->{public}{shutdown} = 1;
+    $rally->drop_packets;
+    $rally->set_state('EXECUTE');
+    $rally->update;
 
-    is( ref( $rally->{state} ), 'State::Firing' );
-
+    is( $p1->{public}{ready}, 1, 'shutdown players are ready' );
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'Movement' },
+            {   cmd   => 'move',
+                order => [
+                    move( $p3, 30, [ '2', 31, 30 ] ),
+                    move( $p2, 20, [ '1', 21, 20 ] ),
+                ]
+            },
+        ]
+    );
     done;
 };
 

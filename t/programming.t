@@ -192,6 +192,7 @@ subtest 'dead' => sub {
     my ( $rally, $dead, $alive ) = Game( {} );
     $rally->drop_packets;
 
+    $dead->{public}{dead}  = 1;
     $dead->{public}{lives} = 0;
     $rally->{state}->on_enter($rally);
 
@@ -242,8 +243,10 @@ subtest 'time up partial program' => sub {
         cmp_deeply( $p->{public}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
     }
     my $reg = $p[1]->{public}{registers};
-    cmp_deeply($p[0]->{program}, noclass([$p[0]->{public}{registers}[0]{program}]));
-    cmp_deeply($p[1]->{program}, noclass([$reg->[0]{program}, $reg->[1]{program}]));
+    cmp_deeply( $p[0]->{program},
+        noclass( [ $p[0]->{public}{registers}[0]{program} ] ) );
+    cmp_deeply( $p[1]->{program},
+        noclass( [ $reg->[0]{program}, $reg->[1]{program} ] ) );
 
     done;
 };
@@ -357,7 +360,7 @@ sub program {
             push @program, [ $hand->[$c] ];
         }
     }
-    $player->{program} = clone(\@program);
+    $player->{program} = clone( \@program );
     $player->game( { cmd => 'program', registers => \@program } );
     if ($reason) {
         cmp_deeply( $player->{packets}, [ { cmd => 'error', reason => $reason } ],

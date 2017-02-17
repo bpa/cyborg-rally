@@ -28,11 +28,4 @@ sub do_not_ready {
     $game->broadcast( { cmd => 'not_ready', player => $c->{id} } );
 }
 
-sub on_exit {
-    my ( $self, $game ) = @_;
-    for my $p ( values %{ $game->{player} } ) {
-        delete $p->{ready};
-    }
-}
-
 1;

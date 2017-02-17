@@ -13,6 +13,7 @@ sub BUILD {
 
 sub on_enter {
     my ($self, $game) = @_;
+    $game->set_ready_to_dead;
     $game->set_state($self->{next}) if $game->ready;
 }
 

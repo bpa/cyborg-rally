@@ -9,6 +9,7 @@ sub on_enter {
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{shutdown} ) {
             $p->{public}{shutdown} = '';
+            $p->{public}{ready}    = '';
             $p->send('declare_shutdown');
         }
         else {
