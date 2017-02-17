@@ -32,7 +32,12 @@ sub on_enter {
             map { $_->{program} = [] unless $_ && $_->{damaged} }
               @{ $p->{public}{registers} };
             $p->{private}{registers} = [ @{ $p->{public}{registers} } ];
-            $p->send( { cmd => 'programming', cards => $p->{private}{cards} } );
+            $p->send(
+                {   cmd       => 'programming',
+                    cards     => $p->{private}{cards},
+                    registers => $p->{private}{registers}
+                }
+            );
         }
     }
 

@@ -22,14 +22,16 @@ export default class Programming extends React.Component {
             cards: cards.sort((a,b)=>b.priority-a.priority),
             registers: state.private.registers,
         };
-        console.log(this.state);
         this.ready = this.ready.bind(this);
     }
 
     on_programming(msg) {
         const cards = msg.cards.sort((a,b)=>b.priority-a.priority);
         state.private.cards = cards;
-        this.setState({cards: cards});
+        this.setState({
+            cards: cards,
+            registers: msg.registers
+        });
     }
 
     on_program(msg) {

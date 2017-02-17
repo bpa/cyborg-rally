@@ -59,7 +59,7 @@ subtest 'on_enter for two' => sub {
                     public  => ignore,
                     state   => ignore,
                 },
-                { cmd => 'programming', cards => cnt(9) }
+                { cmd => 'programming', cards => cnt(9), registers => ignore }
             ]
         );
     }
@@ -174,8 +174,26 @@ subtest 'locked registers' => sub {
         ]
     );
 
-    cmp_deeply( $p1->{packets}, [ { cmd => 'programming', cards => cnt(4) } ] );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'programming', cards => cnt(7) } ] );
+    cmp_deeply(
+        $p1->{packets},
+        [
+            {   cmd       => 'programming',
+                cards     => cnt(4),
+                registers => [
+                    EMPTY, EMPTY, EMPTY, EMPTY, { damaged => 1, program => ['u20'] }
+                ]
+            }
+        ]
+    );
+    cmp_deeply(
+        $p2->{packets},
+        [
+            {   cmd       => 'programming',
+                cards     => cnt(7),
+                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ]
+            }
+        ]
+    );
 
     # Add a card to simulate 'Extra Memory' option
     push @{ $p1->{private}{cards}{cards} }, 'b0';
@@ -201,7 +219,8 @@ subtest 'dead' => sub {
     cmp_deeply( $dead->{packets}, [ { cmd => 'programming' } ] );
 
     cmp_deeply( $alive->{private}{registers}, State::Setup::CLEAN );
-    cmp_deeply( $alive->{packets}, [ { cmd => 'programming', cards => cnt(9) } ] );
+    cmp_deeply( $alive->{packets},
+        [ { cmd => 'programming', cards => cnt(9), registers => ignore } ] );
 
     done;
 };
@@ -321,7 +340,8 @@ subtest 'powered down' => sub {
     is( $p1->{public}{shutdown}, 1, 'Stay shutdown until cleanup' );
 
     cmp_deeply( $p1->{packets}, [ { cmd => 'programming' } ] );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'programming', cards => cnt(7) } ] );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'programming', cards => cnt(7), registers => ignore } ] );
     cmp_deeply( $p2->{private}{registers}, State::Setup::CLEAN );
     is( $p2->{public}{damage}, 2, 'Player 2 not affected by p1 shutdown' );
 
@@ -334,7 +354,8 @@ subtest 'powered down' => sub {
     $rally->{state}->on_enter($rally);
 
     cmp_deeply( $p1->{private}{registers}, State::Setup::CLEAN );
-    cmp_deeply( $p1->{packets}, [ { cmd => 'programming', cards => cnt(9) } ] );
+    cmp_deeply( $p1->{packets},
+        [ { cmd => 'programming', cards => cnt(9), registers => ignore } ] );
 
     done;
 };
