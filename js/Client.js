@@ -87,10 +87,12 @@ class Client extends React.Component {
 
     on_ready(msg) {
         state.public.player[msg.player].ready = true;
+        state.me = state.public.player[state.id];
     }
 
     on_not_ready(msg) {
         state.public.player[msg.player].ready = false;
+        state.me = state.public.player[state.id];
     }
 
     on_welcome(msg) {
