@@ -64,30 +64,22 @@ export default class Playing extends React.Component {
         this.props.ws.send({cmd: 'quit'});
     }
 
-    options() {
-        return <div/>
-    }
-
-    register() {
-        if (this.state.register !== undefined) {
-            return (
-            <div style={{right:24, top:16, position:'absolute', textAlign:'center'}}>
-                Register<br/>
-                <DotIndicator active={this.state.register} style={{position:'relative', top:-4}} length={5}/>
-            </div>);
-        }
-        return <span/>
-    }
-
     render() {
         const State = this.state.view;
+        var progress
+            = this.state.register !== undefined
+            ? <DotIndicator active={this.state.register} style={{position:'relative', top:-4}} length={5}/>
+            : <span/>;
+
         return (
 <Panel theme="info">
-  <PanelHeader style={{textTransform:'captitalize'}}>
-    {this.state.name.replace('_', ' ')} {this.register()}
+  <PanelHeader style={{textTransform:'captitalize', height:'3em'}}>
+    <div style={{top:'.5em', position:'relative', textAlign:'center'}}>
+        <div>{this.state.name.replace('_', ' ')}</div>
+        {progress}
+    </div>
   </PanelHeader>
     <State {...this.props} state={this.state.name} ref={(e)=>this.view = e}/>
-    {this.options()}
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>
