@@ -7,6 +7,7 @@ use Carp;
 use State;
 use List::MoreUtils 'false';
 use EV;
+use Time::HiRes 'time';
 
 my $uuid = Data::UUID->new;
 
@@ -64,7 +65,8 @@ sub join {
             public  => $self->{public},
             private => $c->{private},
             state   => $self->{state}{public},
-            id      => $c->{id}
+            id      => $c->{id},
+            now     => int( time * 1000 )
         }
     );
 
@@ -101,7 +103,7 @@ sub ready {
 sub set_ready_to_dead_or_shutdown {
     my $self = shift;
     for my $p ( values %{ $self->{player} } ) {
-        $p->{public}{ready} = !!($p->{public}{dead} || $p->{public}{shutdown});
+        $p->{public}{ready} = !!( $p->{public}{dead} || $p->{public}{shutdown} );
     }
 }
 
@@ -113,13 +115,17 @@ sub set_ready_to_dead {
 }
 
 sub timer {
-    my ( $self, $delay, $f, @args ) = @_;
+    my ( $self, $duration, $f, @args ) = @_;
     undef $self->{timer};
-    $self->broadcast( { cmd => 'timer', delay => $delay } );
-    $self->{timer} = EV::timer $delay, 0, sub {
+    $self->{timer} = EV::timer $duration, 0, sub {
+        delete $self->{public}{timer};
         $f->(@args);
         $self->update;
     };
+    my $now = int( time * 1000 );
+    $duration *= 1000;
+    $self->{public}{timer} = { start => $now, duration => $duration };
+    $self->broadcast( { cmd => 'timer', start => $now, duration => $duration } );
 }
 
 sub update {

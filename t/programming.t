@@ -58,6 +58,7 @@ subtest 'on_enter for two' => sub {
                     private => ignore,
                     public  => ignore,
                     state   => ignore,
+                    now     => ignore,
                 },
                 { cmd => 'programming', cards => cnt(9), registers => ignore }
             ]

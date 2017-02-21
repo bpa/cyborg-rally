@@ -27,10 +27,20 @@ function deliver(msg, obj) {
 function on_message(m) {
     let msg = JSON.parse(m.data);
     console.info(msg);
-    var o = this;
-    while (o) {
-        deliver(msg, o);
-        o = o.view;
+    var q = [this], i=0, ii=1;
+    while (i < ii) {
+        var o = q[i++];
+        if (Array.isArray(o)) {
+            ii += o.length;
+            Array.prototype.push.apply(q, o);
+        }
+        else {
+            deliver(msg, o);
+        }
+        if (o.view) {
+            ii++;
+            q.push(o.view);
+        }
     }
 }
 
@@ -122,6 +132,7 @@ class Client extends React.Component {
 
     on_joined(msg) {
         state.id = msg.id;
+        state.timediff = new Date().getTime() - msg.now;
         state.public = msg.public;
         state.private = msg.private;
         state.state = msg.state;

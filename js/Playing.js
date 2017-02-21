@@ -7,6 +7,7 @@ import Firing from "./Firing";
 import Lasers from "./Lasers";
 import Movement from "./Movement";
 import Programming from "./Programming";
+import Timer from "./Timer";
 import Touching from "./Touching";
 import Waiting from "./Waiting";
 import state from "./State";
@@ -29,6 +30,7 @@ export default class Playing extends React.Component {
             view = Waiting;
         }
         this.quit = this.quit.bind(this);
+        this.view = [];
         this.state = {
             view: view,
             name: state.public.state,
@@ -69,7 +71,7 @@ export default class Playing extends React.Component {
         var progress
             = this.state.register !== undefined
             ? <DotIndicator active={this.state.register} style={{position:'relative', top:-4}} length={5}/>
-            : <span/>;
+            : <span>&nbsp;</span>;
 
         return (
 <Panel theme="info">
@@ -78,8 +80,9 @@ export default class Playing extends React.Component {
         <div>{this.state.name.replace('_', ' ')}</div>
         {progress}
     </div>
+    <Timer ref={(e)=>this.view[0] = e}/>
   </PanelHeader>
-    <State {...this.props} state={this.state.name} ref={(e)=>this.view = e}/>
+    <State {...this.props} state={this.state.name} ref={(e)=>this.view[1] = e}/>
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>
