@@ -14,7 +14,7 @@ export default class CreateGame extends React.Component {
 		this.state = {
             timer: '1st+30s',
             conveyors: true,
-            board_lasers: true,
+            board_lasers: false,
             express_conveyors: false,
             pushers: false,
             gears: false,
@@ -42,7 +42,7 @@ export default class CreateGame extends React.Component {
         if (this.name.value) {
             let msg = Object.assign({cmd: 'create_game', name: this.name.value}, this.state);
             delete msg['error'];
-            this.props.ws.send(msg);
+            ws.send(msg);
         }
         else {
             this.setState({error: 'Name is required'});
@@ -52,7 +52,7 @@ export default class CreateGame extends React.Component {
 
     on_create_game(msg) {
         if (this.name.value === msg.name) {
-            this.props.ws.send({cmd: 'join', name: msg.name});
+            ws.send({cmd: 'join', name: msg.name});
         }
     }
 

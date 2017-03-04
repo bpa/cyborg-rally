@@ -1,16 +1,14 @@
 import Button from 'rebass/src/Button';
 import ButtonOutline from 'rebass/src/ButtonOutline';
-import state from './State';
 
 export default class Touching extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {tiles: state.state || {}};
-        console.log("constructor");
+        this.state = {tiles: gs.state || {}};
     }
 
     touch(tile) {
-        this.props.ws.send({cmd:'touch', tile:tile});
+        ws.send({cmd:'touch', tile:tile});
     }
 
     on_touch(msg) {
@@ -20,7 +18,7 @@ export default class Touching extends React.Component {
     }
 
     button(label, key) {
-        if (this.state.tiles[state.id] === key) { return (
+        if (this.state.tiles[gs.id] === key) { return (
     <Button theme="info" style={{width:'45%',paddingBottom:'30%',
             margin:'.4em',marginBottom:'.4em'}}>
         {label}

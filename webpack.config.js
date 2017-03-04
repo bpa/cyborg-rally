@@ -1,5 +1,6 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin'),
     CopyWebpackPlugin = require("copy-webpack-plugin"),
+    WrapperWebpackPlugin = require("wrapper-webpack-plugin"),
     webpack = require("webpack"),
     path = require("path"),
     glob = require("glob"),
@@ -59,6 +60,7 @@ module.exports = {
             template: './index.tpl.html'
         }),
 		new CopyWebpackPlugin(copy),
+        new WrapperWebpackPlugin({header: 'var gs,ws;'}),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,

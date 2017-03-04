@@ -1,5 +1,4 @@
 import Donut from 'rebass/src/Donut';
-import state from './State';
 
 export default class Timer extends React.Component {
     constructor(props) {
@@ -8,11 +7,11 @@ export default class Timer extends React.Component {
     }
 
     componentDidMount() {
-        var timer = state.public.timer;
+        var timer = this.props.timer;
         if (timer) {
-            this.timediff = state.timediff;
+            this.timediff = this.props.timediff;
             this.duration = timer.duration;
-            this.expires = timer.start + timer.duration - state.timediff;
+            this.expires = timer.start + timer.duration - this.props.timediff;
             if (this.expires > new Date().getTime()) {
                 this.start();
             }

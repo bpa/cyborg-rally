@@ -3,31 +3,29 @@ import MovementCard from './MovementCard';
 import Panel from 'rebass/src/Panel';
 import PanelHeader from 'rebass/src/PanelHeader';
 import Register from './Register';
-import state from './State';
 
 export default class Programming extends React.Component {
     constructor(props) {
         super(props);
-        const player = state.public.player;
-        const keys = Object.keys(player);
-        const cards = state.private.cards || []
-        if (!state.private.registers) {
+        const keys = Object.keys(props.players);
+        const cards = gs.private.cards || []
+        if (!gs.private.registers) {
             var reg = [];
             for (var i=0; i<5; i++) {
                 reg.push({damaged:0,program:[]});
             }
-            state.private.registers = reg;
+            gs.private.registers = reg;
         }
         this.state={
             cards: cards.sort((a,b)=>b.priority-a.priority),
-            registers: state.private.registers,
+            registers: gs.private.registers,
         };
         this.ready = this.ready.bind(this);
     }
 
     on_programming(msg) {
         const cards = msg.cards.sort((a,b)=>b.priority-a.priority);
-        state.private.cards = cards;
+        gs.private.cards = cards;
         this.setState({
             cards: cards,
             registers: msg.registers
@@ -43,18 +41,18 @@ export default class Programming extends React.Component {
         const r = reg.find((r)=>r.length==0);
         if (r) {
             r[0] = card;
-            this.props.ws.send({ cmd:'program', registers:reg });
+            ws.send({ cmd:'program', registers:reg });
         }
     }
 
     clear(r) {
         const reg = this.state.registers.map((r)=>r.program);
         reg[r] = [];
-        this.props.ws.send({ cmd:'program', registers:reg });
+        ws.send({ cmd:'program', registers:reg });
     }
 
     ready() {
-        this.props.ws.send({cmd: 'ready'});
+        ws.send({cmd: 'ready'});
     }
 
     render() {
@@ -74,8 +72,8 @@ export default class Programming extends React.Component {
     <PanelHeader>Movement Options</PanelHeader>
     {cards}
   </Panel>
-  <Button theme={state.me.ready?'error':'success'} onClick={this.ready}>
-    {state.me.ready?'Not Ready':'Ready'}
+  <Button theme={this.props.me.ready?'error':'success'} onClick={this.ready}>
+    {this.props.me.ready?'Not Ready':'Ready'}
   </Button>
 </div>
     )}

@@ -1,9 +1,8 @@
 import Button from 'rebass/src/Button';
-import state from './State';
 
 export default class Announcing extends React.Component {
     shutdown(activate) {
-        this.props.ws.send({cmd: 'shutdown', activate: activate});
+        ws.send({cmd: 'shutdown', activate: activate});
     }
 
     render() {

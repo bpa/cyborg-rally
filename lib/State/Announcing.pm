@@ -27,6 +27,13 @@ sub do_shutdown {
     $c->{public}{ready}    = 1;
     $c->{public}{shutdown} = !!$msg->{activate};
 
+    $game->broadcast(
+        {   cmd      => 'shutdown',
+            player   => $c->{id},
+            activate => $c->{public}{shutdown}
+        }
+    );
+
     $game->set_state('EXECUTE') if $game->ready;
 }
 

@@ -1,7 +1,6 @@
 import Socket from "./Socket";
 import Playing from "./Playing";
 import Lobby from "./Lobby";
-import state from "./State";
 
 if (!Array.prototype.last){
     Array.prototype.last = function(){
@@ -47,7 +46,7 @@ function on_message(m) {
 class Client extends React.Component {
     constructor() {
         super();
-        var ws = this.ws = new Socket(on_message.bind(this));
+        ws = new Socket(on_message.bind(this));
         window.onerror =  function(messageOrEvent, source, lineno, colno, error) {
             ws.send({cmd: 'error',
                 message: error.message,
@@ -92,38 +91,21 @@ class Client extends React.Component {
 
     render() {
         const View = this.state.view;
-        return <View ws={this.ws} setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
-    }
-
-    on_ready(msg) {
-        state.public.player[msg.player].ready = true;
-        state.me = state.public.player[state.id];
-    }
-
-    on_not_ready(msg) {
-        state.public.player[msg.player].ready = false;
-        state.me = state.public.player[state.id];
+        return <View setView={this.setView} back={this.back}
+                    ref={(e)=>this.view=e}/>
     }
 
     on_welcome(msg) {
         if ( window.localStorage.token !== undefined ) {
-              this.ws.send({
+              ws.send({
                   cmd: 'login',
                   name: window.localStorage.name,
                   token: window.localStorage.token,
               });
         }
         else {
-              this.ws.send({ cmd: 'login', name: window.localStorage.name });
+              ws.send({ cmd: 'login', name: window.localStorage.name });
         }
-    }
-
-    on_join(msg) {
-        state.public.player[msg.id] = msg.player;
-    }
-
-    on_quit(msg) {
-        delete state.public.player[msg.id];
     }
 
     on_login(msg) {
@@ -131,18 +113,10 @@ class Client extends React.Component {
     }
 
     on_joined(msg) {
-        state.id = msg.id;
-        state.timediff = new Date().getTime() - msg.now;
-        state.public = msg.public;
-        state.private = msg.private;
-        state.state = msg.state;
-        state.me = msg.public.player[msg.id];
-        if (msg.game === 'Rally') {
-            this.setState({view: Playing});
-        }
-        else {
-            this.setState({view: Lobby});
-        }
+        delete msg.cmd;
+        msg.timediff = new Date().getTime() - msg.now;
+        gs = msg;
+        this.setState({view: msg.game === 'Rally' ? Playing : Lobby});
     }
 }
 

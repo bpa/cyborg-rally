@@ -15,6 +15,7 @@ our $| = 1;
 my $json = JSON::XS->new;
 my $cv = AnyEvent->condvar;
 my $num = $ARGV[0] || 4;
+my $state;
 
 for my $i ( 1 .. $num ) {
     tcp_connect
@@ -56,15 +57,20 @@ package Bot;
 
 use Term::ANSIColor;
 use Data::Dumper;
+use Time::HiRes 'usleep';
 
 sub new {
     my ( $pkg, $name, $fh ) = @_;
-    return bless { name => $name, fh => $fh }, $pkg;
+    return bless { name => $name, fh => $fh, primary => !!($name =~ m#1/#) }, $pkg;
 }
 
 sub on_message {
     my ( $self, $msg ) = @_;
-	print Dumper $msg;
+    if ($self->{primary}) {
+        print STDERR color($msg->{cmd} eq 'error' ? 'red' : 'green');
+        print STDERR Dumper $msg;
+        print STDERR color('reset');
+    }
 	return unless $msg->{cmd};
 	my $f = "do_" . $msg->{cmd};
 	$self->$f($msg);
@@ -72,12 +78,17 @@ sub on_message {
 
 sub send {
     my ( $self, $cmd, $msg ) = @_;
-    $msg ||= {};
-    $msg = { $cmd => $msg } unless ref($msg) eq 'HASH';
-    $msg->{cmd} = $cmd;
-	print color('yellow');
-	print Dumper $msg;
-	print color('reset');
+    if ( ref($cmd) eq '') {
+        $msg->{cmd} = $cmd;
+    }
+    else {
+        $msg = $cmd;
+    }
+    if ($self->{primary}) {
+        print STDERR color('yellow');
+        print STDERR Dumper $msg;
+        print STDERR color('reset');
+    }
     syswrite $self->{fh}, $json->encode($msg);
 }
 
@@ -91,36 +102,55 @@ sub do_login {
 	$self->{token} = $msg->{token};
 }
 
-sub do_games {
+sub do_join {
     my ( $self, $msg ) = @_;
-    if ( @{$msg->{games}} ) {
-        $self->send( 'join' => { name => $msg->{games}[0]{name} } );
-    }
-	elsif ($self->{name} =~ m#^1/#) {
-		$self->send( create_game => { 
-			name => 'Bot',
-            conveyors => 1,
-            express_conveyors => 1,
-            gears => 1,
-		});
-	}
+    $state->{public}{player}{$msg->{id}} = $msg->{player};
 }
 
 sub do_joined {
     my ( $self, $msg ) = @_;
-	if ($msg->{game} eq 'Lobby') {
-    	$self->send('games');
-	}
-}
-
-sub do_error {
-    my ( $self, $msg ) = @_;
-    print Dumper $msg;
+    $state = $msg;
 }
 
 sub do_create_game {
     my ( $self, $msg ) = @_;
 	$self->send('join' => { name => $msg->{name} });
+}
+
+sub do_programming {
+    my ( $self, $msg ) = @_;
+    #$self->send({cmd => 'program', registers => [@{$msg->{cards}}[0..4]]});
+}
+
+sub do_ready {
+    my ( $self, $msg ) = @_;
+    $self->send('ready') unless $msg->{player} eq $state->{id};
+}
+
+sub do_shutdown {
+    my ( $self, $msg ) = @_;
+    $self->send('shutdown')
+        if $state->{public}{player}{$msg->{player}}{name} !~ m#/#;
+}
+
+sub do_touch {
+    my ( $self, $msg ) = @_;
+    if ($state->{public}{player}{$msg->{player}}{name} !~ m#/#) {
+        $self->send({cmd => 'touch', tile => 'floor'});
+    }
+}
+
+sub do_state {
+    my ( $self, $msg ) = @_;
+    $state->{public}{state} = $msg->{state};
+}
+
+sub do_quit {
+    my ( $self, $msg ) = @_;
+    if ($state->{game} eq 'Rally' && $msg->{name} !~ m#/#) {
+        print Dumper $msg;
+        $self->send('quit')
+    }
 }
 
 1;

@@ -62,6 +62,7 @@ sub join {
         {   cmd     => 'joined',
             game    => $self->{game},
             name    => $self->{name},
+            opts    => $self->{opts},
             public  => $self->{public},
             private => $c->{private},
             state   => $self->{state}{public},

@@ -6,7 +6,7 @@ import PanelHeader from 'rebass/src/PanelHeader';
 export default class ChooseName extends React.Component {
     onClick(e) {
         window.localStorage.name = this.name.value;
-        this.props.ws.send({cmd:'set_name', name:this.name.value});
+        ws.send({cmd:'set_name', name:this.name.value});
         this.props.back();
     }
 

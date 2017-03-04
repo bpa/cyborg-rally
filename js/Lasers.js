@@ -2,7 +2,7 @@ import ButtonOutline from 'rebass/src/ButtonOutline';
 
 export default class Lasers extends React.Component {
     laser(count) {
-        this.props.ws.send({cmd:'laser', n:count});
+        ws.send({cmd:'laser', n:count});
     }
 
     render() { return (

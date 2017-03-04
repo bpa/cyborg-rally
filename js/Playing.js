@@ -10,7 +10,6 @@ import Programming from "./Programming";
 import Timer from "./Timer";
 import Touching from "./Touching";
 import Waiting from "./Waiting";
-import state from "./State";
 
 var STATE = {
     Announcing: Announcing,
@@ -25,7 +24,7 @@ var STATE = {
 export default class Playing extends React.Component {
     constructor(props) {
         super(props);
-        var view = STATE[state.public.state];
+        var view = STATE[gs.public.state];
         if (!view) {
             view = Waiting;
         }
@@ -33,56 +32,84 @@ export default class Playing extends React.Component {
         this.view = [];
         this.state = {
             view: view,
-            name: state.public.state,
-            register:state.public.register
+            players: gs.public.player,
         };
     }
 
     on_state(msg) {
-        state.state = {};
-        state.public.state = msg.state;
-        Object.keys(state.public.player).map((p) => state.public.player[p].ready = 0);
+        gs.state = null;
+        gs.public.state = msg.state;
+        Object.keys(gs.public.player).map((p) => gs.public.player[p].ready = 0);
         var view = STATE[msg.state];
         if (!view) {
             view = Waiting;
         }
         if (msg.state === 'Programming') {
-            state.public.register = undefined;
+            gs.public.register = undefined;
         }
         else if (msg.state === 'Movement') {
-            if (state.public.register == undefined)
-                state.public.register = 0;
+            if (gs.public.register == undefined)
+                gs.public.register = 0;
             else
-                state.public.register++;
+                gs.public.register++;
         }
-        this.setState({
-            view:view,
-            name:msg.state,
-            register:state.public.register
-        });
+        this.setState({view:view});
+    }
+
+    on_ready(msg) {
+        gs.public.player[msg.player].ready = true;
+        this.setState({players:gs.public.player});
+    }
+
+    on_not_ready(msg) {
+        gs.public.player[msg.player].ready = false;
+        this.setState({players:gs.public.player});
+    }
+
+    on_join(msg) {
+        gs.public.player[msg.id] = msg.player;
+    }
+
+    on_quit(msg) {
+        delete gs.public.player[msg.id];
     }
 
     quit() {
-        this.props.ws.send({cmd: 'quit'});
+        ws.send({cmd: 'quit'});
+    }
+
+    health() {
+        //const reg = this.state.memory
+        //var up = Array(5).keys().map((i)=>i
+        //for (var i=0; i<5; i++)
+        //♡♥
+    }
+
+    lives() {
+    //●○
     }
 
     render() {
         const State = this.state.view;
         var progress
-            = this.state.register !== undefined
-            ? <DotIndicator active={this.state.register} style={{position:'relative', top:-4}} length={5}/>
+            = gs.public.register !== undefined
+            ? <DotIndicator active={gs.public.register}
+                style={{position:'relative', top:-4}} length={5}/>
             : <span>&nbsp;</span>;
 
         return (
 <Panel theme="info">
   <PanelHeader style={{textTransform:'captitalize', height:'3em'}}>
     <div style={{top:'.5em', position:'relative', textAlign:'center'}}>
-        <div>{this.state.name.replace('_', ' ')}</div>
+        <div>{gs.public.state.replace('_', ' ')}</div>
         {progress}
     </div>
-    <Timer ref={(e)=>this.view[0] = e}/>
+    <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
+    {this.health()}
+    {this.lives()}
   </PanelHeader>
-    <State {...this.props} state={this.state.name} ref={(e)=>this.view[1] = e}/>
+    <State ref={(e)=>this.view[1] = e}
+        me={gs.public.player[gs.id]} players={gs.public.player}/>
 	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
 		Quit
 	</Button>

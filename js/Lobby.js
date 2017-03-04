@@ -9,12 +9,12 @@ import PanelHeader from 'rebass/src/PanelHeader';
 export default class Lobby extends React.Component {
     constructor(props) {
         super(props);
-        props.ws.send({cmd:'games'});
+        ws.send({cmd:'games'});
         this.state = {games:[]};
     }
 
     join(game) {
-        this.props.ws.send({cmd: 'join', name: game.name});
+        ws.send({cmd: 'join', name: game.name});
     }
 
     game_button(g) {
