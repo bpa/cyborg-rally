@@ -63,7 +63,7 @@ export default class CreateGame extends React.Component {
 	render() { return (
 <Panel theme="info">
 	<PanelHeader>Create Game</PanelHeader>
-	<Input label="Name" name="name" placeholder="Game Name" 
+	<Input autoFocus label="Name" name="name" placeholder="Game Name" 
         message={this.state.error} baseRef={r=>this.name=r}/>
 	<Card>
         <Heading>Timer options</Heading>
