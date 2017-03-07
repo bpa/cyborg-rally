@@ -4,7 +4,7 @@ All communication is done over websocket connections, where JSON documents are e
 Each packet will be a document and must contain a `cmd` element.  
 
 ## State Machine
-![States](../images/states.svg)
+![States](../images/states.png)
 
 States will most often reset ready flag for all players on enter.
 
