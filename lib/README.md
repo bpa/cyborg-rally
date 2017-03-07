@@ -11,7 +11,7 @@ States will most often reset ready flag for all players on enter.
 ## Internal game data
 
 |Member |Type  |Usage                                           |
-|-------|-------------------------------------------------------|
+|-------|------|------------------------------------------------|
 |game   |String|Game subclass, will be 'Rally' or 'Lobby'       |
 |map    |Map   |Mapping of identity token to in game identifier |
 |name   |String|Name of the game, as displayed                  |
