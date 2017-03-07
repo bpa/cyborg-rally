@@ -58,4 +58,5 @@ If you want to run the backend tests: ```prove -l```
 
 ## Documentation
 
-All documentation will be README.md files in the [lib directory](lib)
+All documentation will be markdown files in the [lib](lib) and [js](js) directories covering the backend api and React frontend respectively.
+
