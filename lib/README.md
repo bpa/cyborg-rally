@@ -44,10 +44,11 @@ States will most often reset ready flag for all players on enter.
 
 ## Messages common to all states (handled by Game)
 
-|cmd     |Required elements|Purpose              |
-|--------|-----------------|---------------------|
-|set_name|name             |Change name of player|
-|quit    |                 |Exit the current game|
+|cmd     |Required elements|Purpose                       |
+|--------|-----------------|------------------------------|
+|state   |state            |Signify game has changed state|
+|set_name|name             |Change name of player         |
+|quit    |                 |Exit the current game         |
 
 ## Data for individual states
 
