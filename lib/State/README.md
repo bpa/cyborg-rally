@@ -1,7 +1,8 @@
 ## States
 
 |State|Alias|Documentation|
-|Announcing|ANNOUNCE|[Announcing](Announcing.md)}
+|-----|-----|-------------|
+|Announcing|ANNOUNCE|[Announcing](Announcing.md)|
 |conveyors|BOARD[1-3]?|[Board](Board.md)|
 |Executing|EXECUTE|[Executing](Executing.md)|
 |express_conveyors|BOARD[1-3]?|[Board](Board.md)|
