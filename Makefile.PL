@@ -5,7 +5,17 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'CyborgRally',
     VERSION_FROM      => 'lib/CyborgRally.pm', # finds $VERSION, requires EU::MM from perl >= 5.5
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM    => {
+        'AnyEvent'           => 0,
+        'Data::UUID'         => 0,
+        'EV'                 => 0,
+        'File::Slurp'        => 0,
+        'JSON'               => 0,
+        'JSON::XS'           => 0,
+        'List::Util'         => 0,
+        'List::MoreUtils'    => 0,
+        'Mojolicious::Lite'  => 0,
+    },
     ABSTRACT_FROM     => 'lib/CyborgRally.pm', # retrieve abstract from module
     AUTHOR            => 'Bruce Armstrong <bruce@fortressofgeekdom.org>',
     #LICENSE           => 'perl',

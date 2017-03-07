@@ -6,6 +6,10 @@
     "react-dom": "^15.3.2",
     "rebass": "^0.3.3"
   },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
   "devDependencies": {
     "babel-core": "^6.18.0",
     "babel-loader": "^6.2.7",
