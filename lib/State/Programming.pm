@@ -17,17 +17,26 @@ use constant DEAD => [ NOP, NOP, NOP, NOP, NOP ];
 
 sub on_enter {
     my ( $self, $game ) = @_;
+    my $ready = 0;
+    my $total = 0;
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
+        my $cards = $p->{public}{memory} - $p->{public}{damage};
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready}     = 1;
             $p->{public}{damage}    = 0 if $p->{public}{shutdown};
             $p->{public}{registers} = DEAD;
             $p->send( { cmd => 'programming' } );
         }
+        elsif ( $cards < 2 ) {
+            $p->{public}{ready} = 1;
+            $p->send( { cmd => 'programming' } );
+            $ready++;
+            $total++;
+        }
         else {
+            $total++;
             $p->{public}{ready} = '';
-            my $cards = $p->{public}{memory} - $p->{public}{damage};
             $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
             map { $_->{program} = [] unless $_ && $_->{damaged} }
               @{ $p->{public}{registers} };
@@ -43,6 +52,12 @@ sub on_enter {
 
     if ( $game->ready ) {
         $game->set_state('ANNOUNCE');
+    }
+    elsif ( $ready && $game->{opts}{timer} eq '1st+30s' ) {
+        $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
+    }
+    elsif ( $ready == $total - 1 && $game->{opts}{timer} eq 'standard' ) {
+        $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );
     }
     elsif ( $game->{opts}{timer} eq '30s' ) {
         $game->timer( 30, \&Game::set_state, $game, 'ANNOUNCE' );

@@ -55,6 +55,7 @@ subtest 'on_enter for two' => sub {
                     game    => 'Rally',
                     name    => 'test',
                     id      => $p->{id},
+                    opts    => ignore,
                     private => ignore,
                     public  => ignore,
                     state   => ignore,
@@ -141,7 +142,7 @@ subtest 'programming' => sub {
     $p1->broadcast(
         { cmd => 'ready' },
         { cmd => 'ready', player => $p1->{id} },
-        { cmd => 'timer', delay => '30' }
+        { cmd => 'timer', duration => '30000', start => ignore }
     );
     program( $rally, $p1, [0], 'Registers are already programmed' );
 
@@ -360,6 +361,79 @@ subtest 'powered down' => sub {
 
     done;
 };
+
+subtest 'player has no cards' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+
+    dmg($p1, 9);
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is($p1->{public}{ready}, 1);
+    is($p2->{public}{ready}, '');
+    is($p3->{public}{ready}, '');
+    is($rally->{public}{timer}, undef);
+};
+
+subtest 'player has one card' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+
+    dmg($p1, 8);
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is($p1->{public}{ready}, 1);
+    is($p2->{public}{ready}, '');
+    is($p3->{public}{ready}, '');
+    is($rally->{public}{timer}, undef);
+};
+
+subtest 'player has one card, 1st+30s' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => '1st+30s'}, 3 );
+
+    dmg($p1, 8);
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is($p1->{public}{ready}, 1);
+    is($p2->{public}{ready}, '');
+    is($p3->{public}{ready}, '');
+    cmp_deeply($rally->{public}{timer}, { start => ignore, duration => 30000 });
+};
+
+subtest 'player has one card, standard' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+
+    dmg($p1, 8);
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is($p1->{public}{ready}, 1);
+    is($p2->{public}{ready}, '');
+    is($p3->{public}{ready}, '');
+    cmp_deeply($rally->{public}{timer}, undef);
+};
+
+subtest 'players have one card, standard' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+
+    dmg($p1, 8);
+    dmg($p2, 9);
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is($p1->{public}{ready}, 1);
+    is($p2->{public}{ready}, 1);
+    is($p3->{public}{ready}, '');
+    cmp_deeply($rally->{public}{timer}, { start => ignore, duration => 30000 });
+};
+
+sub dmg {
+    my ($p, $dmg) = @_;
+    $p->{public}{damage}    = $dmg;
+    $p->{public}{registers} = [
+        { damaged => $dmg > 8, program => ['a'] },
+        { damaged => $dmg > 7, program => ['b'] },
+        { damaged => $dmg > 6, program => ['c'] },
+        { damaged => $dmg > 5, program => ['d'] },
+        { damaged => $dmg > 4, program => ['e'] }
+    ];
+}
 
 sub card {
     my ( $n, $p ) = split( //, shift, 2 );
