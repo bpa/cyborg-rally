@@ -74,7 +74,7 @@ export default class Playing extends React.Component {
     }
 
     on_damage(msg) {
-        gs.public.player[msg.id].damage = msg.damage;
+        gs.public.player[msg.player].damage = msg.damage;
         this.setState({players:gs.public.player});
     }
 
@@ -86,7 +86,7 @@ export default class Playing extends React.Component {
 
     on_revive(msg) {
         gs.public.player[msg.player].dead = false;
-        gs.public.player[msg.id].damage = msg.damage;
+        gs.public.player[msg.player].damage = msg.damage;
         this.setState({players:gs.public.player});
     }
 
@@ -105,7 +105,7 @@ export default class Playing extends React.Component {
     }
 
     render() {
-        const State = this.state.view;
+        const State = gs.public.player[gs.id].dead ? Dead : this.state.view;
         var progress
             = gs.public.register !== undefined
             ? <DotIndicator active={gs.public.register}
@@ -131,3 +131,8 @@ export default class Playing extends React.Component {
     )}
 }
 
+class Dead extends React.Component {
+    render() {
+        return <div style={{fontSize:120, textAlign:'center'}}>(x_x)</div>
+    }
+}
