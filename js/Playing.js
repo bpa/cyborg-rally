@@ -9,6 +9,7 @@ import Movement from "./Movement";
 import Programming from "./Programming";
 import Timer from "./Timer";
 import Touching from "./Touching";
+import Vitality from "./Vitality";
 import Waiting from "./Waiting";
 
 var STATE = {
@@ -57,6 +58,11 @@ export default class Playing extends React.Component {
         this.setState({view:view});
     }
 
+    on_setup(msg) {
+        gs.public = msg.public;
+        this.setState({players:gs.public.player});
+    }
+
     on_ready(msg) {
         gs.public.player[msg.player].ready = true;
         this.setState({players:gs.public.player});
@@ -98,17 +104,6 @@ export default class Playing extends React.Component {
         ws.send({cmd: 'quit'});
     }
 
-    health() {
-        //const reg = this.state.memory
-        //var up = Array(5).keys().map((i)=>i
-        //for (var i=0; i<5; i++)
-        //♡♥
-    }
-
-    lives() {
-    //●○
-    }
-
     render() {
         const State = this.state.view;
         var progress
@@ -125,8 +120,7 @@ export default class Playing extends React.Component {
         {progress}
     </div>
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
-    {this.health()}
-    {this.lives()}
+    <Vitality player={gs.public.player[gs.id]}/>
   </PanelHeader>
     <State ref={(e)=>this.view[1] = e}
         me={gs.public.player[gs.id]} players={gs.public.player}/>

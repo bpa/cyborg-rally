@@ -7,7 +7,7 @@ use List::Util 'shuffle';
 
 # Don't have this be a constant because we need a new copy of each empty program
 sub EMPTY { return { damaged => 0, program => [] } }
-sub CLEAN { return [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] };
+sub CLEAN { return [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] }
 
 sub on_enter {
     my ( $self, $game ) = @_;
@@ -25,6 +25,7 @@ sub on_enter {
         $p->{public}{options}   = [];
         $p->{public}{registers} = CLEAN;
         $p->{private}{cards}    = [];
+
         if ( $game->{opts}{start_with_option} ) {
             push @{ $p->{public}{options} }, $game->{options}->deal;
         }
@@ -66,6 +67,11 @@ sub do_choose {
     if ( !grep { $_->{private}{options} } values %{ $game->{player} } ) {
         $game->set_state('CHOOSE');
     }
+}
+
+sub on_exit {
+    my ( $self, $game ) = @_;
+    $game->broadcast( { cmd => 'setup', public => $game->{public} } );
 }
 
 1;
