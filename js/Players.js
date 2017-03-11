@@ -4,10 +4,10 @@ export default class Players extends React.Component {
     render() {
         console.log(this.props);
         const players = this.props.players;
+        const alive = Object.keys(players).filter((p)=>!players[p].dead);
         return (
         <div>
-            {Object.keys(players).sort().map((id) =>
-                <Player player={players[id]} key={id}/>)}
+            {alive.sort().map((id) => <Player player={players[id]} key={id}/>)}
         </div>
         );
     }
