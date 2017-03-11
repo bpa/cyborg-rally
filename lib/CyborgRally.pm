@@ -7,6 +7,7 @@ use Data::UUID;
 my $uuid = Data::UUID->new;
 
 use Rally;
+use NullSock;
 
 sub new {
     bless { cyborg => {}, game => {}, lobby => Lobby->new, }, shift;
@@ -19,6 +20,9 @@ sub on_connect {
 
 sub on_disconnect {
     my ( $self, $c ) = @_;
+    my $g = $c->{game};
+    $c->{sock} = NullSock->new;
+    $g->on_disconnect($c) if $g;
 }
 
 sub on_message {

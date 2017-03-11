@@ -77,6 +77,11 @@ sub join {
     }
 }
 
+sub on_disconnect {
+    my ( $self, $c ) = @_;
+    $self->quit($c);
+}
+
 sub on_rename {
     my ( $self, $c, $name ) = @_;
     $c->{public}{name} = $name;
@@ -147,6 +152,8 @@ sub quit {
     $self->on_quit($c) if $self->can('on_quit');
     delete $self->{map}{ $c->{uuid} };
     delete $self->{player}{ $c->{id} };
+    delete $self->{public}{player}{ $c->{id} };
+    delete $self->{private}{player}{ $c->{id} };
     $self->broadcast( { cmd => 'quit', id => $c->{id}, name => $c->{name} } );
 }
 

@@ -92,4 +92,9 @@ sub damage {
     }
 }
 
+sub on_disconnect {
+    my ( $self, $c ) = @_;
+    #TODO
+}
+
 1;
