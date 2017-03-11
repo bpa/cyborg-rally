@@ -86,7 +86,7 @@ sub damage {
         $self->broadcast(
             {   cmd    => 'damage',
                 player => $target->{id},
-                damage => $damage
+                damage => $target->{public}{damage},
             }
         );
     }

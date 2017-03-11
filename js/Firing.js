@@ -48,7 +48,9 @@ export default class Firing extends React.Component {
     players() {
         var player = this.props.players;
         var self = this;
-        const keys = Object.keys(player).sort().filter((p)=>p!=this.props.id);
+        const keys = Object.keys(player).sort().filter(
+            (p)=>p!=gs.id && !player[p].dead
+        );
         return keys.map(function(id) {
             const p = player[id];
             if (self.props.me.ready) {

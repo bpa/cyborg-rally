@@ -34,6 +34,7 @@ sub do_ready {
     return if $c->{public}{ready};
     $c->{public}{ready} = 1;
 
+    $game->broadcast( ready => { player => $c->{id} } );
     $game->set_state('POWER') if $game->ready;
 }
 

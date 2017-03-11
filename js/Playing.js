@@ -16,6 +16,7 @@ var STATE = {
     Firing: Firing,
     Lasers: Lasers,
     Movement: Movement,
+    PowerDown: Announcing,
     Programming: Programming,
     Touching: Touching,
     Waiting: Waiting,
@@ -66,12 +67,31 @@ export default class Playing extends React.Component {
         this.setState({players:gs.public.player});
     }
 
+    on_damage(msg) {
+        gs.public.player[msg.id].damage = msg.damage;
+        this.setState({players:gs.public.player});
+    }
+
+    on_death(msg) {
+        gs.public.player[msg.player].dead = true;
+        gs.public.player[msg.player].lives = msg.lives;
+        this.setState({players:gs.public.player});
+    }
+
+    on_revive(msg) {
+        gs.public.player[msg.player].dead = false;
+        gs.public.player[msg.id].damage = msg.damage;
+        this.setState({players:gs.public.player});
+    }
+
     on_join(msg) {
         gs.public.player[msg.id] = msg.player;
+        this.setState({players:gs.public.player});
     }
 
     on_quit(msg) {
         delete gs.public.player[msg.id];
+        this.setState({players:gs.public.player});
     }
 
     quit() {
