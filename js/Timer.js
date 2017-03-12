@@ -18,25 +18,36 @@ export default class Timer extends React.Component {
         }
     }
 
-    componentWillUnmount() {
+    stop_timer() {
         if (this.interval) {
             clearInterval(this.interval);
             delete this.interval;
+            this.setState({value: 0});
         }
+    }
+
+    componentWillUnmount() {
+        this.stop_timer();
+    }
+
+    on_state(msg) {
+        this.stop_timer();
     }
 
     start() {
         this.update();
-        this.interval = setInterval(this.update.bind(this), 100);
+        if (!this.interval) {
+            this.interval = setInterval(this.update.bind(this), 100);
+        }
     }
 
     update() {
         var now = new Date().getTime();
         var remaining = this.expires - now;
         var color
-            = remaining <  5 ? "red"
-            : remaining < 10 ? "orange"
-            :                  "white";
+            = remaining <  5000 ? "red"
+            : remaining < 10000 ? "orange"
+            :                     "white";
         if (remaining > 0) {
             this.setState({
                 value: 1 - remaining / this.duration,
