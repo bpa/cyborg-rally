@@ -5,6 +5,7 @@ import Progress from 'rebass/src/Progress';
 export default class Vitality extends React.Component {
     render() {
         const p = this.props.player;
+        const total = gs.opts.start_with_4_lives ? 4 :3;
 		if (!p.memory) {
 			return <div/>;
 		}
@@ -16,7 +17,7 @@ export default class Vitality extends React.Component {
 		<Badge pill rounded theme="error">{p.memory-p.damage}/{p.memory}</Badge>
 	</Heading>
 		<Heading level={5}>Life:
-		<Badge pill rounded theme="success">{p.lives}/3</Badge>
+		<Badge pill rounded theme="success">{p.lives}/{total}</Badge>
 	</Heading>
 </div>
     )}
