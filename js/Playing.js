@@ -7,6 +7,7 @@ import Firing from "./Firing";
 import Lasers from "./Lasers";
 import Movement from "./Movement";
 import Programming from "./Programming";
+import Space from "rebass/src/Space";
 import Timer from "./Timer";
 import Touching from "./Touching";
 import Vitality from "./Vitality";
@@ -120,6 +121,7 @@ export default class Playing extends React.Component {
         {progress}
     </div>
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
+    <Space auto/>
     <Vitality player={gs.public.player[gs.id]}/>
   </PanelHeader>
     <State ref={(e)=>this.view[1] = e}

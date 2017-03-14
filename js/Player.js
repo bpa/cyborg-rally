@@ -1,11 +1,22 @@
-import Button from 'rebass/src/Button';
+import Card from 'rebass/src/Card';
+import Register from './Register';
+import Vitality from "./Vitality";
 
 export default class Player extends React.Component {
     render() {
         const p = this.props.player;
         return (
-            <Button theme={p.ready?'success':'error'}>
-                {p.name} - {p.ready?'Ready':'Not Ready'}
-            </Button>
+            <Card rounded backgroundColor={p.ready?'green':'red'} color="white"
+                style={{
+                    textAlign:'center',
+                    display:'flex',
+                    justifyContent:'space-between',
+                    alignItems:'center'
+                }}
+            >
+                <Register register={this.props.register}/>
+                {p.name}
+                <Vitality player={p}/>
+            </Card>
     )}
 }

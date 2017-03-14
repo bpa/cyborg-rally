@@ -12,10 +12,9 @@ export default class MovementCard extends React.Component {
         const n = this.props.card.name;
         const m = MAP[n];
         return (
-        <ButtonOutline theme="error" style={{borderRadius:6}}
+        <ButtonOutline theme="default" style={{borderRadius:6}}
                 onClick={this.props.onClick}>
             {m ? m : n}
         </ButtonOutline>
     )}
 }
-
