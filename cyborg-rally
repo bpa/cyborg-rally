@@ -6,6 +6,7 @@ use warnings;
 use EV;
 use Mojolicious::Lite;
 use lib 'lib';
+use Admin;
 use Cyborg;
 use CyborgRally;
 use JSON;
@@ -66,6 +67,29 @@ tcp_server 0, 3001, sub {
 				}
 			};
             $cyborg->err($@) if $@;
+            $_[0]->rbuf = '';
+			return 1;
+        },
+        on_error => $disconnect,
+        on_eof   => $disconnect,
+    );
+};
+
+tcp_server '127.0.0.1', 3002, sub {
+    my $fh = shift;
+    my $admin = Admin->new($fh, $game);
+
+    my $handle;
+    my $disconnect = sub { $handle->destroy; };
+
+    $handle = AnyEvent::Handle->new(
+        fh      => $fh,
+        poll    => 'r',
+        on_read => sub {
+			eval {
+                $admin->run($_[0]->rbuf);
+			};
+            syswrite($fh, $@) if $@;
             $_[0]->rbuf = '';
 			return 1;
         },
