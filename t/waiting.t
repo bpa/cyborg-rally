@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Deep;
 use CyborgTest;
 
 my $p1 = Player('1');
@@ -12,9 +13,11 @@ subtest 'need at least two players' => sub {
     $p1->broadcast( 'ready', { cmd => 'ready', player => $p1->{id} }, 'p1' );
     is( ref( $rally->{state} ), 'State::Waiting' );
     $p2->join('test');
+    $p2->drop_packets;
     $p2->broadcast(
         'ready',
         { cmd => 'state', state => 'Setup' },
+        { cmd => 'setup', public => ignore },
         { cmd => 'state', state => 'Programming' }
     );
     done;
@@ -34,6 +37,7 @@ subtest 'not ready' => sub {
     $p1->broadcast(
         'ready',
         { cmd => 'state', state => 'Setup' },
+        { cmd => 'setup', public => ignore },
         { cmd => 'state', state => 'Programming' }
     );
     done;

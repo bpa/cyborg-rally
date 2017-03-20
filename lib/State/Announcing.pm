@@ -24,13 +24,13 @@ sub do_shutdown {
         $c->err('Already declared');
         return;
     }
-    $c->{public}{ready}    = 1;
-    $c->{public}{shutdown} = !!$msg->{activate};
+    $c->{public}{ready}         = 1;
+    $c->{public}{will_shutdown} = !!$msg->{activate};
 
     $game->broadcast(
-        {   cmd      => 'shutdown',
+        {   cmd      => 'announce',
             player   => $c->{id},
-            activate => $c->{public}{shutdown}
+            shutdown => $c->{public}{will_shutdown}
         }
     );
 

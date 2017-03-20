@@ -23,6 +23,7 @@ sub on_enter {
         $p->{public}{memory}    = 9;
         $p->{public}{damage}    = $game->{opts}{start_with_2_damage} ? 2 : 0;
         $p->{public}{options}   = [];
+        $p->{public}{shutdown}  = '';
         $p->{public}{registers} = CLEAN;
         $p->{private}{cards}    = [];
 

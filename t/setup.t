@@ -22,11 +22,12 @@ subtest 'No game options' => sub {
         'State::Programming', "Don't wait for input if none is required" );
     cmp_deeply(
         $rally->{packets},
-        [   { cmd => 'state', state => 'Waiting' },
-            { cmd => 'join',  id    => $p[0]->{id}, player => { name => '1' } },
-            { cmd => 'join',  id    => $p[1]->{id}, player => { name => '2' } },
-            { cmd => 'state', state => 'Setup' },
-            { cmd => 'state', state => 'Programming' },
+        [   { cmd => 'state', state  => 'Waiting' },
+            { cmd => 'join',  id     => $p[0]->{id}, player => { name => '1' } },
+            { cmd => 'join',  id     => $p[1]->{id}, player => { name => '2' } },
+            { cmd => 'state', state  => 'Setup' },
+            { cmd => 'setup', public => ignore },
+            { cmd => 'state', state  => 'Programming' },
         ]
     );
     for my $p (@p) {

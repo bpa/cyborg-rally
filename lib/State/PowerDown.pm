@@ -15,6 +15,17 @@ sub on_enter {
         else {
             $p->{public}{ready} = 1;
         }
+
+        if ( $p->{public}{will_shutdown} ) {
+            $p->{public}{shutdown} = 1;
+            delete $p->{public}{will_shutdown};
+            $game->broadcast(
+                {   cmd      => 'shutdown',
+                    player   => $p->{id},
+                    activate => 1
+                }
+            );
+        }
     }
 
     if ( $game->ready ) {
@@ -31,6 +42,13 @@ sub do_shutdown {
     return if $c->{public}{ready};
     $c->{public}{ready}    = 1;
     $c->{public}{shutdown} = !!$msg->{activate};
+
+    $game->broadcast(
+        {   cmd      => 'shutdown',
+            player   => $c->{id},
+            activate => $c->{public}{shutdown}
+        }
+    );
 
     $game->set_state('PROGRAM') if $game->ready;
 }
