@@ -1,4 +1,5 @@
 import Button from 'rebass/src/Button';
+import { Shutdown } from './Emoji';
 
 export default class Announcing extends React.Component {
     shutdown(activate) {
@@ -6,6 +7,9 @@ export default class Announcing extends React.Component {
     }
 
     render() {
+        if (this.props.players[gs.id].shutdown) {
+            return <Shutdown/>
+        }
     return (
 <div>
 	<Button theme='success' onClick={this.shutdown.bind(this, false)}

@@ -10,8 +10,8 @@ subtest 'on_enter for two' => sub {
     $rally->set_state('ANNOUNCE');
     $rally->update;
     is( ref( $rally->{state} ),  'State::Announcing' );
-    is( $p1->{public}{shutdown}, undef );
-    is( $p2->{public}{shutdown}, undef );
+    is( $p1->{public}{shutdown}, '' );
+    is( $p2->{public}{shutdown}, '' );
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Announcing' },
@@ -37,7 +37,7 @@ subtest 'want shutdown' => sub {
     is( ref( $rally->{state} ),  'State::Movement' );
 
     is( $p1->{public}{shutdown}, '' );
-    is( $p2->{public}{shutdown}, 1 );
+    is( $p2->{public}{will_shutdown}, 1 );
 
     done;
 };

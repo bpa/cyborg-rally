@@ -4,7 +4,7 @@ export default class Register extends React.Component {
     render() {
         const register = this.props.register;
         if (!register) {
-            return null;
+			return <div style={{width:"16px"}}/>;
         }
         const program = this.props.register.program;
         return (

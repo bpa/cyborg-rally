@@ -1,5 +1,6 @@
 import Ready from './Ready';
 import Player from './Player';
+import { Shutdown } from './Emoji';
 
 export default class Movement extends React.Component {
     constructor(props) {
@@ -13,6 +14,9 @@ export default class Movement extends React.Component {
 
     render() {
         const players = this.props.players;
+        if (players[gs.id].shutdown) {
+            return <Shutdown/>
+        }
         return (
 <div>
     <Ready ready={this.props.me.ready}/>

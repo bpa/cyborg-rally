@@ -42,10 +42,14 @@ export default class Playing extends React.Component {
     on_state(msg) {
         gs.state = null;
         gs.public.state = msg.state;
-        Object.keys(gs.public.player).map((p) => gs.public.player[p].ready = 0);
+        var players = gs.public.player;
+        Object.keys(players).map((p) => players[p].ready = 0);
         var view = STATE[msg.state];
         if (!view) {
             view = Waiting;
+        }
+        if (msg.state === 'PowerDown') {
+            Object.keys(players).map((p)=>delete players[p].will_shutdown);
         }
         if (msg.state === 'Programming') {
             gs.public.register = undefined;
@@ -56,7 +60,10 @@ export default class Playing extends React.Component {
             else
                 gs.public.register++;
         }
-        this.setState({view:view});
+        this.setState({
+            view:view,
+            players:players,
+        });
     }
 
     on_setup(msg) {
@@ -71,6 +78,16 @@ export default class Playing extends React.Component {
 
     on_not_ready(msg) {
         gs.public.player[msg.player].ready = false;
+        this.setState({players:gs.public.player});
+    }
+
+    on_announce(msg) {
+        gs.public.player[msg.player].will_shutdown = msg.shutdown;
+        this.setState({players:gs.public.player});
+    }
+
+    on_shutdown(msg) {
+        gs.public.player[msg.player].shutdown = msg.activate;
         this.setState({players:gs.public.player});
     }
 

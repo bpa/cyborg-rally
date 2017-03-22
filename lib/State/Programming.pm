@@ -5,11 +5,12 @@ use warnings;
 use Card;
 use Deck;
 use List::MoreUtils 'false';
+use Storable 'dclone';
 
 use parent 'State';
 
 use constant NOP => {
-    damaged => 0,
+    damaged => '',
     program =>
       [ Card->new( { name => '0', priority => 0, number => 1, total => 1 } ) ]
 };
@@ -40,7 +41,8 @@ sub on_enter {
             $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
             map { $_->{program} = [] unless $_ && $_->{damaged} }
               @{ $p->{public}{registers} };
-            $p->{private}{registers} = [ @{ $p->{public}{registers} } ];
+            $p->{private}{registers}
+              = [ map { dclone($_) } @{ $p->{public}{registers} } ];
             $p->send(
                 {   cmd       => 'programming',
                     cards     => $p->{private}{cards},
@@ -104,7 +106,7 @@ sub do_program {
         my $r = $c->{private}{registers}[$i];
         next if $r->{damaged};
 
-        if ( $msg->{registers}[$i] ) {
+        if ( defined $msg->{registers}[$i] ) {
             $r->{program} = $msg->{registers}[$i];
         }
         else {
@@ -123,6 +125,7 @@ sub do_ready {
     }
 
     $c->{public}{ready} = 1;
+    $c->{public}{registers} = $c->{private}{registers};
     $game->broadcast( ready => { player => $c->{id} } );
 
     my $not_ready = false { $_->{public}{ready} } values %{ $game->{player} };

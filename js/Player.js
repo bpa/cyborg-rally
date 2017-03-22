@@ -15,7 +15,7 @@ export default class Player extends React.Component {
                 }}
             >
                 <Register register={this.props.register}/>
-                {p.name}
+                {p.name}{p.shutdown ? '.zZ' : ''}
                 <Vitality player={p}/>
             </Card>
     )}

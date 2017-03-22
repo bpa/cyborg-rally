@@ -11,8 +11,9 @@ use constant CARD_NAME => [qw/u 1 2/];
 
 # For simplicity, only works with 3 players
 sub set_registers {
-    for my $r ( 0 .. 4 ) {
-        for my $p ( 0 .. 2 ) {
+    for my $p ( 0 .. 2 ) {
+        $_[$p]->{public}{ready} = 1;
+        for my $r ( 0 .. 4 ) {
             next unless $_[$p]->{public}{lives};
             $_[$p]->{public}{registers}[$r]{program} = [
                 Card->new(

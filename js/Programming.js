@@ -3,6 +3,7 @@ import MovementCard from './MovementCard';
 import Panel from 'rebass/src/Panel';
 import PanelHeader from 'rebass/src/PanelHeader';
 import Register from './Register';
+import { Shutdown } from './Emoji';
 
 export default class Programming extends React.Component {
     constructor(props) {
@@ -24,7 +25,10 @@ export default class Programming extends React.Component {
     }
 
     on_programming(msg) {
-        const cards = msg.cards.sort((a,b)=>b.priority-a.priority);
+        var cards = [];
+        if (msg.cards) {
+            cards = msg.cards.sort((a,b)=>b.priority-a.priority);
+        }
         gs.private.cards = cards;
         this.setState({
             cards: cards,
@@ -56,6 +60,9 @@ export default class Programming extends React.Component {
     }
 
     render() {
+        if (this.props.players[gs.id].shutdown) {
+            return <Shutdown/>;
+        }
         const registers = this.state.registers.map(
             (r, i) => <Register register={r} key={i}
                         onClick={this.clear.bind(this, i)}/>);

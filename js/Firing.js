@@ -2,6 +2,7 @@ import Footer from 'rebass/src/Footer';
 import Button from 'rebass/src/Button';
 import Player from './Player';
 import Ready from './Ready';
+import { Shutdown } from './Emoji';
 
 export default class Firing extends React.Component {
     constructor(props) {
@@ -36,6 +37,9 @@ export default class Firing extends React.Component {
     }
 
     render() {
+        if (this.props.players[gs.id].shutdown) {
+            return <Shutdown/>;
+        }
     return (
 <div>
     <Ready ready={this.props.me.ready}

@@ -3,6 +3,9 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
+use JSON;
+
+my $json = JSON->new->convert_blessed;
 
 use constant FULL => {
     damaged => ignore,
@@ -21,6 +24,8 @@ use constant EMPTY => {
     damaged => ignore,
     program => []
 };
+
+use constant NOP => { damaged => '', program => [] };
 
 sub reg {
     my ( $damaged, $card ) = @_;
@@ -65,7 +70,7 @@ subtest 'on_enter for two' => sub {
             ]
         );
     }
-
+    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
@@ -73,9 +78,12 @@ subtest 'programming' => sub {
     my ( $rally, $p1 ) = Game( {} );
     is( ref( $rally->{state} ), 'State::Programming' );
 
+    cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ],'public registers empty' );
+
     #Program only one register
     program( $rally, $p1, [0] );
     cmp_deeply( $p1->{private}{registers}, [ FULL, EMPTY, EMPTY, EMPTY, EMPTY ] );
+    cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ], 'public registers not modified' );
 
     #Deprogram
     program( $rally, $p1, [] );
@@ -146,44 +154,31 @@ subtest 'programming' => sub {
     );
     program( $rally, $p1, [0], 'Registers are already programmed' );
 
+    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
 subtest 'locked registers' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
-    $p1->{public}{damage}    = 5;
-    $p1->{public}{registers} = [
-        { damaged => 0, program => ['3330'] },
-        { damaged => 0, program => ['2100'] },
-        { damaged => 0, program => ['r40'] },
-        { damaged => 0, program => ['l80'] },
-        { damaged => 1, program => ['u20'] }
-    ];
+    $p1->{public}{damage} = 5;
+    $p1->{public}{registers}
+      = [ r('3330'), r('2100'), r('r40'), r('l80'), r( 'u20', 1 ), ];
     $p2->{public}{damage} = 2;
 
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
 
     # Did p1 get set up correctly?
-    cmp_deeply(
-        $p1->{private}{registers},
-        [   { damaged => 0, program => [] },
-            { damaged => 0, program => [] },
-            { damaged => 0, program => [] },
-            { damaged => 0, program => [] },
-            { damaged => 1, program => ['u20'] }
-        ]
-    );
+    cmp_deeply( $p1->{private}{registers}, [ r(), r(), r(), r(), r( 'u20', 1 ) ] );
 
     cmp_deeply(
         $p1->{packets},
         [
-            {   cmd       => 'programming',
-                cards     => cnt(4),
-                registers => [
-                    EMPTY, EMPTY, EMPTY, EMPTY, { damaged => 1, program => ['u20'] }
-                ]
+            {   cmd   => 'programming',
+                cards => cnt(4),
+                registers =>
+                  [ EMPTY, EMPTY, EMPTY, EMPTY, noclass( r( 'u20', 1 ) ) ]
             }
         ]
     );
@@ -198,13 +193,14 @@ subtest 'locked registers' => sub {
     );
 
     # Add a card to simulate 'Extra Memory' option
-    push @{ $p1->{private}{cards}{cards} }, 'b0';
+    push @{ $p1->{private}{cards}{cards} }, { name => 'b0' };
 
     # Register 5 is locked
     program( $rally, $p1, [ 0, 1, 2, 3, 4 ], "Invalid program" );
-    program( $rally, $p1, [ 0, 1, 2, 3, 'u20' ] );
+    program( $rally, $p1, [ 0, 1, 2, 3, c('u20') ] );
     program( $rally, $p1, [ 0, 1, 2, 3 ] );
 
+    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
@@ -280,10 +276,10 @@ subtest 'time up with locked' => sub {
     $p1->{public}{damage}    = 5;
     $p1->{public}{locked}    = [ 0, 0, 0, 0, 1 ];
     $p1->{public}{registers} = [
-        { damaged => 0, program => [] },
-        { damaged => 0, program => [] },
-        { damaged => 0, program => [] },
-        { damaged => 0, program => [] },
+        { damaged => '', program => [] },
+        { damaged => '', program => [] },
+        { damaged => '', program => [] },
+        { damaged => '', program => [] },
         {   damaged => 1,
             program => [$d1]
         }
@@ -292,13 +288,13 @@ subtest 'time up with locked' => sub {
     # Simulating a player that has had 'Fire Control' used on them
     $p2->{public}{locked} = [ 0, 0, 1, 0, 0 ];
     $p2->{public}{registers} = [
-        { damaged => 0, program => [] },
-        { damaged => 0, program => [] },
+        { damaged => '', program => [] },
+        { damaged => '', program => [] },
         {   damaged => 1,
             program => [$d2]
         },
-        { damaged => 0, program => [] },
-        { damaged => 0, program => [] }
+        { damaged => '', program => [] },
+        { damaged => '', program => [] }
     ];
 
     $rally->{state}->on_enter($rally);
@@ -320,15 +316,10 @@ subtest 'powered down' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->{state}->on_exit($rally);
 
-    $p1->{public}{shutdown}  = 1;
-    $p1->{public}{damage}    = 5;
-    $p1->{public}{registers} = [
-        { damaged => 0, program => ['3330'] },
-        { damaged => 0, program => ['2100'] },
-        { damaged => 0, program => ['r40'] },
-        { damaged => 0, program => ['l80'] },
-        { damaged => 1, program => ['u20'] }
-    ];
+    $p1->{public}{shutdown} = 1;
+    $p1->{public}{damage}   = 5;
+    $p1->{public}{registers}
+      = [ r('3330'), r('2100'), r('r40'), r('l80'), r( 'u20', 1 ), ];
     $p2->{public}{damage} = 2;
 
     $rally->drop_packets;
@@ -363,75 +354,88 @@ subtest 'powered down' => sub {
 };
 
 subtest 'player has no cards' => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => 'standard' }, 3 );
 
-    dmg($p1, 9);
+    dmg( $p1, 9 );
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
-    is($p1->{public}{ready}, 1);
-    is($p2->{public}{ready}, '');
-    is($p3->{public}{ready}, '');
-    is($rally->{public}{timer}, undef);
+    is( $p1->{public}{ready},    1 );
+    is( $p2->{public}{ready},    '' );
+    is( $p3->{public}{ready},    '' );
+    is( $rally->{public}{timer}, undef );
 };
 
 subtest 'player has one card' => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => 'standard' }, 3 );
 
-    dmg($p1, 8);
+    dmg( $p1, 8 );
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
-    is($p1->{public}{ready}, 1);
-    is($p2->{public}{ready}, '');
-    is($p3->{public}{ready}, '');
-    is($rally->{public}{timer}, undef);
+    is( $p1->{public}{ready},    1 );
+    is( $p2->{public}{ready},    '' );
+    is( $p3->{public}{ready},    '' );
+    is( $rally->{public}{timer}, undef );
 };
 
 subtest 'player has one card, 1st+30s' => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => '1st+30s'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => '1st+30s' }, 3 );
 
-    dmg($p1, 8);
+    dmg( $p1, 8 );
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
-    is($p1->{public}{ready}, 1);
-    is($p2->{public}{ready}, '');
-    is($p3->{public}{ready}, '');
-    cmp_deeply($rally->{public}{timer}, { start => ignore, duration => 30000 });
+    is( $p1->{public}{ready}, 1 );
+    is( $p2->{public}{ready}, '' );
+    is( $p3->{public}{ready}, '' );
+    cmp_deeply( $rally->{public}{timer}, { start => ignore, duration => 30000 } );
 };
 
 subtest 'player has one card, standard' => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => 'standard' }, 3 );
 
-    dmg($p1, 8);
+    dmg( $p1, 8 );
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
-    is($p1->{public}{ready}, 1);
-    is($p2->{public}{ready}, '');
-    is($p3->{public}{ready}, '');
-    cmp_deeply($rally->{public}{timer}, undef);
+    is( $p1->{public}{ready}, 1 );
+    is( $p2->{public}{ready}, '' );
+    is( $p3->{public}{ready}, '' );
+    cmp_deeply( $rally->{public}{timer}, undef );
 };
 
 subtest 'players have one card, standard' => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {timer => 'standard'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => 'standard' }, 3 );
 
-    dmg($p1, 8);
-    dmg($p2, 9);
+    dmg( $p1, 8 );
+    dmg( $p2, 9 );
     $rally->drop_packets;
     $rally->{state}->on_enter($rally);
-    is($p1->{public}{ready}, 1);
-    is($p2->{public}{ready}, 1);
-    is($p3->{public}{ready}, '');
-    cmp_deeply($rally->{public}{timer}, { start => ignore, duration => 30000 });
+    is( $p1->{public}{ready}, 1 );
+    is( $p2->{public}{ready}, 1 );
+    is( $p3->{public}{ready}, '' );
+    cmp_deeply( $rally->{public}{timer}, { start => ignore, duration => 30000 } );
+};
+
+subtest 'programming after shutdown' => sub {
+    my ( $rally, $p1 ) = Game( {} );
+
+    $p1->{public}{registers} = State::Programming::DEAD;
+    $p1->drop_packets;
+    $rally->{state}->on_enter($rally);
+
+    program( $rally, $p1, [ 0, 1, 2, 3, 4 ] );
+    cmp_deeply( $p1->{private}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
+
+    done;
 };
 
 sub dmg {
-    my ($p, $dmg) = @_;
+    my ( $p, $dmg ) = @_;
     $p->{public}{damage}    = $dmg;
     $p->{public}{registers} = [
-        { damaged => $dmg > 8, program => ['a'] },
-        { damaged => $dmg > 7, program => ['b'] },
-        { damaged => $dmg > 6, program => ['c'] },
-        { damaged => $dmg > 5, program => ['d'] },
-        { damaged => $dmg > 4, program => ['e'] }
+        r( 'a', $dmg > 8 ),
+        r( 'b', $dmg > 7 ),
+        r( 'c', $dmg > 6 ),
+        r( 'd', $dmg > 5 ),
+        r( 'e', $dmg > 4 ),
     ];
 }
 
@@ -444,18 +448,37 @@ sub card {
 
 sub program {
     my ( $rally, $player, $cards, $reason ) = @_;
+
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $player->{packets} = [];
     my $hand = $player->{private}{cards}{cards};
-    my @program;
+    my ( @program, @expected );
     for my $c (@$cards) {
-        if ( length($c) > 1 ) {
+        if ( ref($c) eq 'ARRAY' ) {
+            push @program, $c;
+            push @expected,
+              { program => [ map { { program => noclass( {%$_} ) } } @$c ],
+                damaged => $player->{public}{registers}[@expected]{damaged}
+              };
+        }
+        elsif ( ref($c) ) {
             push @program, [$c];
+            push @expected,
+              { program => [ noclass( {%$c} ) ],
+                damaged => $player->{public}{registers}[@expected]{damaged}
+              };
         }
         else {
             push @program, [ $hand->[$c] ];
+            push @expected,
+              { program => [ noclass( { %{ $hand->[$c] } } ) ],
+                damaged => $player->{public}{registers}[@expected]{damaged}
+              };
         }
     }
+    push @expected, noclass( j( $player->{public}{registers}[@expected] ) )
+      while @expected < 5;
+
     $player->{program} = clone( \@program );
     $player->game( { cmd => 'program', registers => \@program } );
     if ($reason) {
@@ -469,8 +492,32 @@ sub program {
                 {   cmd       => 'program',
                     registers => noclass( $player->{private}{registers} )
                 }
-            ]
+            ],
+            'packets'
         );
+
+        cmp_deeply( $player->{private}{registers}, \@expected, 'program' );
+    }
+}
+
+sub j {
+    return $json->decode( $json->encode(shift) );
+}
+
+sub c {
+    return Card->new( { name => shift, priority => 1 } );
+}
+
+sub r {
+    my ( $r, $dmg ) = @_;
+    if ( $r && !ref($r) ) {
+        $r = c($r);
+    }
+    if ( defined $r ) {
+        return { program => [$r], damaged => !!$dmg };
+    }
+    else {
+        return { program => [], damaged => !!$dmg };
     }
 }
 
