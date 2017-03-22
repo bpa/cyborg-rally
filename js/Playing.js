@@ -21,7 +21,6 @@ var STATE = {
     PowerDown: Announcing,
     Programming: Programming,
     Touching: Touching,
-    Waiting: Waiting,
 };
 
 export default class Playing extends React.Component {
@@ -49,7 +48,10 @@ export default class Playing extends React.Component {
             view = Waiting;
         }
         if (msg.state === 'PowerDown') {
-            Object.keys(players).map((p)=>delete players[p].will_shutdown);
+            Object.keys(players).map(function(p){
+                delete players[p].shutdown;
+                delete players[p].will_shutdown;
+            });
         }
         if (msg.state === 'Programming') {
             gs.public.register = undefined;
