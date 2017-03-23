@@ -34,9 +34,10 @@ subtest 'hit first' => sub {
     );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
-        {   cmd    => 'damage',
-            player => $p2->{id},
-            damage => 1,
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
         },
         { cmd => 'ready', player => $p1->{id} }
     );
@@ -62,9 +63,10 @@ subtest 'hit second' => sub {
         { $p1->{id} => [ { type => 'laser', target => $p2->{id} }, {} ], } );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
-        {   cmd    => 'damage',
-            player => $p2->{id},
-            damage => 1,
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
         },
         { cmd => 'state', state => 'Touching' }
     );
@@ -115,9 +117,10 @@ subtest 'invalid actions' => sub {
 
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
-        {   cmd    => 'damage',
-            player => $p2->{id},
-            damage => 1
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
         },
         { cmd => 'ready', player => $p1->{id} }
     );
@@ -234,9 +237,10 @@ subtest 'dispute majority call hit' => sub {
             target => $p[1]->{id},
             hit    => 1
         },
-        {   cmd    => 'damage',
-            player => $p[1]->{id},
-            damage => 1
+        {   cmd       => 'damage',
+            player    => $p[1]->{id},
+            damage    => 1,
+            registers => ignore
         },
         {   cmd    => 'ready',
             player => $p[0]->{id},

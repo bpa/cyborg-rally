@@ -3,9 +3,6 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use JSON;
-
-my $json = JSON->new->convert_blessed;
 
 use constant FULL => {
     damaged => ignore,
@@ -497,27 +494,6 @@ sub program {
         );
 
         cmp_deeply( $player->{private}{registers}, \@expected, 'program' );
-    }
-}
-
-sub j {
-    return $json->decode( $json->encode(shift) );
-}
-
-sub c {
-    return Card->new( { name => shift, priority => 1 } );
-}
-
-sub r {
-    my ( $r, $dmg ) = @_;
-    if ( $r && !ref($r) ) {
-        $r = c($r);
-    }
-    if ( defined $r ) {
-        return { program => [$r], damaged => !!$dmg };
-    }
-    else {
-        return { program => [], damaged => !!$dmg };
     }
 }
 

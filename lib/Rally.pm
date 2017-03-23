@@ -72,7 +72,7 @@ sub damage {
     return if $target->{public}{dead};
 
     $target->{public}{damage} += $damage;
-    if ( $target->{public}{damage} >= $target->{public}{memory} ) {
+    if ( $target->{public}{damage} > 9 ) {
         $target->{public}{dead} = 1;
         $target->{public}{lives}--;
         $self->broadcast(
@@ -83,10 +83,17 @@ sub damage {
         );
     }
     else {
+        my $locked = $target->{public}{damage} - 4;
+        if ($locked > 0) {
+            for my $r (5 - $locked .. 4) {
+                $target->{public}{registers}[$r]{damaged} = 1;
+            }
+        }
         $self->broadcast(
-            {   cmd    => 'damage',
-                player => $target->{id},
-                damage => $target->{public}{damage},
+            {   cmd       => 'damage',
+                player    => $target->{id},
+                damage    => $target->{public}{damage},
+                registers => $target->{public}{registers}
             }
         );
     }

@@ -7,13 +7,16 @@ use Test::Deep;
 
 require Exporter;
 our @ISA    = 'Exporter';
-our @EXPORT = qw/clone done Player Game/;
+our @EXPORT = qw/clone done Player Game r j c L N/;
 
 use CyborgRally;
 use JSON;
 
 my $json  = JSON->new->convert_blessed;
 my $rally = CyborgRally->new;
+
+use constant L => { damaged => 1,  program => ignore() };
+use constant N => { damaged => '', program => ignore() };
 
 undef &Game::broadcast;
 *Game::broadcast = sub {
@@ -67,6 +70,27 @@ sub done {
     $rally->{game}   = {};
     $rally->{cyborg} = {};
     done_testing;
+}
+
+sub j {
+    return $json->decode( $json->encode(shift) );
+}
+
+sub c {
+    return Card->new( { name => shift, priority => 1 } );
+}
+
+sub r {
+    my ( $r, $dmg ) = @_;
+    if ( $r && !ref($r) ) {
+        $r = c($r);
+    }
+    if ( defined $r ) {
+        return { program => [$r], damaged => !!$dmg };
+    }
+    else {
+        return { program => [], damaged => !!$dmg };
+    }
 }
 
 package TestPlayer;

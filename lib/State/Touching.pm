@@ -95,9 +95,18 @@ sub die {
 sub heal {
     my ( $self, $game, $c ) = @_;
     if ( $c->{public}{damage} > 0 ) {
+        my $r = 9 - $c->{public}{damage};
+        if ($r < 5) {
+            $c->{public}{registers}[$r]{damaged} = '';
+        }
         $c->{public}{damage}--;
         $game->broadcast(
-            heal => { player => $c->{id}, heal => 1, new => $c->{public}{damage} }
+            heal => {
+                player    => $c->{id},
+                heal      => 1,
+                damage    => $c->{public}{damage},
+                registers => $c->{public}{registers}
+            }
         );
     }
 }
