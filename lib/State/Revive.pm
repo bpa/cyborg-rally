@@ -3,16 +3,20 @@ package State::Revive;
 use strict;
 use warnings;
 use parent 'State';
+use State::Setup;
 
 sub on_enter {
     my ( $self, $game ) = @_;
     my $all_ready = 1;
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} && $p->{public}{lives} ) {
-            $p->{public}{dead}     = '';
-            $p->{public}{ready}    = '';
-            $p->{public}{shutdown} = 1;
-            $p->{public}{damage}   = 2;
+            $p->{public}{dead}      = '';
+            $p->{public}{ready}     = '';
+            $p->{public}{shutdown}  = 1;
+            $p->{public}{damage}    = 2;
+            $p->{public}{registers} = State::Setup::CLEAN();
+            delete $p->{public}{will_shutdown};
+            print "-"x80,"\n";
             $game->broadcast(
                 {   cmd    => 'revive',
                     player => $p->{id},
