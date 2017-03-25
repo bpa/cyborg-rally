@@ -113,8 +113,8 @@ subtest 'healing unlocks registers' => sub {
     $p1->{public}{damage} = 5;
     $p2->{public}{damage} = 7;
 
-    $p1->{public}{registers} = [ r('a'), r('b'), r('c'), r('d'), r( 'e', 1 ) ];
-    $p2->{public}{registers} = [ r('a'), r('b'), r('c'), r( 'd', 1 ), r( 'e', 1 ) ];
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r( 4, 1 ) ];
+    $p2->{public}{registers} = [ r(5), r(6), r(7), r(8, 1 ), r( 9, 1 ) ];
 
     $p1->broadcast( { cmd => 'touch', tile => 'repair' },
         { cmd => 'touch', player => $p1->{id}, tile => 'repair' } );

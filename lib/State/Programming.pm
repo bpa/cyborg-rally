@@ -92,6 +92,7 @@ sub do_program {
             $c->err("Invalid program");
             return;
         }
+
         push @cards, @$r unless $c->{public}{registers}[$i]{damaged};
     }
 
@@ -100,6 +101,18 @@ sub do_program {
             $c->err("Invalid card");
             return;
         }
+    }
+
+    my %id;
+    for my $card (@cards) {
+        my $ref = ref($card);
+        if ( ( $ref ne 'HASH' && $ref ne 'Card' )
+            || exists $id{ $card->{priority} } )
+        {
+            $c->err("Invalid program");
+            return;
+        }
+        $id{$card->{priority}} = ();
     }
 
     for my $i ( 0 .. 4 ) {
@@ -142,15 +155,15 @@ sub do_ready {
 }
 
 sub locked_but_not_matching {
-    my ( $i, $card, $registers ) = @_;
+    my ( $i, $cards, $registers ) = @_;
 
     return unless $registers->[$i]{damaged};
 
     my $locked = $registers->[$i]{program};
 
-    return 1 unless @$card == @$locked;
-    for my $j ( 0 .. $#$card ) {
-        return 1 unless $card->[$j] eq $locked->[$j];
+    return 1 unless @$cards == @$locked;
+    for my $j ( 0 .. $#$cards ) {
+        return 1 unless $cards->[$j]{priority} == $locked->[$j]{priority};
     }
 
     return;

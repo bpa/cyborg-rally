@@ -3,12 +3,11 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use Data::Dumper;
 
 subtest 'normal damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
-    $p1->{public}{registers} = [ r('a'), r('b'), r('c'), r('d'), r('e') ];
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
     $p1->drop_packets;
     $rally->damage( $p1, 4 );
@@ -65,7 +64,7 @@ subtest 'normal damage' => sub {
 subtest 'over damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
-    $p1->{public}{registers} = [ r('a'), r('b'), r('c'), r('d'), r('e') ];
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
     $p1->drop_packets;
     $rally->damage( $p1, 8 );

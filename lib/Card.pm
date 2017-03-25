@@ -20,12 +20,7 @@ sub streq {
 
 sub strcmp {
     my ( $self, $other, $swap ) = @_;
-    if ($swap) {
-        return $other->{priority} <=> $self->{priority};
-    }
-    else {
-        return $self->{priority} <=> $other->{priority};
-    }
+    return $other->{priority} <=> $self->{priority};
 }
 
 1;

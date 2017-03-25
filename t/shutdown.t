@@ -3,7 +3,6 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use Data::Dumper;
 
 subtest 'Everyone shutdown' => sub {
     my ( $rally, $p1, $p2 ) = Game( { conveyors => 1, board_lasers => 1 } );

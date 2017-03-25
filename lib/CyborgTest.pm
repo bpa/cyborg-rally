@@ -14,6 +14,7 @@ use JSON;
 
 my $json  = JSON->new->convert_blessed;
 my $rally = CyborgRally->new;
+my $cards = Deck::Movement->new(4);
 
 use constant L => { damaged => 1,  program => ignore() };
 use constant N => { damaged => '', program => ignore() };
@@ -77,12 +78,12 @@ sub j {
 }
 
 sub c {
-    return Card->new( { name => shift, priority => 1 } );
+    return $cards->{card}[shift];
 }
 
 sub r {
     my ( $r, $dmg ) = @_;
-    if ( $r && !ref($r) ) {
+    if ( defined $r && !ref($r) ) {
         $r = c($r);
     }
     if ( defined $r ) {
@@ -138,6 +139,26 @@ sub game {
     $rally->on_message( $self, $msg );
 }
 
+sub player {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $self = shift;
+    $self->{game}{packets} = [];
+    my $msg = shift;
+    if ( ref($msg) ne 'HASH' ) {
+        $msg = { cmd => $msg };
+    }
+    my $comment;
+    if ( ref( $_[-1] ) eq '' ) {
+        $comment = pop @_;
+    }
+    $rally->on_message( $self, $msg );
+    if ($comment && $comment =~ /DEBUG/) {
+        print STDERR Data::Dumper->Dump([$msg, $self->{game}{packets}, $self->{packets}], ['Message', 'Game', 'Player']);
+    }
+    cmp_deeply( $self->{packets}, \@_, $comment );
+    $self->{packets} = [];
+}
+
 sub broadcast {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $self = shift;
@@ -152,7 +173,7 @@ sub broadcast {
     }
     $rally->on_message( $self, $msg );
     if ($comment && $comment =~ /DEBUG/) {
-        print STDERR Data::Dumper->Dump([$self->{game}{packets}, $self->{packets}], ['Game', 'Player']);
+        print STDERR Data::Dumper->Dump([$msg, $self->{game}{packets}, $self->{packets}], ['Message', 'Game', 'Player']);
     }
     cmp_deeply( $self->{game}{packets}, \@_, $comment );
     $self->{game}{packets} = [];
