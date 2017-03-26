@@ -11,7 +11,7 @@ export default class Timer extends React.Component {
         if (timer) {
             this.timediff = this.props.timediff;
             this.duration = timer.duration;
-            this.expires = timer.start + timer.duration - this.props.timediff;
+            this.expires = timer.start + timer.duration - gs.timediff;
             if (this.expires > new Date().getTime()) {
                 this.start();
             }
