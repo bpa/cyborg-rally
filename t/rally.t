@@ -3,8 +3,8 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
-use List::Util 'any';
 use Scalar::Util 'looks_like_number';
+use List::Util;
 
 use constant EMPTY => { damaged => '', program => [] };
 use constant LOCK => {
@@ -13,7 +13,7 @@ use constant LOCK => {
         sub {
             return ( 0, "No program" ) unless @{ $_[0] };
             return ( 0, "Program has invalid card" )
-              if any { ref($_) ne 'Card' } @{ $_[0] };
+              if List::Util::any { ref($_) ne 'Card' } @{ $_[0] };
             return 1;
         }
     )

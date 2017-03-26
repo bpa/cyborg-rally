@@ -65,7 +65,6 @@ subtest 'on_enter for two' => sub {
             ]
         );
     }
-    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
@@ -161,7 +160,6 @@ subtest 'programming' => sub {
     );
     program( $rally, $p1, [0], 'Registers are already programmed' );
 
-    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
@@ -205,7 +203,6 @@ subtest 'locked registers' => sub {
     program( $rally, $p1, [ 0, 1, 2, 3, j($locked->{program}) ] );
     program( $rally, $p1, [ 0, 1, 2, 3 ] );
 
-    cmp_deeply( State::Programming::DEAD->[0]{program}[0]{name}, 0 );
     done;
 };
 
@@ -217,7 +214,7 @@ subtest 'dead' => sub {
     $dead->{public}{lives} = 0;
     $rally->{state}->on_enter($rally);
 
-    cmp_deeply( $dead->{public}{registers}, State::Programming::DEAD );
+    cmp_deeply( $dead->{public}{registers}, State::Setup::CLEAN );
     cmp_deeply( $dead->{public}{ready},     1 );
     cmp_deeply( $dead->{packets}, [ { cmd => 'programming' } ] );
 
@@ -333,7 +330,7 @@ subtest 'powered down' => sub {
 
     cmp_deeply( $p1->{public}{ready}, 1 );
     cmp_deeply( $p1->{public}{registers},
-        State::Programming::DEAD, 'Registers filled with NOP' );
+        State::Setup::CLEAN, 'Registers filled with NOP' );
     ok( !exists( $p1->{private}{registers} ), 'private registers not defined' );
     is( $p1->{public}{damage},   0, 'Damage cleared' );
     is( $p1->{public}{shutdown}, 1, 'Stay shutdown until cleanup' );
@@ -346,7 +343,7 @@ subtest 'powered down' => sub {
 
     $rally->{state}->on_exit($rally);
     cmp_deeply( $p1->{public}{registers},
-        State::Programming::DEAD, 'Leave NOP registers alone on exit' );
+        State::Setup::CLEAN, 'Leave NOP registers alone on exit' );
 
     $p1->{public}{shutdown} = '';
     $rally->drop_packets;
@@ -423,7 +420,7 @@ subtest 'players have one card, standard' => sub {
 subtest 'programming after shutdown' => sub {
     my ( $rally, $p1 ) = Game( {} );
 
-    $p1->{public}{registers} = State::Programming::DEAD;
+    $p1->{public}{registers} = State::Setup::CLEAN;
     $p1->drop_packets;
     $rally->{state}->on_enter($rally);
 

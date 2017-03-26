@@ -6,15 +6,9 @@ use Card;
 use Deck;
 use List::MoreUtils 'false';
 use Storable 'dclone';
+use State::Setup;
 
 use parent 'State';
-
-use constant NOP => {
-    damaged => '',
-    program =>
-      [ Card->new( { name => '0', priority => 0, number => 1, total => 1 } ) ]
-};
-use constant DEAD => [ NOP, NOP, NOP, NOP, NOP ];
 
 sub on_enter {
     my ( $self, $game ) = @_;
@@ -26,7 +20,7 @@ sub on_enter {
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready}     = 1;
             $p->{public}{damage}    = 0 if $p->{public}{shutdown};
-            $p->{public}{registers} = DEAD;
+            $p->{public}{registers} = State::Setup::CLEAN;
             $p->send( { cmd => 'programming' } );
         }
         elsif ( $cards < 2 ) {

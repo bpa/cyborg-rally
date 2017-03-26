@@ -15,6 +15,7 @@ use State::Revive;
 use State::Setup;
 use State::Touching;
 use State::Waiting;
+use Storable 'dclone';
 
 sub BUILD {
     my ( $self, $opts ) = @_;
@@ -84,11 +85,15 @@ sub damage {
     }
     else {
         my $locked = $target->{public}{damage} - 4;
-        if ($locked > 0) {
-            for my $i (5 - $locked .. 4) {
+        if ( $locked > 0 ) {
+            for my $i ( 5 - $locked .. 4 ) {
                 my $r = $target->{public}{registers}[$i];
                 $r->{damaged} = 1;
-                $r->{program} = [ $self->{movement}->deal ] unless @{$r->{program}};
+                if ( !@{ $r->{program} } ) {
+                    my $card = dclone $self->{movement}->deal;
+                    $card->{priority} += $i;
+                    $r->{program} = [$card];
+                }
             }
         }
         $self->broadcast(
@@ -103,6 +108,7 @@ sub damage {
 
 sub on_disconnect {
     my ( $self, $c ) = @_;
+
     #TODO
 }
 
