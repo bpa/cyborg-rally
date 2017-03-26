@@ -3,6 +3,21 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
+use List::Util 'any';
+use Scalar::Util 'looks_like_number';
+
+use constant EMPTY => { damaged => '', program => [] };
+use constant LOCK => {
+    damaged => 1,
+    program => code(
+        sub {
+            return ( 0, "No program" ) unless @{ $_[0] };
+            return ( 0, "Program has invalid card" )
+              if any { ref($_) ne 'Card' } @{ $_[0] };
+            return 1;
+        }
+    )
+};
 
 subtest 'normal damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
@@ -91,6 +106,16 @@ subtest 'over damage' => sub {
         ]
     );
 
+    done;
+};
+
+subtest 'lock registers when shutdown' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] );
+    $rally->damage( $p1, 5 );
+    cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, LOCK ] );
+    $rally->damage( $p1, 3 );
+    cmp_deeply( $p1->{public}{registers}, [ EMPTY, LOCK, LOCK, LOCK, LOCK ] );
     done;
 };
 

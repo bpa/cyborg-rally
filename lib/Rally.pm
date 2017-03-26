@@ -85,8 +85,10 @@ sub damage {
     else {
         my $locked = $target->{public}{damage} - 4;
         if ($locked > 0) {
-            for my $r (5 - $locked .. 4) {
-                $target->{public}{registers}[$r]{damaged} = 1;
+            for my $i (5 - $locked .. 4) {
+                my $r = $target->{public}{registers}[$i];
+                $r->{damaged} = 1;
+                $r->{program} = [ $self->{movement}->deal ] unless @{$r->{program}};
             }
         }
         $self->broadcast(
