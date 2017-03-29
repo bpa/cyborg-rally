@@ -41,6 +41,13 @@ sub do_touch {
         return;
     }
 
+    if ( $c->{public}{shutdown} && grep { $_ eq $msg->{tile} }
+        qw/repair upgrade flag/ )
+    {
+        $c->err('Invalid tile');
+        return;
+    }
+
     if ( exists $self->{public}{ $c->{id} } ) {
         $c->err('Already declared');
         return;
@@ -96,7 +103,7 @@ sub heal {
     my ( $self, $game, $c ) = @_;
     if ( $c->{public}{damage} > 0 ) {
         my $r = 9 - $c->{public}{damage};
-        if ($r < 5) {
+        if ( $r < 5 ) {
             $c->{public}{registers}[$r]{damaged} = '';
         }
         $c->{public}{damage}--;

@@ -149,4 +149,35 @@ subtest 'healing unlocks registers' => sub {
     done;
 };
 
+subtest "shutdown players don't trigger" => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->set_state('TOUCH');
+    $rally->update;
+    $rally->drop_packets;
+
+    $p1->{public}{shutdown} = 1;
+
+    $p1->player(
+        { cmd => 'touch', tile   => 'repair' },
+        { cmd => 'error', reason => 'Invalid tile' }
+    );
+
+    $p1->player(
+        { cmd => 'touch', tile   => 'upgrade' },
+        { cmd => 'error', reason => 'Invalid tile' }
+    );
+
+    $p1->player(
+        { cmd => 'touch', tile   => 'flag' },
+        { cmd => 'error', reason => 'Invalid tile' }
+    );
+
+    $p1->broadcast(
+        { cmd => 'touch', tile   => 'floor' },
+        { cmd => 'touch', player => $p1->{id}, tile => 'floor' }
+    );
+
+    done;
+};
+
 done_testing;
