@@ -16,7 +16,6 @@ sub on_enter {
             $p->{public}{damage}    = 2;
             $p->{public}{registers} = State::Setup::CLEAN();
             delete $p->{public}{will_shutdown};
-            print "-"x80,"\n";
             $game->broadcast(
                 {   cmd    => 'revive',
                     player => $p->{id},
