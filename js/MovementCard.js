@@ -8,21 +8,49 @@ var MAP = {
 };
 
 export default class MovementCard extends React.Component {
+    normal() {
+        return {
+            color: 'black',
+            background: 'white'
+        };
+    }
+    damaged() {
+        return {
+            color: 'white',
+            background: 'radial-gradient(red, black)'
+        };
+    }
+    inactive() {
+        return {
+            color: 'darkGrey',
+            background: 'lightGrey'
+        };
+    }
+    addOn() {
+        return {
+            color: 'green',
+            background: 'white'
+        };
+    }
     render() {
         const n = this.props.card.name;
-        const m = MAP[n];
-        var style = {
-            borderRadius:6,
-            background: 'white',
-            color: 'black'
-        };
-        if (this.props.damaged) {
-           style.color = 'white';
-           style.background = 'radial-gradient(red, black)';
+        const m = MAP[n] || n;
+        var style
+            = this.props.damaged  ? this.damaged()
+            : this.props.inactive ? this.inactive()
+            : this.props.addOn    ? this.addOn()
+            :                       this.normal();
+        style.borderRadius = 6;
+
+        if (this.props.damaged || this.props.inactive) {
+           return <ButtonOutline style={style}>{m}</ButtonOutline>;
         }
-        return (
-        <ButtonOutline theme="default" style={style} onClick={this.props.onClick}>
-            {m ? m : n}
-        </ButtonOutline>
-    )}
+        else {
+           return (
+             <ButtonOutline style={style} onClick={this.props.onClick}>
+                 {m}
+             </ButtonOutline>
+           );
+        }
+    }
 }

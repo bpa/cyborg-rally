@@ -8,6 +8,12 @@ if (!Array.prototype.last){
     };
 };
 
+if (!Array.prototype.clone){
+    Array.prototype.clone = function(){
+        return JSON.parse(JSON.stringify(this));
+    };
+};
+
 function deliver(msg, obj) {
     if (msg.cmd) {
         let o = obj, f;

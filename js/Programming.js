@@ -19,9 +19,10 @@ export default class Programming extends React.Component {
         }
         this.state={
             cards: cards.sort((a,b)=>b.priority-a.priority),
-            registers: gs.private.registers,
+            registers: gs.private.registers.clone()
         };
         this.ready = this.ready.bind(this);
+        this.update_used(this.state.registers);
     }
 
     on_programming(msg) {
@@ -36,22 +37,44 @@ export default class Programming extends React.Component {
         });
     }
 
+    update_used(registers) {
+        this.used = {};
+        for (var r of registers) {
+            for (var c of r.program) {
+                this.used[c.priority] = true;
+            }
+        }
+    }
+
     on_program(msg) {
-        this.setState({registers:msg.registers});
+        gs.private.registers = msg.registers;
+        this.update_used(msg.registers);
+        this.setState({registers:msg.registers.clone()});
+    }
+
+    on_error(msg) {
+        this.update_used(gs.private.registers);
+        this.setState({registers:gs.private.registers.clone()});
     }
 
     choose(card) {
-        const reg = this.state.registers.map((r)=>r.program);
+        const registers = this.state.registers;
+        const reg = registers.map((r)=>r.program);
         const r = reg.find((r)=>r.length==0);
         if (r) {
             r[0] = card;
+            this.update_used(registers);
+            this.setState({registers:registers});
             ws.send({ cmd:'program', registers:reg });
         }
     }
 
     clear(r) {
-        const reg = this.state.registers.map((r)=>r.program);
-        reg[r] = [];
+        const registers = this.state.registers;
+        registers[r].program = [];
+        const reg = registers.map((r)=>r.program);
+        this.update_used(registers);
+        this.setState({registers:registers});
         ws.send({ cmd:'program', registers:reg });
     }
 
@@ -68,6 +91,7 @@ export default class Programming extends React.Component {
                         onClick={this.clear.bind(this, i)}/>);
         const cards = this.state.cards.map(
             (c) => <MovementCard card={c} key={c.priority}
+                        inactive={this.used[c.priority]}
                         onClick={this.choose.bind(this,c)}/>);
         return (
 <div>
