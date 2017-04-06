@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" baseProfile="full"
+    width="100" height="100" version="1.1">
+   <defs>
+     <linearGradient id="shine" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="lightgray"/>
+      <stop offset="55%" stop-color="dimgray"/>
+      <stop offset="85%" stop-color="gainsboro"/>
+      <stop offset="100%" stop-color="slategray"/>
+     </linearGradient>
+     <linearGradient id="hub" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="black"/>
+      <stop offset="55%" stop-color="#333"/>
+      <stop offset="85%" stop-color="dimgray"/>
+      <stop offset="100%" stop-color="black"/>
+     </linearGradient>
+     <radialGradient id="brakeColor">
+      <stop offset="0%" stop-color="#06f"/>
+      <stop offset="100%" stop-color="blue"/>
+     </radialGradient>
+     <clipPath id="brake">
+       <rect x="-15" height="22" width="70" fill="white" transform="translate(65, 0) rotate(40)"/>
+     </clipPath>
+     <mask id="center">
+        <rect height="100" width="100" fill="white"/>
+        <circle cx="50" cy="50" r="8" fill="black"/>
+        <circle cx="50" cy="38" r="1.5" fill="black"/>
+        <circle cx="61.4" cy="46.3" r="1.5" fill="black"/>
+        <circle cx="38.6" cy="46.3" r="1.5" fill="black"/>
+        <circle cx="57" cy="59.7" r="1.5" fill="black"/>
+        <circle cx="43" cy="59.7" r="1.5" fill="black"/>
+     </mask>
+   </defs>
+   <circle cx="50" cy="50" r="42" mask="url(#center)" fill="url(#shine)"/>
+   <circle cx="50" cy="50" r="48" mask="url(#center)" fill="url(#brakeColor)" clip-path="url(#brake)"/>
+   <circle cx="50" cy="50" r="30" mask="url(#center)" fill="black"/>
+   <circle cx="50" cy="50" r="28" mask="url(#center)" fill="url(#hub)"/>
+   <circle cx="50" cy="50" r="17" mask="url(#center)" fill="black"/>
+</svg>

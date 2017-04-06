@@ -10,21 +10,21 @@
     </linearGradient>
     <linearGradient id="depression">
       <stop offset="0%" stop-color="red"/>
-      <stop offset="20%" stop-color="red"/>
+      <stop offset="50%" stop-color="#c00"/>
       <stop offset="100%" stop-color="#c00"/>
     </linearGradient>
     <radialGradient id="highlight">
       <stop offset="0%" stop-color="#c00"/>
-      <stop offset="80%" stop-color="#c00"/>
-      <stop offset="85%" stop-color="#f60"/>
-      <stop offset="95%" stop-color="#c00"/>
+      <stop offset="75%" stop-color="#c00"/>
+      <stop offset="83%" stop-color="#f60"/>
+      <stop offset="90%" stop-color="#c00"/>
       <stop offset="100%" stop-color="#c00"/>
     </radialGradient>
    </defs>
    <path d="M4 10 L 90 4 L 96 90 L 10 96 z" fill="grey"
     stroke-width="4" stroke-linejoin="round" stroke="silver"/>
    <circle cx="50" cy="50" r="20" fill="black"/>
-   <circle cx="53" cy="51" r="19" fill="#c00"/>
+   <circle cx="53" cy="51" r="19" fill="url(#metal)"/>
    <circle cx="55" cy="52" r="19" fill="url(#highlight)"/>
-   <circle cx="56" cy="52" r="16" fill="url(#depression)" stroke="#c00" stroke-width="3"/>
+   <circle cx="56" cy="52" r="16" fill="url(#depression)" stroke="#c00" stroke-width="2"/>
 </svg>
