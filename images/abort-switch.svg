@@ -1,6 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" baseProfile="full"
     width="100" height="100" version="1.1">
    <defs>
+     <linearGradient id="shine" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="dimgray"/>
+      <stop offset="85%" stop-color="gainsboro"/>
+      <stop offset="100%" stop-color="slategray"/>
+     </linearGradient>
     <linearGradient id="metal" x1="1" x2="0" y1="0" y2="1">
       <stop offset="0%" stop-color="gray"/>
       <stop offset="50%" stop-color="silver"/>
@@ -21,8 +26,8 @@
       <stop offset="100%" stop-color="#c00"/>
     </radialGradient>
    </defs>
-   <path d="M4 10 L 90 4 L 96 90 L 10 96 z" fill="grey"
-    stroke-width="4" stroke-linejoin="round" stroke="silver"/>
+   <path d="M4 10 L 90 4 L 96 90 L 10 96 z" fill="url(#shine)"
+    stroke-width="4" stroke-linejoin="round" stroke="slategray"/>
    <circle cx="50" cy="50" r="20" fill="black"/>
    <circle cx="53" cy="51" r="19" fill="url(#metal)"/>
    <circle cx="55" cy="52" r="19" fill="url(#highlight)"/>
