@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" baseProfile="full"
+    width="100" height="100" version="1.1">
+  <defs>
+    <radialGradient id="shine" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="#f66"/>
+      <stop offset="85%" stop-color="#900"/>
+      <stop offset="100%" stop-color="#600"/>
+    </radialGradient>
+  </defs>
+  <g stroke="url(#shine)" stroke-width="4">
+    <line y2="40" y1="50" x2="43" x1="44" />
+    <line y2="40" y1="50" x2="57" x1="56" />
+  </g>
+  <g fill="url(#shine)" stroke="black">
+    <path d="M 20,57 Q 0,60 5,98 7,65 25,65 Z" />
+    <path d="M 25,67 Q 9,70 15,98 15,75 30,70 Z" />
+    <path d="M 32,72 Q 18,80 25,98 23,80 38,74 Z" />
+    <path d="M 80,57 Q 100,60 95,98 93,65 75,65 Z" />
+    <path d="M 75,67 Q 91,70 85,98 85,75 70,70 Z" />
+    <path d="M 68,72 Q 82,80 75,98 77,80 62,74 Z" />
+    <ellipse ry="15" rx="30" cy="60" cx="50" />
+    <path d="m 14,40 c -16,-13 5,-38 11,-34 -8,9 -6,20 -5,25 5,-6 5,-9 5,-16 8,3 3,36 -11,25 z" />
+    <path d="m 86,40 c 16,-13 -5,-38 -11,-34 8,9 6,20 5,25 -5,-6 -5,-9 -5,-16 -8,3 -3,36 11,25 z" />
+  </g>
+  <g fill="white" stroke="black">
+    <rect ry="4" rx="4" height="15" width="10" y="25" x="38" />
+    <rect ry="4" rx="4" height="15" width="10" y="25" x="52" />
+    <rect x="40" y="58" height="5" width="20"/>
+    <line x1="45" x2="45" y1="58" y2="63"/>
+    <line x1="50" x2="50" y1="58" y2="63"/>
+    <line x1="55" x2="55" y1="58" y2="63"/>
+  </g>
+  <circle cx="41" cy="33" r="2"/>
+  <circle cx="55" cy="33" r="2"/>
+</svg>
