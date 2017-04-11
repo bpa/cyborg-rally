@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" baseProfile="full"
+    width="100" height="100" version="1.1">
+  <defs>
+    <linearGradient id="shell">
+      <stop offset="0%" stop-color="#ec4"/>
+      <stop offset="35%" stop-color="#fe6"/>
+      <stop offset="100%" stop-color="#da2"/>
+    </linearGradient>
+    <linearGradient id="case">
+      <stop offset="0%" stop-color="#960"/>
+      <stop offset="35%" stop-color="#b80"/>
+      <stop offset="100%" stop-color="#730"/>
+    </linearGradient>
+    <pattern id="round" width="1" height="1">
+      <g stroke="black" stroke-width="4">
+        <rect x="2" y="58" width="30" height="36" fill="url(#case)"/>
+        <path d="M 2,58 2,30 C 2,16 17,2 17,2 17,2 32,15 32,30 L 32,58 z" fill="url(#shell)"/>
+      </g>
+    </pattern>
+  </defs>
+  <g fill="url(#round)" transform="scale(.5)">
+    <rect x="44"  y="2"   width="34" height="96"/>
+    <rect x="44"  y="102" width="34" height="96"/>
+    <rect x="122" y="2"   width="34" height="96"/>
+    <rect x="122" y="102" width="34" height="96"/>
+  </g>
+</svg>
