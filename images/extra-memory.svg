@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" baseProfile="full"
+    width="100" height="100" version="1.1">
+   <defs>
+     <linearGradient id="shine" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="#2e7d32"/>
+      <stop offset="85%" stop-color="#60ad5e"/>
+      <stop offset="100%" stop-color="#005005"/>
+     </linearGradient>
+     <linearGradient id="hub" x1="0" x2="1" y1=".75" y2="0">
+      <stop offset="0%" stop-color="black"/>
+      <stop offset="55%" stop-color="#333"/>
+      <stop offset="85%" stop-color="dimgray"/>
+      <stop offset="100%" stop-color="black"/>
+     </linearGradient>
+     <pattern id="contacts" width="4" height="6" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="2" height="6" fill="gold"/>
+     </pattern>
+     <pattern id="chip" width="10" height="22" patternUnits="userSpaceOnUse">
+        <rect x="1" y="1" width="6" height="20" fill="black"/>
+        <rect x="0" y="0" width="6" height="20" fill="url(#hub)"/>
+     </pattern>
+   </defs>
+   <rect x="4" y="30" width="92" height="36" fill="url(#shine)" stroke="black" stroke-width="4"/>
+   <rect x="6" y="58" width="42" height="6" fill="url(#contacts)"/>
+   <rect x="50" y="58" width="42" height="6" fill="url(#contacts)" transform="translate(2,0)"/>
+   <rect x="8" y="22" width="40" height="22" fill="url(#chip)" transform="translate(-2,12)"/>
+   <rect x="50" y="22" width="40" height="22" fill="url(#chip)" transform="translate(4,12)"/>
+</svg>
