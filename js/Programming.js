@@ -31,6 +31,7 @@ export default class Programming extends React.Component {
             cards = msg.cards.sort((a,b)=>b.priority-a.priority);
         }
         gs.private.cards = cards;
+        this.used = {};
         this.setState({
             cards: cards,
             registers: msg.registers
