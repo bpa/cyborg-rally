@@ -104,6 +104,11 @@ export default class Playing extends React.Component {
         this.setState({players:gs.public.player});
     }
 
+    on_option(msg) {
+        gs.public.player[msg.player].options.push(msg.option);
+        this.setState({players:gs.public.player});
+    }
+
     on_revive(msg) {
         gs.public.player[msg.player].dead = false;
         gs.public.player[msg.player].damage = msg.damage;

@@ -1,6 +1,7 @@
 import Card from 'rebass/src/Card';
 import Register from './Register';
 import Vitality from "./Vitality";
+import Options from "./Options";
 
 export default class Player extends React.Component {
     render() {
@@ -15,6 +16,7 @@ export default class Player extends React.Component {
                 }}
             >
                 <Register register={this.props.register}/>
+                <Options player={p}/>
                 {p.name}{p.shutdown ? '.zZ' : ''}
                 <Vitality player={p}/>
             </Card>
