@@ -13,13 +13,13 @@ States will most often reset ready flag for all players on enter.
 |Member |Type  |Usage                                           |
 |-------|------|------------------------------------------------|
 |game   |String|Game subclass, will be 'Rally' or 'Lobby'       |
-|map    |Map   |Mapping of identity token to in game identifier |
+|map    |Hash  |Mapping of identity token to in game identifier |
 |name   |String|Name of the game, as displayed                  |
-|opts   |Map   |Game options selected at creation               |
-|player |Map   |Players by in game identifier                   |
-|private|Map   |Private player data by in game identifier       |
-|public |Map   |Public data                                     |
-|states |Map   |State instances by alias                        |
+|opts   |Hash  |Game options selected at creation               |
+|player |Hash  |Players by in game identifier                   |
+|private|Hash  |Private player data by in game identifier       |
+|public |Hash  |Public data                                     |
+|states |Hash  |State instances by alias                        |
 |state  |State |Instance of current state                       |
 
 ## Player data
@@ -27,11 +27,11 @@ States will most often reset ready flag for all players on enter.
 |Member           |Type             |Usage                                               |
 |-----------------|-----------------|----------------------------------------------------|
 |id               |UUID             |In game identifier                                  |
-|private          |Map              |Data for the player's eyes only                     |
-|private.cards    |Array of Card    |Cards the player holds                              |
-|private.options  |Array of Option  |Options previewed during setup if pick 1 of 3       |
+|private          |Hash             |Data for the player's eyes only                     |
+|private.cards    |Hash of Card     |Cards the player holds                              |
+|private.options  |Hash of Option   |Options previewed during setup if pick 1 of 3       |
 |private.registers|Array of Register|Registers as programmed during the programming state|
-|public           |Map              |Public data about the player                        |
+|public           |Hash             |Public data about the player                        |
 |public.dead      |Bool             |Is the player currently dead?                       |
 |public.dock      |Int              |Starting dock position                              |
 |public.lives     |Int              |How many lives remaining                            |

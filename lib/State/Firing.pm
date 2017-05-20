@@ -4,7 +4,16 @@ use strict;
 use warnings;
 use parent 'State';
 
-use constant FIRE_TYPE => { laser => \&on_laser };
+use constant FIRE_TYPE => {
+    'Fire Control'      => \&on_laser,
+    'laser'             => \&on_laser,
+    'Mini Howitzer'     => \&on_laser,
+    'Pressor Beam'      => \&nop,
+    'Radio Control'     => \&on_laser,
+    'Rear-Firing Laser' => \&on_laser,
+    'Scrambler'         => \&on_scrambler,
+    'Tractor Beam'      => \&nop,
+};
 
 sub on_enter {
     my ( $self, $game ) = @_;
@@ -195,14 +204,19 @@ sub on_shot {
         return;
     }
 
-    my $dir = 0;
-    if ( $msg->{type} eq 'rear' ) {
-        if ( !$c->{public}{option}{'Rear-Firing Laser'} ) {
-            $c->err('No rear laser');
-            return;
-        }
-        $dir = 1;
+    unless ( $msg->{type} eq 'laser' || $c->{public}{option}{$msg->{type}} ) {
+        $c->err("$msg->{type} not held");
+        return;
     }
+
+    if ( $game->{public}{register} == 4 && grep { $_ eq $msg->{type} }
+        ( 'Scrambler', 'Radio Control' ) )
+    {
+        $c->err("$msg->{type} cannot be used during register 5");
+        return;
+    }
+
+    my $dir = $msg->{type} eq 'Rear-Firing Laser' ? 1 : 0;
 
     my $beam = $self->{public}{ $c->{id} }[$dir];
     if ( exists $beam->{target} ) {
@@ -227,10 +241,19 @@ sub on_shot {
     return $target, $beam;
 }
 
+sub nop { }
+
 sub on_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
     my $damage = 1;
     $game->damage( $target, $damage );
+}
+
+sub on_scrambler {
+    my ( $self, $game, $bot, $target, $beam ) = @_;
+    $target->{public}{registers}[ $game->{register} ]{program}
+      = [ $game->{options}->deal ];
+
 }
 
 1;

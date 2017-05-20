@@ -22,13 +22,14 @@ sub on_enter {
         $p->{public}{lives}     = $game->{opts}{start_with_4_lives} ? 4 : 3;
         $p->{public}{memory}    = 9;
         $p->{public}{damage}    = $game->{opts}{start_with_2_damage} ? 2 : 0;
-        $p->{public}{options}   = [];
+        $p->{public}{options}   = {};
         $p->{public}{shutdown}  = '';
         $p->{public}{registers} = CLEAN;
         $p->{private}{cards}    = [];
 
         if ( $game->{opts}{start_with_option} ) {
-            push @{ $p->{public}{options} }, $game->{options}->deal;
+            my $opt = $game->{options}->deal;
+            $p->{public}{options}{$opt->{name}} = $opt;
         }
     }
 
@@ -61,7 +62,7 @@ sub do_choose {
         return;
     }
 
-    push @{ $c->{public}{options} }, $card;
+    $c->{public}{options}{$card->{name}} = $card;
     undef $c->{private}{options};
     $c->send( { cmd => 'choose', options => $c->{public}{options} } );
 

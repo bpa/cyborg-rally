@@ -122,7 +122,7 @@ sub upgrade {
     my ( $self, $game, $c ) = @_;
     my $card = $game->{options}->deal;
     if ( defined $card ) {
-        push @{ $c->{public}{options} }, $card;
+        $c->{public}{options}{$card->{name}} = $card;
         $game->broadcast( option => { player => $c->{id}, option => $card } );
     }
 }

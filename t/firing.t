@@ -18,6 +18,7 @@ subtest 'no hits' => sub {
 
 subtest 'hit first' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -49,6 +50,7 @@ subtest 'hit first' => sub {
 
 subtest 'hit second' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -77,6 +79,7 @@ subtest 'hit second' => sub {
 
 subtest 'invalid actions' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -131,6 +134,7 @@ subtest 'invalid actions' => sub {
 
 subtest 'self resolve dispute' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -152,6 +156,7 @@ subtest 'self resolve dispute' => sub {
 
 subtest 'dispute majority call hit' => sub {
     my ( $rally, @p ) = Game( {}, 5 );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -255,6 +260,7 @@ subtest 'dispute majority call hit' => sub {
 
 subtest 'dispute majority call miss' => sub {
     my ( $rally, @p ) = Game( {}, 5 );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
@@ -326,6 +332,7 @@ subtest 'dispute majority call miss' => sub {
 
 subtest 'dispute tie goes to miss' => sub {
     my ( $rally, @p ) = Game( {}, 4 );
+    $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;

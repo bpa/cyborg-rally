@@ -95,10 +95,10 @@ subtest 'fifth register phase' => sub {
     is( $p[2]->{public}{damage}, 2 );
     is( $p[3]->{public}{damage}, 2 );
 
-    is( scalar @{ $p[0]->{public}{options} }, 0 );
-    is( scalar @{ $p[1]->{public}{options} }, 0 );
-    is( scalar @{ $p[2]->{public}{options} }, 1 );
-    is( scalar @{ $p[3]->{public}{options} }, 0 );
+    is( scalar keys %{ $p[0]->{public}{options} }, 0 );
+    is( scalar keys %{ $p[1]->{public}{options} }, 0 );
+    is( scalar keys %{ $p[2]->{public}{options} }, 1 );
+    is( scalar keys %{ $p[3]->{public}{options} }, 0 );
 
     done;
 };

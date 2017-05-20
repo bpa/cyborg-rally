@@ -105,7 +105,7 @@ export default class Playing extends React.Component {
     }
 
     on_option(msg) {
-        gs.public.player[msg.player].options.push(msg.option);
+        gs.public.player[msg.player].options[msg.option.name] = msg.option;
         this.setState({players:gs.public.player});
     }
 
