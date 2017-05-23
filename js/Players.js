@@ -2,7 +2,6 @@ import Player from './Player';
 
 export default class Players extends React.Component {
     render() {
-        console.log(this.props);
         const players = this.props.players;
         const alive = Object.keys(players).filter((p)=>!players[p].dead);
         return (
