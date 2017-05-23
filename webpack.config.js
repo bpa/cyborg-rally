@@ -22,25 +22,24 @@ var HtmlWebpackPlugin = require('html-webpack-plugin'),
     });
 
 module.exports = {
-    entry: './js/Client.js',
+    entry: './js/Client',
     output: {
         filename: "cyborg-rally.js",
-        path: './public',
+        path: __dirname + "/public",
     },
 	resolve: {
-		extensions: ['', '.js', '.scss', '.css']
+		extensions: ['.js', '.scss', '.css']
 	},
 	externals: {
 		'react': 'React',
-		'react-dom': 'ReactDOM'
+		'react-dom': 'ReactDOM',
 	},
-	devtool: 'source-map',
     module: {
-        loaders: [
+        rules: [
             {   test: /\.jsx?$/,
-                loader: 'babel',
-                includes: ['./js'],
-                query: {
+                loader: 'babel-loader',
+                exclude: /node_modules/,
+                options: {
                     presets: ['es2015', 'react'],
                     plugins: [
                         'transform-class-properties',
@@ -62,6 +61,7 @@ module.exports = {
 		new CopyWebpackPlugin(copy),
         new WrapperWebpackPlugin({header: 'var gs,ws;'}),
         new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
             compress: {
                 warnings: false,
             },

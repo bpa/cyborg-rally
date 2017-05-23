@@ -1,4 +1,4 @@
-import Button from 'rebass/src/Button';
+import Button from 'rebass/dist/Button';
 
 export default class Ready extends React.Component {
     ready(r) {

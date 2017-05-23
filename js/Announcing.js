@@ -1,4 +1,4 @@
-import Button from 'rebass/src/Button';
+import Button from 'rebass/dist/Button';
 import { Shutdown } from './Emoji';
 
 export default class Announcing extends React.Component {

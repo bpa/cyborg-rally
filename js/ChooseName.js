@@ -1,7 +1,7 @@
-import Button from 'rebass/src/Button';
-import Input from 'rebass/src/Input';
-import Panel from 'rebass/src/Panel';
-import PanelHeader from 'rebass/src/PanelHeader';
+import Button from 'rebass/dist/Button';
+import Input from 'rebass/dist/Input';
+import Panel from 'rebass/dist/Panel';
+import PanelHeader from 'rebass/dist/PanelHeader';
 
 export default class ChooseName extends React.Component {
     onClick(e) {

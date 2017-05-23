@@ -1,4 +1,4 @@
-import Button from 'rebass/src/Button';
+import Button from 'rebass/dist/Button';
 import Players from './Players';
 import Ready from './Ready';
 

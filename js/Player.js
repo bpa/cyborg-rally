@@ -1,4 +1,4 @@
-import Card from 'rebass/src/Card';
+import Card from 'rebass/dist/Card';
 import Register from './Register';
 import Vitality from "./Vitality";
 import Options from "./Options";

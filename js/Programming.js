@@ -1,7 +1,7 @@
-import Button from 'rebass/src/Button';
+import Button from 'rebass/dist/Button';
 import MovementCard from './MovementCard';
-import Panel from 'rebass/src/Panel';
-import PanelHeader from 'rebass/src/PanelHeader';
+import Panel from 'rebass/dist/Panel';
+import PanelHeader from 'rebass/dist/PanelHeader';
 import Register from './Register';
 import { Shutdown } from './Emoji';
 

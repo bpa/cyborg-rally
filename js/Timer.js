@@ -1,4 +1,4 @@
-import Donut from 'rebass/src/Donut';
+import Donut from 'rebass/dist/Donut';
 
 export default class Timer extends React.Component {
     constructor(props) {

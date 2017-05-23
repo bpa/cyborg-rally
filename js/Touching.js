@@ -1,5 +1,5 @@
-import Button from 'rebass/src/Button';
-import ButtonOutline from 'rebass/src/ButtonOutline';
+import Button from 'rebass/dist/Button';
+import ButtonOutline from 'rebass/dist/ButtonOutline';
 
 export default class Touching extends React.Component {
     constructor(props) {

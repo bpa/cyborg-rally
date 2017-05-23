@@ -1,4 +1,4 @@
-import Button from 'rebass/src/Button';
+import Button from 'rebass/dist/Button';
 import ConfirmShot from './ConfirmShot';
 import FireType from './FireType';
 import Player from './Player';

@@ -1,11 +1,11 @@
-import Button from 'rebass/src/Button';
-import Card from 'rebass/src/Card';
-import Checkbox from 'rebass/src/Checkbox';
-import Heading from 'rebass/src/Heading';
-import Input from 'rebass/src/Input';
-import Panel from 'rebass/src/Panel';
-import PanelHeader from 'rebass/src/PanelHeader';
-import Radio from 'rebass/src/Radio';
+import Button from 'rebass/dist/Button';
+import Card from 'rebass/dist/Card';
+import Checkbox from 'rebass/dist/Checkbox';
+import Heading from 'rebass/dist/Heading';
+import Input from 'rebass/dist/Input';
+import Panel from 'rebass/dist/Panel';
+import PanelHeader from 'rebass/dist/PanelHeader';
+import Radio from 'rebass/dist/Radio';
 
 export default class CreateGame extends React.Component {
 	constructor(p) {

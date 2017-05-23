@@ -1,4 +1,4 @@
-import ButtonOutline from 'rebass/src/ButtonOutline';
+import ButtonOutline from 'rebass/dist/ButtonOutline';
 
 var MAP = {
     'r': '↱',

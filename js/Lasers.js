@@ -1,4 +1,4 @@
-import ButtonOutline from 'rebass/src/ButtonOutline';
+import ButtonOutline from 'rebass/dist/ButtonOutline';
 
 export default class Lasers extends React.Component {
     laser(count) {
