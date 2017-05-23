@@ -204,7 +204,9 @@ sub on_shot {
         return;
     }
 
-    unless ( $msg->{type} eq 'laser' || $c->{public}{option}{$msg->{type}} ) {
+    unless ( $msg->{type} eq 'laser'
+        || exists $c->{public}{options}{ $msg->{type} } )
+    {
         $c->err("$msg->{type} not held");
         return;
     }
@@ -251,9 +253,8 @@ sub on_laser {
 
 sub on_scrambler {
     my ( $self, $game, $bot, $target, $beam ) = @_;
-    $target->{public}{registers}[ $game->{register} ]{program}
-      = [ $game->{options}->deal ];
-
+    $target->{public}{registers}[ $game->{public}{register} + 1 ]{program}
+      = [ $game->{movement}->deal ];
 }
 
 1;

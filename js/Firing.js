@@ -1,8 +1,19 @@
-import Footer from 'rebass/src/Footer';
 import Button from 'rebass/src/Button';
+import ConfirmShot from './ConfirmShot';
+import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
 import { Shutdown } from './Emoji';
+
+var weapons = [
+    'Fire Control',
+    'Mini Howitzer',
+    'Pressor Beam',
+    'Radio Control',
+    'Rear-Firing Laser',
+    'Scrambler',
+    'Tractor Beam',
+];
 
 export default class Firing extends React.Component {
     constructor(props) {
@@ -21,13 +32,30 @@ export default class Firing extends React.Component {
                 }
             });
         }
+        this.fire_type = this.fire_type.bind(this);
+        this.state = {};
     }
 
     fire(p) {
+        for (var w of weapons) {
+            if (this.props.me.options[w]) {
+                this.setState({target: p})
+                return;
+            }
+        }
         ws.send({cmd: 'fire', type: 'laser', target: p});
     }
 
+    fire_type(w) {
+        ws.send({cmd: 'fire', type: w, target: this.state.target});
+        this.setState({target: null});
+    }
+
     on_fire(msg) {
+        this.setState({shot: msg})
+    }
+
+    confirmed() {
         ws.send({
             cmd: 'confirm',
             player: msg.player,
@@ -37,7 +65,7 @@ export default class Firing extends React.Component {
     }
 
     render() {
-        if (this.props.players[gs.id].shutdown) {
+        if (this.props.me.shutdown) {
             return <Shutdown/>;
         }
     return (
@@ -46,6 +74,9 @@ export default class Firing extends React.Component {
         readyText="No one in line of sight"/>
     <hr/>
     {this.players()}
+    <FireType player={this.props.me} weapons={weapons} target={this.state.target}
+        onChoose={this.fire_type}/>
+    <ConfirmShot player={this.props.me} shot={this.state.shot}/>
 </div>
     )}
 

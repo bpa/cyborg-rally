@@ -13,8 +13,10 @@ my %command = (
     e       => \&cmd_eval,
     inc     => \&cmd_incr,
     games   => \&cmd_games,
+    keys    => \&cmd_keys,
     p       => \&cmd_print,
     players => \&cmd_players,
+    r       => \&cmd_registers,
     set     => \&cmd_set,
     use     => \&cmd_use,
     x       => \&cmd_dump,
@@ -118,7 +120,7 @@ sub cmd_dump {
             '*map'     => $game->{map}
         }
     );
-    $d->Seen( { '*game' => $game } ) if !(ref($base) && $game == $base);
+    $d->Seen( { '*game' => $game } ) if !( ref($base) && $game == $base );
     syswrite $self->{fh}, $d->Dump;
 }
 
@@ -135,11 +137,55 @@ sub cmd_games {
     syswrite $self->{fh}, Dumper [ keys %{ $self->{game}{game} } ];
 }
 
+sub cmd_keys {
+    my ( $self, $path ) = @_;
+    return unless $path;
+    my $game = $self->get_game || return;
+    my ( $base, $expr ) = lookup( $game, $path );
+    eval "\$base = \$base->$expr";
+    syswrite $self->{fh}, Dumper [ sort keys %$base ];
+}
+
 sub cmd_players {
     my $self = shift;
     if ( $self->{instance} ) {
     }
     syswrite $self->{fh}, Dumper [ keys %{ $self->{game}{game} } ];
+}
+
+sub center {
+    my ($str, $w) = @_;
+    my $l = $w - length($str);
+    my $r = int($l/2);
+    $l = $w - $r;
+    return sprintf "%*s%*s", $l, $str, $r, '';
+}
+
+sub cmd_registers {
+    my ($self) = @_;
+    my $game = $self->get_game || return;
+    my @rows = [qw/Player 1 2 3 4 5/];
+    for my $p ( values %{ $game->{player} } ) {
+        my @row = $p->{name};
+        for my $r ( @{ $p->{public}{registers} } ) {
+            push @row,
+              join( ' ', map {"($_->{name}:$_->{priority})"} @{ $r->{program} } );
+        }
+        push @rows, \@row;
+    }
+    my @w;
+    for my $i (0..5) {
+        $w[$i] = 0;
+        for my $r (@rows) {
+            my $l = length($r->[$i]);
+            $w[$i] = $l if $w[$i] < $l;
+        }
+        for my $r (@rows) {
+            $r->[$i] = center($r->[$i], $w[$i]);
+        }
+    }
+    push @rows, [];
+    syswrite $self->{fh}, join("\n", map { join(" | ", @$_) } @rows);
 }
 
 sub cmd_set {
