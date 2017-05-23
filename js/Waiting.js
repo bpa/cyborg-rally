@@ -1,4 +1,3 @@
-import Footer from 'rebass/src/Footer';
 import Button from 'rebass/src/Button';
 import Players from './Players';
 import Ready from './Ready';
