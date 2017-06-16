@@ -98,6 +98,7 @@ sub do_confirm {
     return unless $bot;
 
     FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $c, $beam );
+    $game->broadcast( { cmd => 'confirm', shot => $beam, player => $bot->{id} } );
     $self->do_ready( $game, $bot );
 }
 

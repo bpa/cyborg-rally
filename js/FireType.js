@@ -7,7 +7,6 @@ export default class FireType extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
-        console.log(props);
     }
 
     render() {
@@ -36,7 +35,7 @@ export default class FireType extends React.Component {
         }
         
         return (
-<Modal title={this.props.target.name}>
+<Modal title={this.props.target.name} close={this.props.close}>
     <Button onClick={this.props.onChoose.bind(null, 'laser')} key={'laser'} style={btnStyle}>
         <Option card={{name:'Laser', text:'Main laser'}} style={optStyle}/>
         Main Laser

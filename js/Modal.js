@@ -13,7 +13,11 @@ export default class Modal extends React.Component {
       left: 0,
       right: 0,
       backgroundColor: 'rgba(0,0,0,0.3)',
-      padding: 50
+      padding: 50,
+      zIndex: this.props.z || 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
     };
 
     return (
@@ -22,7 +26,7 @@ export default class Modal extends React.Component {
 	<PanelHeader>{this.props.title}</PanelHeader>
 	{this.props.children}
 	<Button theme="error" onClick={this.props.close}>
-		Close
+    {this.props.closeText || "Close"}
 	</Button>
 </Panel>
 </div>

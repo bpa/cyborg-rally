@@ -18,22 +18,22 @@ var weapons = [
 export default class Firing extends React.Component {
     constructor(props) {
         super(props);
+        var pending_shots = [];
+        var pending_votes = [];
         if (gs.state) {
             const keys = Object.keys(gs.state);
             keys.map(function(k) {
                 var p = gs.state[k];
-                if (p[0] && p[0].target === props.id) {
-                    ws.send({
-                        cmd: 'confirm',
-                        player: k,
-                        type: p[0].type,
-                        confirmed: true
-                    });
+                for (var i=0; i<2; i++) {
+                    if (p[i] && p[i].target === gs.id) {
+                        pending_shots.push({player:k,type:p[i].type});
+                    }
                 }
             });
         }
         this.fire_type = this.fire_type.bind(this);
-        this.state = {};
+        this.cancelFire = this.cancelFire.bind(this);
+        this.state = {pending_shots: pending_shots};
     }
 
     fire(p) {
@@ -46,22 +46,38 @@ export default class Firing extends React.Component {
         ws.send({cmd: 'fire', type: 'laser', target: p});
     }
 
+    cancelFire() {
+        this.setState({target: null});
+    }
+
     fire_type(w) {
         ws.send({cmd: 'fire', type: w, target: this.state.target});
         this.setState({target: null});
     }
 
     on_fire(msg) {
-        this.setState({shot: msg})
+        var pending = this.state.pending_shots;
+        pending.push(msg);
+        this.setState({pending_shots: pending})
     }
 
-    confirmed() {
-        ws.send({
-            cmd: 'confirm',
-            player: msg.player,
-            confirmed: true,
-            type: msg.type
-        });
+    on_confirm(msg) {
+        let pending = this.state.pending_shots;
+        let i = pending.findIndex((p) => p.player === msg.player);
+        if (i > -1) {
+            pending.splice(i, 1);
+        }
+        this.setState({pending_shots: pending});
+    }
+
+    deny(shot) {
+        ws.send({cmd: 'deny', type: shot.type, player: shot.player});
+        let pending = this.state.pending_shots;
+        let i = pending.findIndex((p) => p.player === shot.player);
+        if (i > -1) {
+            pending.splice(i, 1);
+        }
+        this.setState({pending_shots: pending});
     }
 
     render() {
@@ -75,8 +91,10 @@ export default class Firing extends React.Component {
     <hr/>
     {this.players()}
     <FireType player={this.props.me} weapons={weapons} target={this.state.target}
-        onChoose={this.fire_type}/>
-    <ConfirmShot player={this.props.me} shot={this.state.shot}/>
+        onChoose={this.fire_type} close={this.cancelFire}/>
+    {this.state.pending_shots.map((s) => (
+        <ConfirmShot player={this.props.me} shot={s} key={s.player}
+            deny={this.deny.bind(this, s)}/>))}
 </div>
     )}
 
