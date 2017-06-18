@@ -146,7 +146,8 @@ subtest 'self resolve dispute' => sub {
     $p2->broadcast( 'ready', { cmd => 'ready', player => $p2->{id} } );
     $p1->drop_packets;
     $p2->game( deny => { type => 'laser', player => $p1->{id} } );
-    cmp_deeply( $p1->{packets}, [ { cmd => 'dispute', player => $p2->{id} } ] );
+    cmp_deeply( $p1->{packets},
+        [ { cmd => 'deny', player => $p2->{id}, type => 'laser' } ] );
     $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
     $p1->broadcast( 'ready' => { cmd => 'state', state => 'Touching' } );
     is( $p2->{public}{damage}, 0 );
@@ -241,6 +242,13 @@ subtest 'dispute majority call hit' => sub {
             player => $p[0]->{id},
             target => $p[1]->{id},
             hit    => 1
+        },
+        {   cmd    => 'vote',
+            type   => 'laser',
+            player => $p[0]->{id},
+            target => $p[1]->{id},
+            hit    => 1,
+            final  => 1,
         },
         {   cmd       => 'damage',
             player    => $p[1]->{id},

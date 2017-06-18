@@ -14,6 +14,15 @@ if (!Array.prototype.clone){
     };
 };
 
+if (!Array.prototype.remove){
+    Array.prototype.remove = function(cb){
+        var i = this.findIndex(cb);
+        if (i > -1) {
+            this.splice(i, 1);
+        }
+    };
+};
+
 function deliver(msg, obj) {
     if (msg.cmd) {
         let o = obj, f;

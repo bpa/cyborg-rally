@@ -79,7 +79,7 @@ sub resolve_beam {
         return;
     }
 
-    my $dir = $msg->{type} eq 'rear' ? 1 : 0;
+    my $dir = $msg->{type} eq 'Rear-Firing Laser' ? 1 : 0;
     my $beam = $beams->[$dir];
 
     if ( !exists $beam->{target} || exists $beam->{confirmed} ) {
@@ -98,7 +98,6 @@ sub do_confirm {
     return unless $bot;
 
     FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $c, $beam );
-    $game->broadcast( { cmd => 'confirm', shot => $beam, player => $bot->{id} } );
     $self->do_ready( $game, $bot );
 }
 
@@ -108,7 +107,7 @@ sub do_deny {
     my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
     if ($bot) {
         $self->{public}{ $bot->{id} }[$dir] = {};
-        $bot->send( { cmd => 'dispute', player => $c->{id} } );
+        $bot->send( { cmd => 'deny', player => $c->{id}, type => $beam->{type} } );
     }
 }
 
@@ -159,7 +158,15 @@ sub do_vote {
     my $miss  = $beam->{miss};
     my $total = $hit + $miss;
     if ( $total == $players || $count == int( $players / 2 ) + 1 ) {
-
+        $game->broadcast(
+            {   cmd    => 'vote',
+                type   => $msg->{type},
+                player => $msg->{player},
+                target => $beam->{target},
+                hit    => $hit > $miss,
+                final  => 1,
+            }
+        );
         if ( $hit > $miss ) {
             my $target = $game->{player}{ $beam->{target} };
             FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $target, $beam );
@@ -167,15 +174,6 @@ sub do_vote {
         }
         else {
             $self->{public}{ $msg->{player} }[$dir] = {};
-            $game->broadcast(
-                {   cmd    => 'vote',
-                    type   => $msg->{type},
-                    player => $msg->{player},
-                    target => $msg->{target},
-                    hit    => 0,
-                    final  => 1,
-                }
-            );
         }
     }
     else {

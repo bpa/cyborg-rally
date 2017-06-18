@@ -23,7 +23,6 @@ export default class FireType extends React.Component {
         super(props);
         this.state = {};
         this.cancel = this.cancel.bind(this);
-        this.confirm = this.confirm.bind(this);
     }
 
     ask(opt) {
@@ -32,11 +31,6 @@ export default class FireType extends React.Component {
 
     cancel() {
         this.setState({discard: null});
-    }
-
-    confirm() {
-        const shot = this.props.shot;
-        ws.send({cmd: 'confirm', type: shot.type, player: shot.player});
     }
 
     discard(opt) {
@@ -50,7 +44,6 @@ export default class FireType extends React.Component {
     }
 
     discardable() {
-        console.log(this.props.shot.type);
         if (!damage_weapons[this.props.shot.type]) {
             return null;
         }
@@ -86,7 +79,7 @@ export default class FireType extends React.Component {
         let name = gs.public.player[this.props.shot.player].name;
         return (
 <Modal title={"Confirm shot by " + name} closeText="Deny" close={this.props.deny} z="100">
-    <Button onClick={this.confirm} style={btnStyle} theme="success">
+    <Button onClick={this.props.confirm} style={btnStyle} theme="success">
         Confirm
     </Button>
     {this.discardable()}

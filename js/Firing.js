@@ -1,5 +1,7 @@
 import Button from 'rebass/dist/Button';
 import ConfirmShot from './ConfirmShot';
+import Deny from './Deny';
+import Dispute from './Dispute';
 import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
@@ -19,21 +21,27 @@ export default class Firing extends React.Component {
     constructor(props) {
         super(props);
         var pending_shots = [];
-        var pending_votes = [];
+        var disputed = [];
         if (gs.state) {
             const keys = Object.keys(gs.state);
             keys.map(function(k) {
                 var p = gs.state[k];
-                for (var i=0; i<2; i++) {
-                    if (p[i] && p[i].target === gs.id) {
-                        pending_shots.push({player:k,type:p[i].type});
+                for (var shot of p) {
+                    if (shot.dispute) {
+                        if (shot.voted[gs.id] == undefined) {
+                            shot.player = k;
+                            disputed.push(shot);
+                        }
+                    }
+                    else if (shot.target === gs.id) {
+                        pending_shots.push({player:k,type:shot.type});
                     }
                 }
             });
         }
         this.fire_type = this.fire_type.bind(this);
         this.cancelFire = this.cancelFire.bind(this);
-        this.state = {pending_shots: pending_shots};
+        this.state = {pending_shots: pending_shots, denied: [], disputed: disputed};
     }
 
     fire(p) {
@@ -50,6 +58,12 @@ export default class Firing extends React.Component {
         this.setState({target: null});
     }
 
+    on_deny(msg) {
+        var denied = this.state.denied;
+        denied.push({player: msg.player, type: msg.type});
+        this.setState({denied: denied})
+    }
+
     fire_type(w) {
         ws.send({cmd: 'fire', type: w, target: this.state.target});
         this.setState({target: null});
@@ -63,21 +77,54 @@ export default class Firing extends React.Component {
 
     on_confirm(msg) {
         let pending = this.state.pending_shots;
-        let i = pending.findIndex((p) => p.player === msg.player);
-        if (i > -1) {
-            pending.splice(i, 1);
-        }
+        pending.remove((p) => p.player === msg.player);
+        this.setState({pending_shots: pending});
+    }
+
+    confirm(shot) {
+        ws.send({cmd: 'confirm', type: shot.type, player: shot.player});
+        let pending = this.state.pending_shots;
+        pending.remove((p) => p.player === shot.player);
         this.setState({pending_shots: pending});
     }
 
     deny(shot) {
         ws.send({cmd: 'deny', type: shot.type, player: shot.player});
         let pending = this.state.pending_shots;
-        let i = pending.findIndex((p) => p.player === shot.player);
-        if (i > -1) {
-            pending.splice(i, 1);
-        }
+        pending.remove((p) => p.player === shot.player);
         this.setState({pending_shots: pending});
+    }
+
+    acceptDeny(d) {
+        let denied = this.state.denied;
+        denied.remove((deny) => deny.target === d.target);
+        this.setState({denied: denied});
+    }
+
+    escalate(d) {
+        ws.send({cmd: 'dispute', type: d.type, target: d.player});
+        let denied = this.state.denied;
+        denied.remove((deny) => deny.target === d.target);
+        this.setState({denied: denied});
+    }
+
+    on_dispute(d) {
+        let disputed = this.state.disputed;
+        disputed.push(d);
+        this.setState({disputed: disputed});
+    }
+
+    vote(d, v) {
+        ws.send({cmd: 'vote', type: d.type, player: d.player, hit: v});
+        let disputed = this.state.disputed;
+        disputed.remove((s) => s.target === d.target && s.player === d.player);
+        this.setState({disputed: disputed});
+    }
+
+    on_vote(msg) {
+        let disputed = this.state.disputed;
+        disputed.remove((s) => s.target === msg.target && s.player === msg.player);
+        this.setState({disputed: disputed});
     }
 
     render() {
@@ -94,7 +141,15 @@ export default class Firing extends React.Component {
         onChoose={this.fire_type} close={this.cancelFire}/>
     {this.state.pending_shots.map((s) => (
         <ConfirmShot player={this.props.me} shot={s} key={s.player}
+            confirm={this.confirm.bind(this, s)}
             deny={this.deny.bind(this, s)}/>))}
+    {this.state.denied.map((d) => (
+        <Deny type={d.type} target={d.player} key={d.player}
+            close={this.acceptDeny.bind(this, d)}
+            escalate={this.escalate.bind(this, d)}/>))}
+    {this.state.disputed.map((d) => (
+        <Dispute type={d.type} player={d.player} key={d.player} target={d.target}
+            vote={this.vote.bind(this, d)}/>))}
 </div>
     )}
 
