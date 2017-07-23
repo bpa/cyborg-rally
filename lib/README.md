@@ -28,19 +28,19 @@ States will most often reset ready flag for all players on enter.
 |-----------------|-----------------|----------------------------------------------------|
 |id               |UUID             |In game identifier                                  |
 |private          |Hash             |Data for the player's eyes only                     |
-|private.cards    |Hash of Card     |Cards the player holds                              |
-|private.options  |Hash of Option   |Options previewed during setup if pick 1 of 3       |
-|private.registers|Array of Register|Registers as programmed during the programming state|
+|private/cards    |Hash of Card     |Cards the player holds                              |
+|private/options  |Hash of Option   |Options previewed during setup if pick 1 of 3       |
+|private/registers|Array of Register|Registers as programmed during the programming state|
 |public           |Hash             |Public data about the player                        |
-|public.dead      |Bool             |Is the player currently dead?                       |
-|public.dock      |Int              |Starting dock position                              |
-|public.lives     |Int              |How many lives remaining                            |
-|public.memory    |Int              |Max number of cards player can hold                 |
-|public.name      |String           |User defined name of player                         |
-|public.options   |Array of Option  |Option cards held by player                         |
-|public.ready     |Bool             |Is the player ready?                                |
-|public.registers |Array of Register|Finalized registers                                 |
-|public.shutdown  |Bool             |Is player shutdown?                                 |
+|public/dead      |Bool             |Is the player currently dead?                       |
+|public/dock      |Int              |Starting dock position                              |
+|public/lives     |Int              |How many lives remaining                            |
+|public/memory    |Int              |Max number of cards player can hold                 |
+|public/name      |String           |User defined name of player                         |
+|public/options   |Array of Option  |Option cards held by player                         |
+|public/ready     |Bool             |Is the player ready?                                |
+|public/registers |Array of Register|Finalized registers                                 |
+|public/shutdown  |Bool             |Is player shutdown?                                 |
 
 ## Messages common to all states (handled by Game)
 
