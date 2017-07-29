@@ -29,9 +29,6 @@
 ## <a name="Announcing"></a> Announcing
 Waiting for players to declare if they will shutdown after this round.
 
-#### Data
-None
-
 #### Commands
 |cmd|Source|Elements|Notes|
 |---|------|--------|-----|
@@ -52,9 +49,6 @@ Next state triggered once all players are ready.
 
 ## <a name="Executing"></a> Executing
 Transitional state for initializing the round
-
-#### Data
-None
 
 #### Transitions
 [MOVE](#Movement) triggered immediately
@@ -89,9 +83,6 @@ Players weapons fire
 ## <a name="Lasers"></a> Lasers
 Board lasers fire
 
-#### Data
-None
-
 #### Commands
 |cmd|Source|Elements|Notes|
 |---|------|--------|-----|
@@ -99,3 +90,74 @@ None
 
 #### Transitions
 [FIRE](#Firing) triggered after all players are ready
+
+## <a name="Movement"></a> Movement
+Waiting for players to move.
+
+#### Transitions
+[BOARD](#Board) triggered when all players are ready.
+
+## <a name="PowerDown"></a> PowerDown
+Waiting for currently inactive players to declare if they will remain shutdown.
+
+#### Commands
+|cmd|Source|Elements|Notes|
+|---|------|--------|-----|
+|shutdown|Client|`activate` - Boolean|True if player wishes to remain shutdown for the next round|
+|announce|Server|`player` - `id` of player<br>`shutdown` - Boolean|Informational|
+
+#### Transitions
+[PROGRAM](#Programming) triggered when all players are ready.
+
+## <a name="Programming"></a> Programming
+Programming for the next round.  Timer is set based on game preferences.  Could be 30 seconds, one minute, or happen when the first or second to last person is ready.
+
+#### Commands
+|cmd|Source|Elements|Notes|
+|---|------|--------|-----|
+|program|Client|`registers` - Array of Array of String(card name)|The full or partial program desired|
+|program|Server|`registers` - Array of Array of [Card](../Deck/README.md#Card)|Informational on what the server actually has|
+
+#### Transitions
+[ANNOUNCE](#Announcing) triggered when timer runs out or all players are ready.
+
+## <a name="Revive"></a> Revive
+Waiting for players to move back into position
+
+#### Transitions
+[POWER](#PowerDown) triggered when timer runs out or all players are ready.
+
+## <a name="Setup"></a> Setup
+Setup game data, initialize players
+
+#### Commands
+|cmd|Source|Elements|Notes|
+|---|------|--------|-----|
+|choose|Client|`options` - String|Option chosen to keep|
+
+#### Transitions
+[PROGRAM](#Programming) triggered immediately unless players have to choose one of three options.
+
+## <a name="Touching"></a> Touching
+Determine where people are and if touching a flag, checkpoint, etc.
+
+#### Data
+|Key|Type|Notes|
+|---|----|-----|
+|public|Map|Tile type by `id` of player|
+
+#### Commands
+|cmd|Source|Elements|Notes|
+|---|------|--------|-----|
+|touch|Client|`tile` - String|Tile type player is on|
+|touch|Server|`tile` - String<br>`player` - `id` of player|Informational|
+
+#### Transitions
+[MOVE](#Moving) when everyone has declared and no one is dead or shutdown
+[REVIVE](#Revive) when everyone has declared and there are dead or shutdown people
+
+## <a name="Waiting"></a> Waiting
+Wait for all players to join
+
+#### Transitions
+[SETUP](#Setup) when everyone is ready
