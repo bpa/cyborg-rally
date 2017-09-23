@@ -1,4 +1,4 @@
-import Button from 'rebass/dist/Button';
+import { Button } from './Widgets';
 import Modal from './Modal.js';
 
 export default class Dispute extends React.Component {
@@ -8,7 +8,7 @@ export default class Dispute extends React.Component {
         return (
 <Modal title={"Did " + p_name + " shoot " + t_name + "?"}
     closeText="No" close={this.props.vote.bind(null, false)}>
-    <Button onClick={this.props.vote.bind(null,true)} theme="success">
+    <Button onClick={this.props.vote.bind(null,true)} bg="green">
         Yes
     </Button>
 </Modal>);

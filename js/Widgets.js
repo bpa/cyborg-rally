@@ -12,14 +12,22 @@ import {
 
 import styled from 'styled-components';
 
-export { Badge, ButtonOutline, Checkbox, Circle, Flex, Heading, Label, Lead, Radio, Row, Space, Text } from 'rebass';
+export { Badge, ButtonOutline, Checkbox, Circle, Flex, Heading, Label, Lead, PanelHeader, Radio, Row, Space, Text } from 'rebass';
 
 export function Box(props) {
     return <WBox {...props} mb={2}/>;
 }
 
+export function Button(props) {
+  var style = props.style || {};
+  style.marginBottom = '12px';
+  return <WButtonCircle {...props} w={1} style={style}/>
+}
+
 export function ButtonCircle(props) {
-    return <WButtonCircle {...props} w={1} style={{marginBottom: '12px'}}/>;
+  var style = props.style || {};
+  style.marginBottom = '12px';
+  return <WButtonCircle {...props} w={1} style={style}/>
 }
 
 export function Card(props) {
@@ -40,11 +48,13 @@ export function Panel(props) {
     return <WPanel {...props} style={{bottom: '0px'}}/>;
 }
 
+/*
 export function PanelHeader(props) {
   var style = props.style || {};
   style.marginBottom = '12px';
   return <WPanelHeader {...props} style={style}/>;
 }
+*/
 
 export function Shutdown() {
     return <div style={{textAlign:'center',fontSize:120}}>ZZZ</div>;

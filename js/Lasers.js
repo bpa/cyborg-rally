@@ -1,32 +1,30 @@
-import ButtonOutline from 'rebass/dist/ButtonOutline';
+import { ButtonOutline } from './Widgets';
 
 export default class Lasers extends React.Component {
     laser(count) {
         ws.send({cmd:'laser', n:count});
     }
 
+    btn(dmg) {
+      return (
+      <ButtonOutline py={4} style={{flex:"1 1 100px"}} key={dmg}
+          color="red" onClick={this.laser.bind(this, dmg)}>
+        {dmg} laser
+      </ButtonOutline>);
+    }
+
     render() { return (
 <div>
-    <ButtonOutline style={{width:'98%',paddingBottom:'22%'}}
-        theme="success" onClick={this.laser.bind(this, 0)}>
+    <ButtonOutline w={1} p={3} style={{marginBottom:'12px'}}
+        color="green" onClick={this.laser.bind(this, 0)}>
         No Damage
     </ButtonOutline>
-    <ButtonOutline style={{width:'21%',paddingBottom:'21%'}}
-        theme="error" onClick={this.laser.bind(this, 1)}>
-        1 laser
-    </ButtonOutline>
-    <ButtonOutline style={{width:'21%',paddingBottom:'21%'}}
-        theme="error" onClick={this.laser.bind(this, 2)}>
-        2 laser
-    </ButtonOutline>
-    <ButtonOutline style={{width:'21%',paddingBottom:'21%'}}
-        theme="error" onClick={this.laser.bind(this, 3)}>
-        3 laser
-    </ButtonOutline>
-    <ButtonOutline style={{width:'21%',paddingBottom:'21%'}}
-        theme="error" onClick={this.laser.bind(this, 4)}>
-        4 laser
-    </ButtonOutline>
+    <div style={{display:'flex'}} style={{marginBottom:'12px'}}>
+    {this.btn(1)}
+    {this.btn(2)}
+    {this.btn(3)}
+    {this.btn(4)}
+    </div>
 </div>
     )}
 }

@@ -1,9 +1,6 @@
-import Button from 'rebass/dist/Button';
 import MovementCard from './MovementCard';
-import Panel from 'rebass/dist/Panel';
-import PanelHeader from 'rebass/dist/PanelHeader';
 import Register from './Register';
-import { Shutdown } from './Emoji';
+import { Box, ButtonCircle, Panel, PanelHeader, Shutdown } from './Widgets';
 
 export default class Programming extends React.Component {
     constructor(props) {
@@ -96,17 +93,17 @@ export default class Programming extends React.Component {
                         onClick={this.choose.bind(this,c)}/>);
         return (
 <div>
-  <Panel theme="warning">
-    <PanelHeader>Registers</PanelHeader>
-    {registers}
+  <Panel mb={12}>
+    <PanelHeader bg="orange">Registers</PanelHeader>
+    <Box p={3} mb={12}>{registers}</Box>
   </Panel>
-  <Panel theme="info">
-    <PanelHeader>Movement Options</PanelHeader>
-    {cards}
+  <Panel mb={12}>
+    <PanelHeader bg="blue">Movement Options</PanelHeader>
+    <Box p={3} mb={12}>{cards}</Box>
   </Panel>
-  <Button theme={this.props.me.ready?'error':'success'} onClick={this.ready}>
+  <ButtonCircle bg={this.props.me.ready?'red':'green'} onClick={this.ready}>
     {this.props.me.ready?'Not Ready':'Ready'}
-  </Button>
+  </ButtonCircle>
 </div>
     )}
 }
