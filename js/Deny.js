@@ -1,4 +1,4 @@
-import Button from 'rebass/dist/Button';
+import { Button } from './Widgets';
 import Modal from './Modal.js';
 
 export default class Deny extends React.Component {
@@ -7,7 +7,7 @@ export default class Deny extends React.Component {
         return (
 <Modal title={name + " denies your shot"}
     closeText="Accept denial" close={this.props.close}>
-    <Button onClick={this.props.escalate} theme="success">
+    <Button onClick={this.props.escalate} bg="green">
         I totally shot {name}
     </Button>
 </Modal>);

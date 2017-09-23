@@ -1,13 +1,9 @@
-import Button from 'rebass/dist/Button';
-import DotIndicator from 'rebass/dist/DotIndicator';
-import Panel from 'rebass/dist/Panel';
-import PanelHeader from 'rebass/dist/PanelHeader';
+import { Box, ButtonCircle, Column, Flex, Panel, PanelHeader, Register, Row } from './Widgets';
 import Announcing from "./Announcing";
-import Firing from "./Firing";
+import Firing from "./Firing"
 import Lasers from "./Lasers";
 import Movement from "./Movement";
 import Programming from "./Programming";
-import Space from "rebass/dist/Space";
 import Timer from "./Timer";
 import Touching from "./Touching";
 import Vitality from "./Vitality";
@@ -133,28 +129,33 @@ export default class Playing extends React.Component {
         const State = gs.public.player[gs.id].dead ? Dead : this.state.view;
         var progress
             = gs.public.register !== undefined
-            ? <DotIndicator active={gs.public.register}
-                style={{position:'relative', top:-4}} length={5}/>
+            ? <Register active={gs.public.register}/>
             : <span>&nbsp;</span>;
 
         return (
-<Panel theme="info">
-  <PanelHeader style={{textTransform:'captitalize', height:'3em'}}>
+<Panel>
+  <PanelHeader bg="blue" color="black" style={{
+      textTransform:'captitalize',
+      height:'3em',
+      display:'flex',
+      justifyContent:'space-between'}}>
     <div style={{top:'.5em', position:'relative', textAlign:'center'}}>
         <div>{gs.public.state.replace('_', ' ')}</div>
         {progress}
     </div>
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
-    <Space auto/>
     <Vitality player={gs.public.player[gs.id]}/>
   </PanelHeader>
+  <Box p={3}>
     <State ref={(e)=>this.view[1] = e}
         me={gs.public.player[gs.id]} players={gs.public.player}/>
-	<Button theme="error" onClick={this.quit} style={{position:'fixed',bottom:'0px',left:'0px'}}>
-		Quit
-	</Button>
+    <hr style={{marginTop:"0px", marginBottom:"12px"}}/>
+    <ButtonCircle bg="red" onClick={this.quit} style={{position:'fixed',bottom:'0px'}}>
+      Quit
+    </ButtonCircle>
+  </Box>
 </Panel>
-    )}
+)}
 }
 
 class Dead extends React.Component {

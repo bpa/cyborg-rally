@@ -1,5 +1,4 @@
-import Badge from 'rebass/dist/Badge';
-import Heading from 'rebass/dist/Heading';
+import { Badge, Heading } from './Widgets';
 
 export default class Vitality extends React.Component {
     render() {
@@ -12,14 +11,16 @@ export default class Vitality extends React.Component {
         //const lives = ''.padEnd(p.lives, '●').padEnd(3, '○');
         return (
 <div style={{textAlign:'center'}}>
-	<Heading level={5}>Health:
-		<Badge pill rounded style={{backgroundColor:'yellow', color:'black'}}>
-            {p.memory-p.damage}/{p.memory}
-        </Badge>
-	</Heading>
-	<Heading level={5}>Life:
-		<Badge pill rounded theme="success">{p.lives}/{total}</Badge>
-	</Heading>
+	<div>
+    <span style={{fontWeight:'bold'}}>Health:</span>
+		<Badge mr={0} bg="yellow" color="black">
+      {p.memory-p.damage}/{p.memory}
+    </Badge>
+	</div>
+	<div>
+    <span>Life:</span>
+		<Badge bg="green">{p.lives}/{total}</Badge>
+	</div>
 </div>
     )}
 }
