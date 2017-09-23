@@ -1,4 +1,4 @@
-import ButtonOutline from 'rebass/dist/ButtonOutline';
+import { ButtonOutline } from './Widgets';
 
 var MAP = {
     'r': '↱',

@@ -1,15 +1,13 @@
-import Button from 'rebass/dist/Button';
-import Players from './Players';
 import Ready from './Ready';
+import Players from './Players';
 
 export default class Waiting extends React.Component {
-    render() {
+  render() {
     return (
 <div>
 	<Ready ready={this.props.me.ready}/>
-    <hr/>
-    <Players players={this.props.players}/>
+  <hr style={{marginTop:"0", marginBottom:"12"}}/>
+  <Players players={this.props.players}/>
 </div>
-    )}
+  )}
 }
-

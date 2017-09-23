@@ -1,11 +1,11 @@
-import Button from 'rebass/dist/Button';
+import { ButtonCircle } from './Widgets';
 import ConfirmShot from './ConfirmShot';
 import Deny from './Deny';
 import Dispute from './Dispute';
 import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
-import { Shutdown } from './Emoji';
+import { Shutdown } from './Widgets';
 
 var weapons = [
     'Fire Control',
@@ -164,9 +164,9 @@ export default class Firing extends React.Component {
             if (self.props.me.ready) {
                 return <Player player={p} key={id}/>
             } else { return (
-            <Button key={id} theme='default' onClick={self.fire.bind(self, id)}>
-                <font color="red">🞋 {p.name} 🞋</font>
-            </Button> )
+            <ButtonCircle key={id} bg='black' color="red" onClick={self.fire.bind(self, id)}>
+                🞋 {p.name} 🞋
+            </ButtonCircle> )
             }
         })
     }

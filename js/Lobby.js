@@ -2,9 +2,8 @@ import ChooseName from './ChooseName';
 import CreateGame from './CreateGame';
 import Games from './Games';
 
-import Button from 'rebass/dist/Button';
-import Panel from 'rebass/dist/Panel';
-import PanelHeader from 'rebass/dist/PanelHeader';
+import { ButtonCircle, Panel, PanelHeader } from './Widgets';
+import { Box } from 'rebass';
 
 export default class Lobby extends React.Component {
     constructor(props) {
@@ -18,10 +17,10 @@ export default class Lobby extends React.Component {
     }
 
     game_button(g) {
-        return <Button key={g.name} theme="primary"
+        return <ButtonCircle key={g.name} bg="blue"
             onClick={this.join.bind(this, g)}>
                  Join {g.name}
-               </Button>
+               </ButtonCircle>
     }
 
     on_games(msg) {
@@ -40,15 +39,17 @@ export default class Lobby extends React.Component {
     }
 
 	render() { return (
-<Panel theme="default">
-    <PanelHeader>Lobby</PanelHeader>
-    <Games games={this.state.games}/>
-	<Button theme="success" onClick={this.props.setView.bind(null, CreateGame)}>
-		Create Game
-	</Button>
-    <Button theme="warning" onClick={this.props.setView.bind(null, ChooseName)}>
-        Name Preferences
-    </Button>
+<Panel color="black" style={{textAlign: 'center', bottom: '0'}}>
+    <PanelHeader color="white" bg="black">Lobby</PanelHeader>
+    <Box p={3}>
+        <Games games={this.state.games}/>
+        <ButtonCircle color="black" bg="green" onClick={this.props.setView.bind(null, CreateGame)}>
+          Create Game
+        </ButtonCircle>
+        <ButtonCircle color="black" bg="red" onClick={this.props.setView.bind(null, ChooseName)}>
+          Name Preferences
+        </ButtonCircle>
+    </Box>
 </Panel>
 	)}
 }

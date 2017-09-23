@@ -1,5 +1,4 @@
-import Button from 'rebass/dist/Button';
-import ButtonOutline from 'rebass/dist/ButtonOutline';
+import { Button, ButtonOutline } from 'rebass';
 
 export default class Touching extends React.Component {
     constructor(props) {
@@ -19,7 +18,7 @@ export default class Touching extends React.Component {
 
     button(label, key) {
         if (this.state.tiles[gs.id] === key) { return (
-    <Button theme="info" style={{width:'45%',paddingBottom:'30%',
+    <Button bg="blue" style={{width:'45%',paddingBottom:'30%',
             margin:'.4em',marginBottom:'.4em'}} key={key}>
         {label}
     </Button>

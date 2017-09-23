@@ -1,33 +1,31 @@
-import Button from 'rebass/dist/Button';
-import Input from 'rebass/dist/Input';
-import Panel from 'rebass/dist/Panel';
-import PanelHeader from 'rebass/dist/PanelHeader';
+import { Box, Input, Panel, PanelHeader, ButtonCircle } from './Widgets';
 
 export default class ChooseName extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onClick = this.onClick.bind(this);
+        this.name = window.localStorage.name || undefined;
+    }
+
     onClick(e) {
-        window.localStorage.name = this.name.value;
-        ws.send({cmd:'set_name', name:this.name.value});
+        window.localStorage.name = this.name;
+        ws.send({cmd:'set_name', name:this.name});
         this.props.back();
     }
 
-    input(r) {
-        if(r) {
-            this.name = r;
-            r.value=window.localStorage.name;
-        }
-    }
-
     render() { return (
-<Panel theme="primary">
-	<PanelHeader>Name Preferences</PanelHeader>
-	<Input label="" name="name" placeholder="Name"
-        baseRef={this.input.bind(this)}/>
-	<Button theme="primary" onClick={this.onClick.bind(this)}>
-		Save Preferences
-	</Button>
-	<Button theme="error" onClick={this.props.back}>
-		Cancel
-	</Button>
+<Panel>
+	<PanelHeader color="black" bg="blue">Name Preferences</PanelHeader>
+    <Box p={3}>
+        <Input label="" placeholder="Name" defaultValue={this.name}
+            onChange={(e) => this.name = e.target.value}/>
+        <ButtonCircle color="black" bg="green" onClick={this.onClick}>
+            Save Preferences
+        </ButtonCircle>
+        <ButtonCircle color="black" bg="red" onClick={this.props.back}>
+            Cancel
+        </ButtonCircle>
+    </Box>
 </Panel>
     )}
 }

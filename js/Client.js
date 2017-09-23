@@ -1,3 +1,4 @@
+import { Provider } from 'rebass';
 import Socket from "./Socket";
 import Playing from "./Playing";
 import Lobby from "./Lobby";
@@ -74,26 +75,6 @@ class Client extends React.Component {
         this.stack = [Lobby];
     }
 
-    static childContextTypes = {
-        rebass: React.PropTypes.object
-    }
-  
-    getChildContext () {
-      return {
-        rebass: {
-          Button: {
-             width: '100%',
-             marginBottom: '1em',
-          },
-          ButtonOutline: {
-             margin: '.4em',
-          },
-          borderRadius: 16,
-          rounded: true,
-        }
-      }
-    }
-
     setView(view) {
         this.stack.push(view);
         this.setState({view: view});
@@ -106,8 +87,10 @@ class Client extends React.Component {
 
     render() {
         const View = this.state.view;
-        return <View setView={this.setView} back={this.back}
-                    ref={(e)=>this.view=e}/>
+        return (
+  <Provider theme={{radius: 16}}>
+    <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
+  </Provider>);
     }
 
     on_welcome(msg) {

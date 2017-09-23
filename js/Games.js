@@ -1,4 +1,4 @@
-import Heading from 'rebass/dist/Heading';
+import { Heading } from './Widgets';
 
 export default class Games extends React.Component {
     render() {

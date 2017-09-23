@@ -1,4 +1,4 @@
-import Button from 'rebass/dist/Button';
+import { Button } from './Widgets';
 import Card from './Card.js';
 import Modal from './Modal.js';
 import Option from './Option.js';
@@ -79,7 +79,7 @@ export default class FireType extends React.Component {
         let name = gs.public.player[this.props.shot.player].name;
         return (
 <Modal title={"Confirm shot by " + name} closeText="Deny" close={this.props.deny} z="100">
-    <Button onClick={this.props.confirm} style={btnStyle} theme="success">
+    <Button onClick={this.props.confirm} bg="green">
         Confirm
     </Button>
     {this.discardable()}

@@ -1,4 +1,4 @@
-import Button from 'rebass/dist/Button';
+import { Button } from './Widgets';
 import Card from './Card.js';
 import Modal from './Modal.js';
 import Option from './Option.js';

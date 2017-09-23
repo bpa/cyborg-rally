@@ -1,6 +1,6 @@
 import Ready from './Ready';
 import Player from './Player';
-import { Shutdown } from './Emoji';
+import { Shutdown } from './Widgets';
 
 export default class Movement extends React.Component {
     constructor(props) {
@@ -19,8 +19,8 @@ export default class Movement extends React.Component {
         }
         return (
 <div>
-    <Ready ready={this.props.me.ready}/>
-    <hr/>
+  <Ready ready={this.props.me.ready}/>
+  <hr style={{marginTop:"0px", marginBottom:"12px"}}/>
     {this.state.order.map((o) =>
         <Player player={players[o.player]} key={o.player} register={o}/>)}
 </div>
