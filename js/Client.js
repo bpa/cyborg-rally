@@ -88,11 +88,9 @@ class Client extends React.Component {
     render() {
         const View = this.state.view;
         return (
-<Provider theme={{
-    radius: 16,
-}}>
-  <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
-</Provider>);
+  <Provider theme={{radius: 16}}>
+    <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
+  </Provider>);
     }
 
     on_welcome(msg) {

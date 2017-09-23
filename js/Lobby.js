@@ -2,7 +2,8 @@ import ChooseName from './ChooseName';
 import CreateGame from './CreateGame';
 import Games from './Games';
 
-import { Box, ButtonCircle, Panel, PanelHeader } from './Widgets';
+import { ButtonCircle, Panel, PanelHeader } from './Widgets';
+import { Box } from 'rebass';
 
 export default class Lobby extends React.Component {
     constructor(props) {
