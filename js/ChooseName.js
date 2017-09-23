@@ -1,4 +1,4 @@
-import { Input, Panel, PanelHeader, WideButton } from './Widgets';
+import { Box, Input, Panel, PanelHeader, ButtonCircle } from './Widgets';
 
 export default class ChooseName extends React.Component {
     constructor(props) {
@@ -16,14 +16,16 @@ export default class ChooseName extends React.Component {
     render() { return (
 <Panel>
 	<PanelHeader color="black" bg="blue">Name Preferences</PanelHeader>
-	<Input label="" placeholder="Name" defaultValue={this.name}
-        onChange={(e) => this.name = e.target.value}/>
-	<WideButton color="black" bg="green" onClick={this.onClick}>
-		Save Preferences
-	</WideButton>
-	<WideButton color="black" bg="red" onClick={this.props.back}>
-		Cancel
-	</WideButton>
+    <Box p={3}>
+        <Input label="" placeholder="Name" defaultValue={this.name}
+            onChange={(e) => this.name = e.target.value}/>
+        <ButtonCircle color="black" bg="green" onClick={this.onClick}>
+            Save Preferences
+        </ButtonCircle>
+        <ButtonCircle color="black" bg="red" onClick={this.props.back}>
+            Cancel
+        </ButtonCircle>
+    </Box>
 </Panel>
     )}
 }
