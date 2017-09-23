@@ -1,4 +1,5 @@
-import { Box, ButtonCircle, Column, Flex, Panel, PanelHeader, Register, Row } from './Widgets';
+import { Column, Flex, Panel, PanelHeader, Register, Row } from './Widgets';
+import { ButtonCircle, Box } from 'rebass';
 import Announcing from "./Announcing";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
@@ -133,7 +134,7 @@ export default class Playing extends React.Component {
             : <span>&nbsp;</span>;
 
         return (
-<Panel>
+<Panel style={{minHeight:'vh'}}>
   <PanelHeader bg="blue" color="black" style={{
       textTransform:'captitalize',
       height:'3em',
@@ -146,11 +147,11 @@ export default class Playing extends React.Component {
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
     <Vitality player={gs.public.player[gs.id]}/>
   </PanelHeader>
-  <Box p={3}>
+  <Box p={3} mb={0}>
     <State ref={(e)=>this.view[1] = e}
         me={gs.public.player[gs.id]} players={gs.public.player}/>
     <hr style={{marginTop:"0px", marginBottom:"12px"}}/>
-    <ButtonCircle bg="red" onClick={this.quit} style={{position:'fixed',bottom:'0px'}}>
+    <ButtonCircle bg="red" w={1} onClick={this.quit}>
       Quit
     </ButtonCircle>
   </Box>
