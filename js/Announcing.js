@@ -1,5 +1,5 @@
-import Button from 'rebass/dist/Button';
-import { Shutdown } from './Emoji';
+import { Button } from 'rebass';
+import { Shutdown } from './Widgets';
 
 export default class Announcing extends React.Component {
     shutdown(activate) {
@@ -11,13 +11,13 @@ export default class Announcing extends React.Component {
             return <Shutdown/>
         }
     return (
-<div>
-	<Button theme='success' onClick={this.shutdown.bind(this, false)}
-      style={{width:"45%", paddingBottom:"45%", verticalAlign:"middle", borderRadius:6}}>
-        Stay in
+<div style={{display:'flex', marginBottom:'12px'}}>
+	<Button bg='green' px={0} py={0} onClick={this.shutdown.bind(this, false)}
+      style={{flex:"1 100px", borderRadius:6}}>
+        <div style={{padding:'45% 0px'}}>Stay in</div>
 	</Button>
-	<Button theme='error' onClick={this.shutdown.bind(this, true)}
-      style={{width:"45%", paddingBottom:"45%", verticalAlign:"middle", borderRadius:6}}>
+	<Button bg='red' onClick={this.shutdown.bind(this, true)}
+      style={{flex:"1 100px", borderRadius:6}}>
         Shutdown
 	</Button>
 </div>
