@@ -59,9 +59,11 @@ export default class Firing extends React.Component {
     }
 
     on_deny(msg) {
+      if (Object.keys(this.props.players).length > 2) {
         var denied = this.state.denied;
         denied.push({player: msg.player, type: msg.type});
         this.setState({denied: denied})
+      }
     }
 
     fire_type(w) {

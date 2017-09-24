@@ -114,6 +114,11 @@ sub do_deny {
 sub do_dispute {
     my ( $self, $game, $c, $msg ) = @_;
 
+    if (scalar( keys( %{ $game->{player} } ) ) < 3) {
+        $c->err('Disputes only allowed with more than 2 players');
+        return;
+    }
+
     my ( $target, $beam ) = $self->on_shot( $game, $c, $msg );
     return unless $target;
 
