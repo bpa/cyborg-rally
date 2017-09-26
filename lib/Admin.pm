@@ -2,9 +2,11 @@ package Admin;
 
 use strict;
 use warnings;
+use FileHandle;
 use JSON;
 use Data::Dumper;
 use Scalar::Util qw(looks_like_number);
+use List::MoreUtils 'firstidx';
 
 my $json = JSON->new->convert_blessed;
 
@@ -13,6 +15,7 @@ my %command = (
     e       => \&cmd_eval,
     inc     => \&cmd_incr,
     games   => \&cmd_games,
+    give    => \&cmd_give,
     keys    => \&cmd_keys,
     p       => \&cmd_print,
     players => \&cmd_players,
@@ -48,6 +51,7 @@ sub get_game {
 
 sub run {
     my ( $self, $input ) = @_;
+    $input =~ s/\s+$//;
     my ( $cmd, @toks ) = split /\s+/, $input, 3;
     if ( exists $command{$cmd} ) {
         $command{$cmd}->( $self, @toks );
@@ -135,6 +139,47 @@ sub cmd_print {
 sub cmd_games {
     my $self = shift;
     syswrite $self->{fh}, Dumper [ keys %{ $self->{game}{game} } ];
+}
+
+sub find_player {
+    my ($game, $name) = @_;
+    for my $p ( values %{ $game->{player} } ) {
+        if ( $p->{public}{name} =~ /$name/i ) {
+            return $p;
+        }
+    }
+    return;
+}
+
+sub get_option {
+    my ( $game, $card ) = @_;
+    my $idx = firstidx { $_->{name} =~ /$card/i } @{ $game->{options}{cards} };
+    if ($idx != -1) {
+        return splice @{ $game->{options}{cards} }, $idx, 1;
+    }
+    return;
+}
+
+sub cmd_give {
+    my ($self, $name, $card) = @_;
+    if (!$name) {
+        syswrite $self->{fh}, "Missing name\n";
+        return;
+    }
+    if (!$card) {
+        syswrite $self->{fh}, "Missing card\n";
+        return;
+    }
+    my $game = $self->get_game || return;
+    my $p = find_player($game, $name);
+    return unless $p;
+   
+    my $o = get_option($game, $card);
+    return unless defined $o;
+    $p->{public}{options}{$o->{name}} = $o;
+    for $o (values %{$p->{public}{options}}) {
+        syswrite $self->{fh}, "$o->{name}\n";
+    }
 }
 
 sub cmd_keys {
