@@ -6,7 +6,7 @@ export default class Waiting extends React.Component {
     return (
 <div>
 	<Ready ready={this.props.me.ready}/>
-  <hr style={{marginTop:"0", marginBottom:"12"}}/>
+  <hr style={{marginTop:"0", marginBottom:"12px"}}/>
   <Players players={this.props.players}/>
 </div>
   )}
