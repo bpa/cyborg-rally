@@ -12,7 +12,6 @@ var weapons = [
     'Mini Howitzer',
     'Pressor Beam',
     'Radio Control',
-    'Rear-Firing Laser',
     'Scrambler',
     'Tractor Beam',
 ];
@@ -123,7 +122,7 @@ export default class Firing extends React.Component {
         this.setState({disputed: disputed});
     }
 
-    on_vote(msg) {
+    on_resolution(msg) {
         let disputed = this.state.disputed;
         disputed.remove((s) => s.target === msg.target && s.player === msg.player);
         this.setState({disputed: disputed});

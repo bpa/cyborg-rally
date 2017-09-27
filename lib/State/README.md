@@ -61,7 +61,7 @@ Players weapons fire
 |---|----|-----|
 |shot|Map|State of weapons fire|
 |shot/`player-id`|State of individual player's weapons fire|
-|public|Map|Public data|
+|public|Array of pending shots|Public data|
 
 #### Commands
 |cmd|Source|Elements|Notes|

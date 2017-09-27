@@ -3,29 +3,32 @@ package State::Firing;
 use strict;
 use warnings;
 use parent 'State';
+use List::MoreUtils 'firstidx';
 
 use constant FIRE_TYPE => {
-    'Fire Control'      => \&on_laser,
-    'laser'             => \&on_laser,
-    'Mini Howitzer'     => \&on_laser,
-    'Pressor Beam'      => \&nop,
-    'Radio Control'     => \&on_laser,
-    'Rear-Firing Laser' => \&on_laser,
-    'Scrambler'         => \&on_scrambler,
-    'Tractor Beam'      => \&nop,
+    'Fire Control'  => \&on_laser,
+    'laser'         => \&on_laser,
+    'Mini Howitzer' => \&on_laser,
+    'Pressor Beam'  => \&nop,
+    'Radio Control' => \&on_laser,
+    'Scrambler'     => \&on_scrambler,
+    'Tractor Beam'  => \&nop,
 };
 
 sub on_enter {
     my ( $self, $game ) = @_;
 
-    $self->{public} = {};
+    $self->{shot}   = {};
+    $self->{public} = [];
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready} = 1;
         }
         else {
             $p->{public}{ready} = '';
-            $self->{public}{ $p->{id} } = [ {}, {} ];
+            my $shot = $self->{shot}{ $p->{id} } = { max => 1, used => 0 };
+            $shot->{max}++ if exists $p->{public}{options}{'Rear-Firing Laser'};
+            $shot->{max}++ if exists $p->{public}{options}{'High-Power Laser'};
         }
     }
     $game->set_state('TOUCH') if $game->ready;
@@ -36,7 +39,7 @@ sub do_ready {
 
     return if $c->{public}{ready};
     $c->{public}{ready} = 1;
-    delete $self->{public}{ $c->{id} };
+    delete $self->{shot}{ $c->{id} };
     if ( $game->ready ) {
         $game->set_state('TOUCH');
     }
@@ -68,8 +71,8 @@ sub resolve_beam {
         return;
     }
 
-    my $beams = $self->{public}{$bot_id};
-    if ( !$beams ) {
+    my $beams = $self->{shot}{$bot_id};
+    if ( !( defined $beams && exists $beams->{ $msg->{target} } ) ) {
         $c->err('Invalid player');
         return;
     }
@@ -79,34 +82,34 @@ sub resolve_beam {
         return;
     }
 
-    my $dir = $msg->{type} eq 'Rear-Firing Laser' ? 1 : 0;
-    my $beam = $beams->[$dir];
+    my $beam = $beams->{ $msg->{target} };
 
-    if ( !exists $beam->{target} || exists $beam->{confirmed} ) {
+    if ( !defined $beam || exists $beam->{confirmed} ) {
         $c->err('Invalid shot');
         return;
     }
 
     my $player = $game->{player}{$bot_id};
-    return ( $player, $beam, $dir );
+    return ( $player, $beam );
 }
 
 sub do_confirm {
     my ( $self, $game, $c, $msg ) = @_;
 
+    $msg->{target} = $c->{id};
     my ( $bot, $beam ) = $self->resolve_beam( $game, $c, $msg );
     return unless $bot;
 
-    FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $c, $beam );
-    $self->do_ready( $game, $bot );
+    $self->on_hit( $game, $bot, $c, $beam );
 }
 
 sub do_deny {
     my ( $self, $game, $c, $msg ) = @_;
 
+    $msg->{target} = $c->{id};
     my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
     if ($bot) {
-        $self->{public}{ $bot->{id} }[$dir] = {};
+        delete $self->{shot}{ $bot->{id} }{ $msg->{target} };
         $bot->send( { cmd => 'deny', player => $c->{id}, type => $beam->{type} } );
     }
 }
@@ -164,21 +167,20 @@ sub do_vote {
     my $total = $hit + $miss;
     if ( $total == $players || $count == int( $players / 2 ) + 1 ) {
         $game->broadcast(
-            {   cmd    => 'vote',
+            {   cmd    => 'resolution',
                 type   => $msg->{type},
                 player => $msg->{player},
                 target => $beam->{target},
                 hit    => $hit > $miss,
-                final  => 1,
             }
         );
         if ( $hit > $miss ) {
             my $target = $game->{player}{ $beam->{target} };
-            FIRE_TYPE->{ $msg->{type} }( $self, $game, $bot, $target, $beam );
-            $self->do_ready( $game, $bot );
+            $self->on_hit( $game, $bot, $target, $beam );
         }
         else {
-            $self->{public}{ $msg->{player} }[$dir] = {};
+            $beam->{invalid} = 1;
+            $self->remove($beam);
         }
     }
     else {
@@ -222,29 +224,54 @@ sub on_shot {
         return;
     }
 
-    my $dir = $msg->{type} eq 'Rear-Firing Laser' ? 1 : 0;
-
-    my $beam = $self->{public}{ $c->{id} }[$dir];
-    if ( exists $beam->{target} ) {
-        $c->err('Shot already pending');
-        return;
-    }
-
-    if ( exists $beam->{confirmed} ) {
-        $c->err('Shot already resolved');
-        return;
-    }
-
     my $target = $game->{player}{ $msg->{target} };
     if ( !$target ) {
         $c->err('Missing target');
         return;
     }
 
-    $beam = $self->{public}{ $c->{id} }[$dir]
-      = { target => $msg->{target}, type => $msg->{type} };
+    if ( $c->{id} eq $msg->{target} ) {
+        $c->err("Can't shoot yourself");
+        return;
+    }
+
+    my $weapon = $self->{shot}{ $c->{id} };
+    if ( exists $weapon->{ $msg->{target} } || $weapon->{used} eq $weapon->{max} ) {
+        $c->err('Shot already pending');
+        return;
+    }
+
+    my $beam = $weapon->{ $msg->{target} }
+      = { player => $c->{id}, target => $msg->{target}, type => $msg->{type} };
+    push( @{ $self->{public} }, $beam );
+    $self->{shot}{ $c->{id} }{used}++;
 
     return $target, $beam;
+}
+
+sub on_hit {
+    my ( $self, $game, $player, $target, $beam ) = @_;
+    FIRE_TYPE->{ $beam->{type} }( $self, $game, $player, $target, $beam );
+    $beam->{confirmed} = 1;
+    $self->remove($beam);
+    my $shot = $self->{shot}{ $player->{id} };
+    if ( $shot->{max} == grep { ref($_) eq 'HASH' && $_->{confirmed} }
+        values %$shot )
+    {
+        $self->do_ready( $game, $player );
+    }
+}
+
+sub remove {
+    my ( $self, $beam ) = @_;
+    splice(
+        @{ $self->{public} },
+        firstidx {
+            $_->{player} eq $beam->{player} && $_->{target} eq $beam->{target};
+        }
+        @{ $self->{public} },
+        1
+    );
 }
 
 sub nop { }

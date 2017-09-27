@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep;
+use List::MoreUtils 'firstidx';
 
 require Exporter;
 our @ISA    = 'Exporter';
@@ -35,6 +36,18 @@ undef &Game::broadcast;
     my $self = shift;
     $self->{packets} = [];
     map { $_->{packets} = [] } values %{ $self->{player} };
+};
+
+*Game::give_option = sub {
+    my ($self, $option, $player) = @_;
+    my $idx = firstidx { $_->{name} =~ /$option/i } @{ $self->{options}{cards} };
+    if ($idx != -1) {
+        my $o = splice @{ $self->{options}{cards} }, $idx, 1;
+        $player->{public}{options}{$o->{name}} = $o;
+    }
+    else {
+        die "No option $option exists\n";
+    }
 };
 
 sub clone {

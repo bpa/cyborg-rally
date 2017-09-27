@@ -27,12 +27,8 @@ subtest 'hit first' => sub {
     $p1->game( fire => { target => $p2->{id}, type => 'laser' } );
     cmp_deeply( $p2->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
-    cmp_deeply(
-        $rally->{state}{public},
-        {   $p1->{id} => [ { type => 'laser', target => $p2->{id} }, {} ],
-            $p2->{id} => [ {},    {} ],
-        }
-    );
+    cmp_deeply( $rally->{state}{public},
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'laser' } ] );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
         {   cmd       => 'damage',
@@ -62,7 +58,7 @@ subtest 'hit second' => sub {
     cmp_deeply( $p2->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply( $rally->{state}{public},
-        { $p1->{id} => [ { type => 'laser', target => $p2->{id} }, {} ], } );
+        [ { player => $p1->{id}, target=> $p2->{id}, type => 'laser' } ] );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
         {   cmd       => 'damage',
@@ -86,25 +82,30 @@ subtest 'invalid actions' => sub {
 
     is( $p2->{public}{damage}, 0 );
     $p2->game( confirm => { type => 'laser', player => $p1->{id} } );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid shot' } ] );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid player' } ] );
     $p2->drop_packets;
 
     $p2->game( confirm => { player => $p1->{id} } );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid type' } ] );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid player' } ] );
     $p2->drop_packets;
 
     $p1->game( fire => { type => 'laser', target => $p2->{id} } );
     cmp_deeply( $p2->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply(
-        $rally->{state}{public},
-        {   $p1->{id} => [ { type => 'laser', target => $p2->{id} }, {} ],
-            $p2->{id} => [ {},    {} ],
-            $p3->{id} => [ {},    {} ],
+        $rally->{state}{shot},
+        {   $p1->{id} => { max => 1, used => 1, $p2->{id} => { player=>$p1->{id}, target => $p2->{id}, type => 'laser' } },
+            $p2->{id} => { max => 1, used => 0, },
+            $p3->{id} => { max => 1, used => 0, },
         }
     );
 
     $p1->game( fire => { type => 'laser', target => $p1->{id} } );
+    cmp_deeply( $p1->{packets},
+        [ { cmd => 'error', reason => "Can't shoot yourself" } ] );
+
+    $p1->drop_packets;
+    $p1->game( fire => { type => 'laser', target => $p2->{id} } );
     cmp_deeply( $p1->{packets},
         [ { cmd => 'error', reason => 'Shot already pending' } ] );
 
@@ -172,22 +173,22 @@ subtest 'dispute majority call hit' => sub {
         }
     );
     cmp_deeply( $p[0]->{packets},
-        [ { cmd => 'error', reason => 'Invalid shot' } ] );
+        [ { cmd => 'error', reason => 'Invalid player' } ] );
     $p[0]->drop_packets;
 
     $p[0]
       ->game( dispute => { type => 'laser', target => $p[1]->{id}, damage => 1 } );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
                 dispute => 1,
                 voted   => { $p[0]->{id} => 1, $p[1]->{id} => '' },
                 hit     => 1,
                 miss    => 1
-            },
-            {}
+            }
         ]
     );
     $p[0]->game(
@@ -223,16 +224,16 @@ subtest 'dispute majority call hit' => sub {
         }
     );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
                 dispute => 1,
                 voted => { $p[0]->{id} => 1, $p[1]->{id} => '', $p[2]->{id} => 1 },
                 hit   => 2,
                 miss  => 1
-            },
-            {}
+            }
         ]
     );
     is( $p[0]->{public}{ready}, '' );
@@ -243,12 +244,11 @@ subtest 'dispute majority call hit' => sub {
             target => $p[1]->{id},
             hit    => 1
         },
-        {   cmd    => 'vote',
-            type   => 'laser',
+        {   cmd    => 'resolution',
             player => $p[0]->{id},
             target => $p[1]->{id},
+            type   => 'laser',
             hit    => 1,
-            final  => 1,
         },
         {   cmd       => 'damage',
             player    => $p[1]->{id},
@@ -259,7 +259,7 @@ subtest 'dispute majority call hit' => sub {
             player => $p[0]->{id},
         }
     );
-    cmp_deeply( $rally->{state}{public}{ $p[0]->{id} }, undef );
+    cmp_deeply( $rally->{state}{public}, [] );
     is( $p[0]->{public}{ready},  1 );
     is( $p[1]->{public}{damage}, 1 );
 
@@ -276,18 +276,19 @@ subtest 'dispute majority call miss' => sub {
 
     $p[0]->game( dispute => { type => 'laser', target => $p[1]->{id} } );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
-                dispute => 1,
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
                 voted   => { $p[0]->{id} => 1, $p[1]->{id} => '' },
+                dispute => 1,
                 hit     => 1,
                 miss    => 1
-            },
-            {}
+            }
         ]
     );
+
     for my $p ( @p[ 2 .. 4 ] ) {
         cmp_deeply(
             $p->{packets},
@@ -310,16 +311,16 @@ subtest 'dispute majority call miss' => sub {
         }
     );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
-                dispute => 1,
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
                 voted => { $p[0]->{id} => 1, $p[1]->{id} => '', $p[2]->{id} => '' },
+                dispute => 1,
                 hit   => 1,
                 miss  => 2
-            },
-            {}
+            }
         ]
     );
     is( $p[0]->{public}{ready}, '' );
@@ -331,7 +332,7 @@ subtest 'dispute majority call miss' => sub {
             hit    => 0
         }
     );
-    cmp_deeply( $rally->{state}{public}{ $p[0]->{id} }, [ {}, {} ] );
+    cmp_deeply( $rally->{state}{public}, [] );
     is( $p[0]->{public}{ready},  '' );
     is( $p[1]->{public}{damage}, 0 );
 
@@ -349,18 +350,19 @@ subtest 'dispute tie goes to miss' => sub {
     $p[0]
       ->game( dispute => { type => 'laser', target => $p[1]->{id}, damage => 1 } );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
-                dispute => 1,
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
+                dispute => 1,
                 voted   => { $p[0]->{id} => 1, $p[1]->{id} => '' },
                 hit     => 1,
                 miss    => 1
-            },
-            {}
+            }
         ]
     );
+
     for my $p ( @p[ 2 .. 3 ] ) {
         cmp_deeply(
             $p->{packets},
@@ -383,16 +385,16 @@ subtest 'dispute tie goes to miss' => sub {
         }
     );
     cmp_deeply(
-        $rally->{state}{public}{ $p[0]->{id} },
+        $rally->{state}{public},
         [
-            {   type    => 'laser',
-                dispute => 1,
+            {   player => $p[0]->{id},
                 target  => $p[1]->{id},
+                type    => 'laser',
+                dispute => 1,
                 voted => { $p[0]->{id} => 1, $p[1]->{id} => '', $p[2]->{id} => '' },
                 hit   => 1,
                 miss  => 2
-            },
-            {}
+            }
         ]
     );
     is( $p[0]->{public}{ready}, '' );
@@ -404,9 +406,62 @@ subtest 'dispute tie goes to miss' => sub {
             hit    => 1
         }
     );
-    cmp_deeply( $rally->{state}{public}{ $p[0]->{id} }, [ {}, {} ] );
+    cmp_deeply( $rally->{state}{public}, [] );
     is( $p[0]->{public}{ready},  '', 'Tie means miss' );
     is( $p[1]->{public}{damage}, 0,  'No damage on tie' );
+
+    done;
+};
+
+subtest 'Rear-Firing Laser' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $rally->give_option('Rear-Firing Laser', $p1);
+    $rally->{public}{register} = 0;
+    $rally->set_state('FIRE');
+    $rally->update;
+    $rally->drop_packets;
+
+    cmp_deeply( $rally->{state}{shot}{$p1->{id}}, { max => 2, used => 0 });
+    $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
+    cmp_deeply( $rally->{state}{public},
+        [ { player => $p1->{id}, target=> $p2->{id}, type => 'laser' } ] );
+    $p2->broadcast(
+        { cmd => 'confirm', type => 'laser', player => $p1->{id} },
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
+        },
+    );
+    is( $p2->{public}{damage}, 1 );
+    cmp_deeply( $rally->{state}{shot}{$p1->{id}}, { max => 2, used => 1, $p2->{id} => ignore });
+
+    $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
+    cmp_deeply( $p1->{packets},
+        [ { cmd => 'error', reason => "Shot already pending" } ],
+        "Can't shoot player twice" );
+    $rally->drop_packets;
+
+    $p1->game( fire => { type => 'laser', target => $p3->{id}, damage => 1 } );
+    cmp_deeply( $p3->{packets},
+        [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
+    cmp_deeply( $rally->{state}{public},
+        [ { player => $p1->{id}, target=> $p3->{id}, type => 'laser' } ] );
+    $p3->broadcast(
+        { cmd => 'confirm', type => 'laser', player => $p1->{id} },
+        {   cmd       => 'damage',
+            player    => $p3->{id},
+            damage    => 1,
+            registers => ignore
+        },
+        {   cmd    => 'ready',
+            player => $p1->{id},
+        }
+    );
+    is( $p3->{public}{damage}, 1 );
+    is( $rally->{state}{shot}{$p1->{id}}, undef, 'shots cleared out when ready');
 
     done;
 };
