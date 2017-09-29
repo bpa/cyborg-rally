@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <style>
+    </style>
+    <style>
+        .top {
+            position: fixed;
+            top: 0px;
+            height: 200px;
+            width: 100%;
+            background-color: white;
+        }
+        #preview {
+            height: 200px;
+        }
+        #images > div {
+            width: 180px;
+            margin: 1px;
+            border: thin solid black;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: grey;
+            border-bottom: thin solid black;
+            text-align: center;
+        }
+        .content {
+            padding: 8px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .r { background-color: red; }
+        .g { background-color: green; }
+        img { height: 40px; }
+    </style>
+    <script>
+        function change(href) {
+            var pre = document.getElementById("preview");
+            pre.src = href;
+            window.localStorage.src = href;
+        }
+
+        function setup() {
+            var pre = document.getElementById("preview");
+            pre.src = window.localStorage.src;
+            var list = new XMLHttpRequest();
+            list.addEventListener("load", function() {
+                var div = document.createElement("div");
+                div.innerHTML = this.responseText;
+                doc = document.createDocumentFragment();
+                doc.appendChild(div)
+                var images = doc.querySelectorAll("a");
+                var add = document.createDocumentFragment();
+                for (var i=0, ii=images.length; i<ii; i++) {
+                    var href = images[i].getAttribute("href");
+                    if (href.endsWith("svg")) {
+                        var img = document.createElement("div");
+                        img.setAttribute("onClick", "change('" + href + "')");
+                        img.innerHTML = '<div class="header">' + href + '</div>'
+                            + '<div class="content">'
+                            + '<img class="g" src="' + href + '">'
+                            + '<img class="r" src="' + href + '">'
+                            + '</div>'
+                        add.appendChild(img);
+                    }
+                }
+                document.getElementById("images").appendChild(add);
+            });
+            list.open("GET", ".");
+            list.send();
+        }
+    </script>
+  </head>
+  <body onload="setup()">
+    <div class="top"><img id="preview"/></div>
+    <div id="images" style="display: flex; flex-wrap: wrap; margin-top:200px"></div>
+  </body>
+</html>
