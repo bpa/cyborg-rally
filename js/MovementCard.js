@@ -1,56 +1,51 @@
 import { ButtonOutline } from './Widgets';
 
-var MAP = {
-    'r': '↱',
-    'l': '↰',
-    'u': '⋂',
-    'b': '⇩'
-};
-
 export default class MovementCard extends React.Component {
     normal() {
         return {
             color: 'black',
-            background: 'white'
+            border: 'thin solid black',
         };
     }
     damaged() {
         return {
             color: 'white',
-            background: 'radial-gradient(red, black)'
+            background: 'radial-gradient(red, black)',
+            border: 'thin solid black',
         };
     }
     inactive() {
         return {
             color: 'darkGrey',
-            background: 'lightGrey'
+            background: 'lightGrey',
+            border: 'thin solid grey',
         };
     }
     addOn() {
         return {
             color: 'green',
-            background: 'white'
+            background: 'white',
+            border: 'thin solid green',
         };
     }
     render() {
         const n = this.props.card.name;
-        const m = MAP[n] || n;
         var style
             = this.props.damaged  ? this.damaged()
             : this.props.inactive ? this.inactive()
             : this.props.addOn    ? this.addOn()
             :                       this.normal();
         style.borderRadius = 6;
+        style.height = "40px";
+        style.width = "40px";
+        var src="#" + n;
 
-        if (this.props.damaged || this.props.inactive) {
-           return <ButtonOutline style={style}>{m}</ButtonOutline>;
-        }
-        else {
-           return (
-             <ButtonOutline style={style} onClick={this.props.onClick}>
-                 {m}
-             </ButtonOutline>
-           );
-        }
+        return (
+          <svg viewBox="0 0 100 100" style={style} onClick={this.props.onClick}>
+            <g fill="currentColor" stroke="currentColor">
+              <use href={src}/>
+            </g>
+          </svg>
+        );
     }
 }

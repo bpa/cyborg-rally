@@ -9,7 +9,7 @@ export default class Register extends React.Component {
         const program = this.props.register.program;
         return (
           <MovementCard onClick={this.props.onClick} damaged={register.damaged}
-            card={program[0]?program[0]:{name:'␀'}}/>
+            card={program[0]?program[0]:{name:'null'}}/>
         )
     }
 }
