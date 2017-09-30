@@ -3,6 +3,9 @@
     <style>
     </style>
     <style>
+        svg {
+            background-color: white;
+        }
         .top {
             position: fixed;
             top: 0px;
@@ -10,8 +13,14 @@
             width: 100%;
             background-color: white;
         }
-        #preview {
+        #preview img {
             height: 200px;
+        }
+        .preview {
+            border: 8px solid black;
+            border-radius: 16px;
+            height: 184px;
+            width: 184px;
         }
         #images > div {
             width: 180px;
@@ -30,50 +39,92 @@
             display: flex;
             justify-content: space-around;
         }
+        .content svg { height: 40px; width: 40px }
         .r { background-color: red; }
         .g { background-color: green; }
         img { height: 40px; }
     </style>
     <script>
-        function change(href) {
+        function change(elem) {
             var pre = document.getElementById("preview");
-            pre.src = href;
-            window.localStorage.src = href;
+            pre.innerHTML = elem;
+            window.localStorage.src = elem;
+        }
+
+        function movement(id, cls) {
+            return ''
+          + '<svg viewBox="0 0 100 100" class="' + cls + '">'
+          + '  <g fill="currentColor" stroke="currentColor">'
+          + '    <use href="#' + id + '"/>'
+          + '  </g>'
+          + '</svg>';
+        }
+
+        function on_index() {
+            var div = document.createElement("div");
+            div.innerHTML = this.responseText;
+            doc = document.createDocumentFragment();
+            doc.appendChild(div)
+            var images = doc.querySelectorAll("a");
+            var add = document.createDocumentFragment();
+            for (var i=0, ii=images.length; i<ii; i++) {
+                var href = images[i].getAttribute("href");
+                if (href.endsWith("svg")) {
+                    var img = document.createElement("div");
+                    img.setAttribute("onClick", "change('<img src=\"" + href + "\">')");
+                    img.innerHTML = '<div class="header">' + href + '</div>'
+                        + '<div class="content">'
+                        + '<img class="g" src="' + href + '">'
+                        + '<img class="r" src="' + href + '">'
+                        + '</div>';
+                    add.appendChild(img);
+                }
+            }
+            document.getElementById("images").appendChild(add);
+        }
+
+        function on_svg() {
+            var div = document.createElement("div");
+            div.innerHTML = this.responseText;
+            doc = document.createDocumentFragment();
+            doc.appendChild(div)
+            var svg = doc.querySelector("svg");
+            document.body.appendChild(svg);
+            var add = document.createDocumentFragment();
+            var defs = svg.getElementsByTagName("g");
+            for (var i=0,ii=defs.length; i<ii; i++) {
+                var d = defs[i];
+                var id = d.getAttribute("id");
+                if (id) {
+                    var img = document.createElement("div");
+                    img.setAttribute("onClick", "change('" + movement(id, 'preview') + "')");
+                    img.innerHTML = '<div class="header">' + id + '</div>'
+                        + '<div class="content">'
+                        + movement(id, 'g')
+                        + movement(id, 'r')
+                        + '</div>'
+                    add.appendChild(img);
+                }
+            }
+            document.getElementById("images").appendChild(add);
         }
 
         function setup() {
             var pre = document.getElementById("preview");
-            pre.src = window.localStorage.src;
+            pre.innerHTML = window.localStorage.src;
             var list = new XMLHttpRequest();
-            list.addEventListener("load", function() {
-                var div = document.createElement("div");
-                div.innerHTML = this.responseText;
-                doc = document.createDocumentFragment();
-                doc.appendChild(div)
-                var images = doc.querySelectorAll("a");
-                var add = document.createDocumentFragment();
-                for (var i=0, ii=images.length; i<ii; i++) {
-                    var href = images[i].getAttribute("href");
-                    if (href.endsWith("svg")) {
-                        var img = document.createElement("div");
-                        img.setAttribute("onClick", "change('" + href + "')");
-                        img.innerHTML = '<div class="header">' + href + '</div>'
-                            + '<div class="content">'
-                            + '<img class="g" src="' + href + '">'
-                            + '<img class="r" src="' + href + '">'
-                            + '</div>'
-                        add.appendChild(img);
-                    }
-                }
-                document.getElementById("images").appendChild(add);
-            });
+            list.addEventListener("load", on_index);
             list.open("GET", ".");
             list.send();
+            var svg = new XMLHttpRequest();
+            svg.addEventListener("load", on_svg);
+            svg.open("GET", "../index.tpl.html");
+            svg.send();
         }
     </script>
   </head>
   <body onload="setup()">
-    <div class="top"><img id="preview"/></div>
+    <div class="top" id="preview"></div>
     <div id="images" style="display: flex; flex-wrap: wrap; margin-top:200px"></div>
   </body>
 </html>
