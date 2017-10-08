@@ -37,7 +37,7 @@ States will most often reset ready flag for all players on enter.
 |public/lives     |Int              |How many lives remaining                            |
 |public/memory    |Int              |Max number of cards player can hold                 |
 |public/name      |String           |User defined name of player                         |
-|public/options   |Array of Option  |Option cards held by player                         |
+|public/options   |Hash of Option   |Option cards held by player                         |
 |public/ready     |Bool             |Is the player ready?                                |
 |public/registers |Array of Register|Finalized registers                                 |
 |public/shutdown  |Bool             |Is player shutdown?                                 |

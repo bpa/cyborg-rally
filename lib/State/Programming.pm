@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Card;
 use Deck;
-use List::MoreUtils 'false';
+use List::MoreUtils qw/false none/;
 use Storable 'dclone';
 use State::Setup;
 
@@ -81,13 +81,18 @@ sub do_program {
         my $r = $msg->{registers}[$i];
         if (   ref($r) ne 'ARRAY'
             || locked_but_not_matching( $i, $r, $c->{public}{registers} )
-            || @$r > 1 )
+            || (@$r > 1 && invalid_combo($r, $c)))
         {
             $c->err("Invalid program");
             return;
         }
 
         push @cards, @$r unless $c->{public}{registers}[$i]{damaged};
+    }
+
+    if (too_many_doubles($msg->{registers}, $c)) {
+        $c->err("Invalid program");
+        return;
     }
 
     for my $card (@cards) {
@@ -121,6 +126,40 @@ sub do_program {
         }
     }
     $c->send( program => { registers => $c->{private}{registers} } );
+}
+
+sub too_many_doubles {
+    my ($program, $player) = @_;
+    my ($used, $needed) = (0, 0);
+    my $registers = $player->{public}{registers};
+    for my $i (0 .. 4) {
+        next if $registers->[$i]{damaged};
+        if ($program->[$i]) {
+            $used += @{$program->[$i]};
+        }
+        else {
+            $needed++;
+        }
+    }
+    my $have = $player->{private}{cards}->count;
+    return $player->{private}{cards}->count - $used < $needed;
+}
+
+sub invalid_combo {
+    my ($register, $player) = @_;
+    my ($move, $rot) = map { $_->{name} } @$register;
+    if (exists $player->{public}{options}{'Crab Legs'}) {
+        return $move ne '1' || none { $_ eq $rot } qw/r l/;
+    }
+    if (exists $player->{public}{options}{'Dual Processor'}) {
+        if ($move eq '2') {
+            return none { $_ eq $rot } qw/r l/;
+        }
+        if ($move eq '3') {
+            return none { $_ eq $rot } qw/r l u/;
+        }
+    }
+    return 1;
 }
 
 sub do_ready {

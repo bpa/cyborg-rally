@@ -39,7 +39,7 @@ undef &Game::broadcast;
 };
 
 *Game::give_option = sub {
-    my ($self, $option, $player) = @_;
+    my ($self, $player, $option) = @_;
     my $idx = firstidx { $_->{name} =~ /$option/i } @{ $self->{options}{cards} };
     if ($idx != -1) {
         my $o = splice @{ $self->{options}{cards} }, $idx, 1;
@@ -48,6 +48,20 @@ undef &Game::broadcast;
     else {
         die "No option $option exists\n";
     }
+};
+
+*Game::set_hand = sub {
+    my ($self, $player, @cards) = @_;
+    my $hand = Deck->new;
+    my $movement = Deck::Movement->new( 1 );
+    for my $c (@cards) {
+        my $idx = firstidx { $_->{name} eq $c } @{ $movement->{cards} };
+        if ($idx != -1) {
+            my $o = splice @{ $movement->{cards} }, $idx, 1;
+            push @{$hand->{cards}}, $o;
+        }
+    }
+    $player->{private}{cards} = $hand;
 };
 
 sub clone {
