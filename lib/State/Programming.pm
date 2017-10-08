@@ -149,7 +149,9 @@ sub invalid_combo {
     my ($register, $player) = @_;
     my ($move, $rot) = map { $_->{name} } @$register;
     if (exists $player->{public}{options}{'Crab Legs'}) {
-        return $move ne '1' || none { $_ eq $rot } qw/r l/;
+        if ($move eq '1') {
+            return none { $_ eq $rot } qw/r l/;
+        }
     }
     if (exists $player->{public}{options}{'Dual Processor'}) {
         if ($move eq '2') {

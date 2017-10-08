@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
+use List::MoreUtils 'firstidx';
 
 use constant FULL => {
     damaged => ignore,
@@ -415,6 +416,81 @@ subtest 'players have one card, standard' => sub {
     is( $p2->{public}{ready}, 1 );
     is( $p3->{public}{ready}, '' );
     cmp_deeply( $rally->{public}{timer}, { start => ignore, duration => 30000 } );
+};
+
+sub combo_program {
+    my ($rally, $player, $mv, $dir, $reason) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $hand = $player->{private}{cards}{cards};
+    my $mi = firstidx { $_->{name} eq $mv } @$hand;
+    my $di = firstidx { $_->{name} eq $dir } @$hand;
+    my $program = [ [ $hand->[$mi], $hand->[$di] ] ];
+    program( $rally, $player, $program, $reason );
+}
+
+subtest 'Crab Legs' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Crab Legs');
+    $rally->{state}->on_enter($rally);
+    $rally->set_hand($p1, qw/1 2 3 l r u b/);
+
+    combo_program( $rally, $p1, '1', '2', "Invalid program" );
+    combo_program( $rally, $p1, '1', '3', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'l' );
+    combo_program( $rally, $p1, '1', 'r' );
+    combo_program( $rally, $p1, '1', 'u', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'b', "Invalid program" );
+    combo_program( $rally, $p1, '2', 'l', "Invalid program" );
+    combo_program( $rally, $p1, '3', 'l', "Invalid program" );
+    combo_program( $rally, $p1, 'l', '1', "Invalid program" );
+};
+
+subtest 'Dual Processor' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Dual Processor');
+    $rally->{state}->on_enter($rally);
+    $rally->set_hand($p1, qw/1 2 3 l r u b/);
+
+    combo_program( $rally, $p1, '1', '2', "Invalid program" );
+    combo_program( $rally, $p1, '1', '3', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'l', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'r', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'u', "Invalid program" );
+    combo_program( $rally, $p1, '1', 'b', "Invalid program" );
+    combo_program( $rally, $p1, '2', 'l' );
+    combo_program( $rally, $p1, '2', 'r' );
+    combo_program( $rally, $p1, '2', 'u', "Invalid program" );
+    combo_program( $rally, $p1, '3', 'l' );
+    combo_program( $rally, $p1, '3', 'r' );
+    combo_program( $rally, $p1, '3', 'u' );
+    combo_program( $rally, $p1, 'l', '2', "Invalid program" );
+};
+
+subtest 'Dual register option but not enough cards' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Crab Legs');
+    $rally->{state}->on_enter($rally);
+    $rally->set_hand($p1, qw/1 2 3 l r/);
+    $rally->drop_packets;
+
+    my $err = { cmd => 'error', reason => 'Invalid program' };
+    my ($_1, $_2, $_3, $_L, $_R) = @{$p1->{private}{cards}{cards}};
+    $p1->player( { cmd => 'program',
+            registers => [ [$_1, $_L] ] }, $err);
+    $p1->player( { cmd => 'program',
+            registers => [ [$_2], [$_1, $_L] ] }, $err);
+    $p1->player( { cmd => 'program',
+            registers => [ [$_2], [$_3], [$_1, $_L] ] }, $err);
+    $p1->player( { cmd => 'program',
+            registers => [ [$_2], [$_3], [$_R], [$_1, $_L] ] }, $err);
+    $p1->player( { cmd => 'program',
+            registers => [ [$_2], [$_3], [$_R], [$_R], [$_1, $_L] ] }, $err);
 };
 
 subtest 'programming after shutdown' => sub {

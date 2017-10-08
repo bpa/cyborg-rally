@@ -415,7 +415,7 @@ subtest 'dispute tie goes to miss' => sub {
 
 subtest 'Rear-Firing Laser' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
-    $rally->give_option('Rear-Firing Laser', $p1);
+    $rally->give_option($p1, 'Rear-Firing Laser');
     $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
