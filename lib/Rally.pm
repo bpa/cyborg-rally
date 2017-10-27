@@ -72,6 +72,26 @@ sub damage {
     return unless $damage;
     return if $target->{public}{dead};
 
+    my $shield = $target->{public}{options}{'Ablative Coat'};
+    if (defined $shield) {
+        if ($damage >= $shield->{uses}) {
+            $damage -= $shield->{uses};
+            delete $target->{public}{options}{'Ablative Coat'};
+        }
+        else {
+            $shield->{uses} -= $damage;
+            $damage = 0;
+        }
+
+        $self->broadcast(
+            {   cmd     => 'options',
+                player  => $target->{id},
+                options => $target->{public}{options}
+            }
+        );
+    }
+
+    return unless $damage;
     $target->{public}{damage} += $damage;
     if ( $target->{public}{damage} > 9 ) {
         $target->{public}{dead} = 1;

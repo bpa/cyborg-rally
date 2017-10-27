@@ -3,6 +3,7 @@ package Deck::Options;
 use strict;
 use warnings;
 use Option;
+use Storable 'dclone';
 use parent 'Deck';
 
 my @cards;
@@ -15,7 +16,7 @@ while (<DATA>) {
 sub generate_cards {
     my $self = shift;
     my @copy = @cards;
-    return \@copy;
+    return dclone(\@copy);
 }
 
 1;

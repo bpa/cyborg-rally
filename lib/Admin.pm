@@ -180,6 +180,12 @@ sub cmd_give {
     for $o (values %{$p->{public}{options}}) {
         syswrite $self->{fh}, "$o->{name}\n";
     }
+    $game->broadcast(
+        {   cmd     => 'options',
+            player  => $p->{id},
+            options => $p->{public}{options}
+        }
+    );
 }
 
 sub cmd_keys {
