@@ -11,8 +11,7 @@ export default class Options extends React.Component {
     let style = {height:"20px",float:"left"};
     return (
     <div style={{width:w +"px"}}>
-      {opts.map((o) => <Option style={style} card={o}
-                            key={o.name} onClick={this.props.onClick}/>)}
+      {opts.map((o) => <Option style={style} card={o} key={o.name}/>)}
     </div>
   )}
 }
