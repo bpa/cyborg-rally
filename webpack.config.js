@@ -60,6 +60,7 @@ module.exports = {
         }),
 		new CopyWebpackPlugin(copy),
         new WrapperWebpackPlugin({header: 'var gs,ws;'}),
+        /*
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
             compress: {
@@ -69,5 +70,6 @@ module.exports = {
                 comments: false,
             },
         }),
+        */
     ]
 }

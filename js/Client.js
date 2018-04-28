@@ -1,4 +1,4 @@
-import { Provider } from 'rebass';
+import { ThemeProvider } from 'styled-components'
 import Socket from "./Socket";
 import Playing from "./Playing";
 import Lobby from "./Lobby";
@@ -88,9 +88,12 @@ class Client extends React.Component {
     render() {
         const View = this.state.view;
         return (
-  <Provider theme={{radius: 16}}>
-    <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
-  </Provider>);
+      <ThemeProvider theme={{
+        radii: [8,10,12],
+        fontSizes: [14, 16, 20, 24, 32, 48, 64, 96, 128]
+      }}>
+        <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
+      </ThemeProvider>);
     }
 
     on_welcome(msg) {

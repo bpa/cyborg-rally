@@ -1,4 +1,4 @@
-import { Badge, Heading } from './Widgets';
+import { Badge, Heading } from 'rebass';
 
 export default class Vitality extends React.Component {
     render() {

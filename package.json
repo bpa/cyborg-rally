@@ -21,7 +21,7 @@
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-modal": "^2.2.2",
-    "rebass": "^1.0.3",
+    "rebass": "^2.0.0-0",
     "webpack": "^3.4.1",
     "wrapper-webpack-plugin": "^1.0.0"
   },

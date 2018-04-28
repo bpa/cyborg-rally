@@ -1,5 +1,5 @@
-import { Column, Flex, Panel, PanelHeader, Register, Row } from './Widgets';
-import { ButtonCircle, Box } from 'rebass';
+import { Column, Panel, Row } from 'rebass';
+import { Button, Content, Hr, Registers } from "./Widgets";
 import Announcing from "./Announcing";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
@@ -135,12 +135,12 @@ export default class Playing extends React.Component {
         const State = gs.public.player[gs.id].dead ? Dead : this.state.view;
         var progress
             = gs.public.register !== undefined
-            ? <Register active={gs.public.register}/>
+            ? <Registers active={gs.public.register}/>
             : <span>&nbsp;</span>;
 
         return (
 <Panel style={{minHeight:'vh'}}>
-  <PanelHeader bg="blue" color="black" style={{
+  <Panel.Header bg="blue" color="black" style={{
       textTransform:'captitalize',
       height:'3em',
       display:'flex',
@@ -151,15 +151,15 @@ export default class Playing extends React.Component {
     </div>
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
     <Vitality player={gs.public.player[gs.id]}/>
-  </PanelHeader>
-  <Box p={3} mb={0}>
+  </Panel.Header>
+  <Content>
     <State ref={(e)=>this.view[1] = e}
         me={gs.public.player[gs.id]} players={gs.public.player}/>
-    <hr style={{marginTop:"0px", marginBottom:"12px"}}/>
-    <ButtonCircle bg="red" w={1} onClick={this.quit}>
+    <Hr/>
+    <Button bg="red" onClick={this.quit}>
       Quit
-    </ButtonCircle>
-  </Box>
+    </Button>
+  </Content>
 </Panel>
 )}
 }

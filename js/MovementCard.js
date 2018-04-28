@@ -1,5 +1,3 @@
-import { ButtonOutline } from './Widgets';
-
 export default class MovementCard extends React.Component {
     normal() {
         return {
@@ -36,16 +34,16 @@ export default class MovementCard extends React.Component {
             : this.props.addOn    ? this.addOn()
             :                       this.normal();
         style.borderRadius = 6;
-        style.height = "40px";
-        style.width = "40px";
         var src="#" + n;
 
         return (
-          <svg viewBox="0 0 100 100" style={style} onClick={this.props.onClick}>
-            <g fill="currentColor" stroke="currentColor">
-              <use href={src}/>
-            </g>
-          </svg>
+          <span style={{height:"40px", width:"40px", marginTop:"8px"}}>
+            <svg viewBox="0 0 100 100" style={style} onClick={this.props.onClick}>
+              <g fill="currentColor" stroke="currentColor">
+                <use href={src}/>
+              </g>
+            </svg>
+          </span>
         );
     }
 }
