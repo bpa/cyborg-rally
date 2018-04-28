@@ -1,4 +1,4 @@
-import { ButtonCircle } from './Widgets';
+import { ButtonCircle } from 'rebass';
 
 export default class Ready extends React.Component {
     ready(r) {
@@ -8,12 +8,12 @@ export default class Ready extends React.Component {
         const r = this.ready;
         const btn = 
         !this.props.ready ?
-            <ButtonCircle bg="green" onClick={r.bind(this, true)}>
+            <ButtonCircle bg="green" width={1} onClick={r.bind(this, true)}>
                 {this.props.readyText ? this.props.readyText : 'Ready'}
             </ButtonCircle>
         : this.props.state === 'Waiting' ?
-            <ButtonCircle bg="red" onClick={r.bind(this, false)}>Not Ready</ButtonCircle>
-        :   <ButtonCircle bg="green">Waiting...</ButtonCircle>;
+            <ButtonCircle bg="red" width={1} onClick={r.bind(this, false)}>Not Ready</ButtonCircle>
+        :   <ButtonCircle bg="green" width={1}>Waiting...</ButtonCircle>;
         return btn;
     }
 }

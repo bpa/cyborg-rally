@@ -2,8 +2,8 @@ import ChooseName from './ChooseName';
 import CreateGame from './CreateGame';
 import Games from './Games';
 
-import { ButtonCircle, Panel, PanelHeader } from './Widgets';
-import { Box } from 'rebass';
+import { ButtonCircle, Panel, PanelHeader } from 'rebass';
+import { Flex, Box } from 'grid-styled';
 
 export default class Lobby extends React.Component {
     constructor(props) {
@@ -40,7 +40,7 @@ export default class Lobby extends React.Component {
 
 	render() { return (
 <Panel color="black" style={{textAlign: 'center', bottom: '0'}}>
-    <PanelHeader color="white" bg="black">Lobby</PanelHeader>
+    <Panel.Header color="white" bg="black">Lobby</Panel.Header>
     <Box p={3}>
         <Games games={this.state.games}/>
         <ButtonCircle color="black" bg="green" onClick={this.props.setView.bind(null, CreateGame)}>

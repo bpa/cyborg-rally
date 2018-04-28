@@ -1,4 +1,5 @@
-import { Box, ButtonCircle, Card, Checkbox, Input, Label, Lead, Panel, PanelHeader, Radio, Text } from './Widgets';
+import { ButtonCircle, Card, Checkbox, Input, Label, Lead, Panel, Radio, Text } from 'rebass';
+import { Flex, Box } from 'grid-styled';
 
 export default class CreateGame extends React.Component {
 	constructor(p) {
@@ -55,13 +56,13 @@ export default class CreateGame extends React.Component {
 
 	render() { return (
 <Panel>
-	<PanelHeader bg="green">Create Game</PanelHeader>
+	<Panel.Header bg="green">Create Game</Panel.Header>
     <Box p={3}>
         <Input autoFocus label="Name" id="name" placeholder="Game Name" 
             onChange={(r)=>this.name=r.target.value}/>
         <Text color="red">{this.state.error}</Text>
         <Card>
-            <Text center bold f={4}>Timer options</Text>
+            <Text f={4}>Timer options</Text>
             <Label>
                 <Radio name="timer" checked={this.state.timer==='standard'} onChange={this.timerOption} value='standard'/>
                 Standard (30 seconds after penultimate completion)

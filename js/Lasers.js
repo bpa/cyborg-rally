@@ -1,4 +1,4 @@
-import { ButtonOutline } from './Widgets';
+import { ButtonOutline } from 'rebass';
 
 export default class Lasers extends React.Component {
     laser(count) {
@@ -15,7 +15,7 @@ export default class Lasers extends React.Component {
 
     render() { return (
 <div>
-    <ButtonOutline w={1} p={3} style={{marginBottom:'12px'}}
+    <ButtonOutline width={1} p={3} style={{marginBottom:'12px'}}
         color="green" onClick={this.laser.bind(this, 0)}>
         No Damage
     </ButtonOutline>

@@ -1,4 +1,4 @@
-import { ButtonCircle } from './Widgets';
+import { ButtonCircle } from 'rebass';
 import ConfirmShot from './ConfirmShot';
 import Deny from './Deny';
 import Dispute from './Dispute';
@@ -22,21 +22,17 @@ export default class Firing extends React.Component {
         var pending_shots = [];
         var disputed = [];
         if (gs.state) {
-            const keys = Object.keys(gs.state);
-            keys.map(function(k) {
-                var p = gs.state[k];
-                for (var shot of p) {
-                    if (shot.dispute) {
-                        if (shot.voted[gs.id] == undefined) {
-                            shot.player = k;
-                            disputed.push(shot);
-                        }
-                    }
-                    else if (shot.target === gs.id) {
-                        pending_shots.push({player:k,type:shot.type});
+            for (var shot of gs.state) {
+                if (shot.dispute) {
+                    if (shot.voted[gs.id] == undefined) {
+                        //shot.player = k;
+                        disputed.push(shot);
                     }
                 }
-            });
+                else if (shot.target === gs.id) {
+                    pending_shots.push({player:shot.player,type:shot.type});
+                }
+            }
         }
         this.fire_type = this.fire_type.bind(this);
         this.cancelFire = this.cancelFire.bind(this);

@@ -1,4 +1,5 @@
-import { Box, Input, Panel, PanelHeader, ButtonCircle } from './Widgets';
+import { ButtonCircle, Input, Panel } from 'rebass';
+import { Flex, Box } from 'grid-styled';
 
 export default class ChooseName extends React.Component {
     constructor(props) {
@@ -15,7 +16,7 @@ export default class ChooseName extends React.Component {
 
     render() { return (
 <Panel>
-	<PanelHeader color="black" bg="blue">Name Preferences</PanelHeader>
+	<Panel.Header color="black" bg="blue">Name Preferences</Panel.Header>
     <Box p={3}>
         <Input label="" placeholder="Name" defaultValue={this.name}
             onChange={(e) => this.name = e.target.value}/>

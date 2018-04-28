@@ -1,4 +1,4 @@
-import { Box, Card, Flex } from './Widgets';
+import { Box, Card } from 'rebass';
 import Register from './Register';
 import Vitality from "./Vitality";
 import Options from "./Options";

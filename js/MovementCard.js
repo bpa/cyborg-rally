@@ -1,4 +1,4 @@
-import { ButtonOutline } from './Widgets';
+import { ButtonOutline } from 'rebass';
 
 export default class MovementCard extends React.Component {
     normal() {
