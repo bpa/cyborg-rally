@@ -1,11 +1,10 @@
-import { ButtonCircle } from 'rebass';
 import ConfirmShot from './ConfirmShot';
 import Deny from './Deny';
 import Dispute from './Dispute';
 import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
-import { Shutdown } from './Widgets';
+import { Button, Content, Hr, Shutdown } from './Widgets';
 
 var weapons = [
     'Fire Control',
@@ -129,10 +128,10 @@ export default class Firing extends React.Component {
             return <Shutdown/>;
         }
     return (
-<div>
+<Content p={0}>
     <Ready ready={this.props.me.ready}
         readyText="No one in line of sight"/>
-    <hr/>
+    <Hr/>
     {this.players()}
     <FireType player={this.props.me} weapons={weapons} target={this.state.target}
         onChoose={this.fire_type} close={this.cancelFire}/>
@@ -147,7 +146,7 @@ export default class Firing extends React.Component {
     {this.state.disputed.map((d) => (
         <Dispute type={d.type} player={d.player} key={d.player} target={d.target}
             vote={this.vote.bind(this, d)}/>))}
-</div>
+</Content>
     )}
 
     players() {
@@ -161,9 +160,9 @@ export default class Firing extends React.Component {
             if (self.props.me.ready) {
                 return <Player player={p} key={id}/>
             } else { return (
-            <ButtonCircle key={id} bg='black' color="red" onClick={self.fire.bind(self, id)}>
+            <Button key={id} bg='black' color="red" onClick={self.fire.bind(self, id)}>
                 🞋 {p.name} 🞋
-            </ButtonCircle> )
+            </Button> )
             }
         })
     }

@@ -1,4 +1,4 @@
-import { Button } from 'rebass';
+import { Button } from './Widgets';
 import Modal from './Modal.js';
 
 export default class Dispute extends React.Component {

@@ -1,8 +1,8 @@
 import MovementCard from './MovementCard';
 import Option from './Option';
 import Register from './Register';
-import { ButtonCircle, Panel, Shutdown } from 'rebass';
-import { Flex, Box } from 'grid-styled';
+import { Panel, Shutdown } from 'rebass';
+import { Button, Content } from './Widgets';
 
 const RELEVANT_OPTIONS = {
   'Dual Processor': {2: ['r','l'], 3: ['r','l','u']},
@@ -205,19 +205,19 @@ export default class Programming extends React.Component {
 
       const registers = this.registers();
       return (
-<div>
-  <Panel mb={12}>
+<Content p={0}>
+  <Panel mt={2}>
     <Panel.Header bg="orange">Registers</Panel.Header>
-    <Box p={3} mb={12}>{registers}</Box>
+    <Content flexDirection="row">{registers}</Content>
   </Panel>
-  <Panel mb={12}>
+  <Panel mt={2}>
     <Panel.Header bg="blue">Movement Options</Panel.Header>
-    <Box p={3} mb={12}>{cards}</Box>
+    <Content flexDirection="row" flexWrap="wrap">{cards}</Content>
   </Panel>
-  <ButtonCircle bg={this.props.me.ready?'red':'green'} onClick={this.ready}>
+  <Button bg={this.props.me.ready?'red':'green'} onClick={this.ready}>
     {this.props.me.ready?'Not Ready':'Ready'}
-  </ButtonCircle>
-</div>
+  </Button>
+</Content>
     )}
 }
 

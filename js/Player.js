@@ -1,4 +1,4 @@
-import { Box, Card } from 'rebass';
+import { Card } from './Widgets';
 import Register from './Register';
 import Vitality from "./Vitality";
 import Options from "./Options";
@@ -14,7 +14,7 @@ export default function Player (props) {
   }
 
   return (
-      <Card bg={p.ready?'green':'red'} color="white" p={1}
+      <Card bg={p.ready?'green':'red'} color="white"
           style={{
             display:'flex',
             justifyContent:'space-between',

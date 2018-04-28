@@ -1,5 +1,5 @@
-import { ButtonCircle, Card, Checkbox, Input, Label, Lead, Panel, Radio, Text } from 'rebass';
-import { Flex, Box } from 'grid-styled';
+import { Checkbox, Input, Label, Lead, Panel, Radio, Text } from 'rebass';
+import { Button, Card, Content } from './Widgets';
 
 export default class CreateGame extends React.Component {
 	constructor(p) {
@@ -57,7 +57,7 @@ export default class CreateGame extends React.Component {
 	render() { return (
 <Panel>
 	<Panel.Header bg="green">Create Game</Panel.Header>
-    <Box p={3}>
+    <Content>
         <Input autoFocus label="Name" id="name" placeholder="Game Name" 
             onChange={(r)=>this.name=r.target.value}/>
         <Text color="red">{this.state.error}</Text>
@@ -130,9 +130,9 @@ export default class CreateGame extends React.Component {
                 Wrench/flag gives option card instead of repairing
             </Label>
         </Card>
-        <ButtonCircle bg="green" color="black" onClick={this.create}>Create Game</ButtonCircle>
-        <ButtonCircle bg="red" color="black" onClick={this.props.back}>Nevermind</ButtonCircle>
-    </Box>
+        <Button bg="green" color="black" onClick={this.create}>Create Game</Button>
+        <Button bg="red" color="black" onClick={this.props.back}>Nevermind</Button>
+    </Content>
 </Panel>
 )}
 }

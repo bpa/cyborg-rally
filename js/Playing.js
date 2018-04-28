@@ -1,6 +1,5 @@
-import { ButtonCircle, Column, Panel, Row } from 'rebass';
-import { Flex, Box } from 'grid-styled';
-import { Registers } from "./Widgets";
+import { Column, Panel, Row } from 'rebass';
+import { Button, Content, Hr, Registers } from "./Widgets";
 import Announcing from "./Announcing";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
@@ -153,14 +152,14 @@ export default class Playing extends React.Component {
     <Timer ref={(e)=>this.view[0] = e} timer={gs.public.timer}/>
     <Vitality player={gs.public.player[gs.id]}/>
   </Panel.Header>
-  <Box width={1} p={3} mb={0}>
+  <Content>
     <State ref={(e)=>this.view[1] = e}
         me={gs.public.player[gs.id]} players={gs.public.player}/>
-    <hr style={{marginTop:"0px", marginBottom:"12px"}}/>
-    <ButtonCircle bg="red" width={1} onClick={this.quit}>
+    <Hr/>
+    <Button bg="red" onClick={this.quit}>
       Quit
-    </ButtonCircle>
-  </Box>
+    </Button>
+  </Content>
 </Panel>
 )}
 }

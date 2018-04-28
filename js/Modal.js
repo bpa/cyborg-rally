@@ -1,5 +1,5 @@
-import { ButtonCircle, Footer, Panel } from 'rebass';
-import { Flex, Box } from 'grid-styled';
+import { Footer, Panel } from 'rebass';
+import { Button, Content } from './Widgets';
 
 export default class Modal extends React.Component {
     render() {
@@ -22,12 +22,12 @@ export default class Modal extends React.Component {
 <div style={bg}>
 <Panel bg="white">
   <Panel.Header bg="black" color="white">{this.props.title}</Panel.Header>
-  <Box p={2}>
+  <Content>
     {this.props.children}
-    <ButtonCircle bg="red" w={1} onClick={this.props.close}>
+    <Button bg="red" onClick={this.props.close}>
       {this.props.closeText || "Close"}
-    </ButtonCircle>
-  </Box>
+    </Button>
+  </Content>
 </Panel>
 </div>
     )}

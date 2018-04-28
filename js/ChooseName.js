@@ -1,5 +1,5 @@
-import { ButtonCircle, Input, Panel } from 'rebass';
-import { Flex, Box } from 'grid-styled';
+import { Input, Panel } from 'rebass';
+import { Button, Content } from './Widgets';
 
 export default class ChooseName extends React.Component {
     constructor(props) {
@@ -17,16 +17,16 @@ export default class ChooseName extends React.Component {
     render() { return (
 <Panel>
 	<Panel.Header color="black" bg="blue">Name Preferences</Panel.Header>
-    <Box p={3}>
+    <Content>
         <Input label="" placeholder="Name" defaultValue={this.name}
             onChange={(e) => this.name = e.target.value}/>
-        <ButtonCircle color="black" bg="green" onClick={this.onClick}>
+        <Button color="black" bg="green" onClick={this.onClick}>
             Save Preferences
-        </ButtonCircle>
-        <ButtonCircle color="black" bg="red" onClick={this.props.back}>
+        </Button>
+        <Button color="black" bg="red" onClick={this.props.back}>
             Cancel
-        </ButtonCircle>
-    </Box>
+        </Button>
+    </Content>
 </Panel>
     )}
 }
