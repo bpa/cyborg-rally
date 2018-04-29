@@ -149,6 +149,18 @@ export default class Firing extends React.Component {
 </Content>
     )}
 
+    sight() {
+      return (
+        <span>
+          <svg viewBox="0 0 100 100" style={{width:"0.75em"}}>
+            <g fill="currentColor" stroke="currentColor">
+              <use href="#sight"/>
+            </g>
+          </svg>
+        </span>
+      );
+    }
+
     players() {
         var player = this.props.players;
         var self = this;
@@ -161,7 +173,7 @@ export default class Firing extends React.Component {
                 return <Player player={p} key={id}/>
             } else { return (
             <Button key={id} bg='black' color="red" onClick={self.fire.bind(self, id)}>
-                🞋 {p.name} 🞋
+            <div>{self.sight()} {p.name} {self.sight()}</div>
             </Button> )
             }
         })

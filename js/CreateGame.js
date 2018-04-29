@@ -60,9 +60,9 @@ export default class CreateGame extends React.Component {
     <Content>
         <Input autoFocus label="Name" id="name" placeholder="Game Name" 
             onChange={(r)=>this.name=r.target.value}/>
-        <Text color="red">{this.state.error}</Text>
+        <Text textAlign="center" fontWeight="bold" color="red">{this.state.error}</Text>
         <Card>
-            <Text f={4}>Timer options</Text>
+            <Text textAlign="center" fontWeight="bold" f={2}>Timer options</Text>
             <Label>
                 <Radio name="timer" checked={this.state.timer==='standard'} onChange={this.timerOption} value='standard'/>
                 Standard (30 seconds after penultimate completion)
@@ -81,7 +81,7 @@ export default class CreateGame extends React.Component {
             </Label>
         </Card>
         <Card>
-            <Text bold center f={4}>Active Elements</Text>
+            <Text textAlign="center" fontWeight="bold" f={2}>Active Elements</Text>
             <Label>
                 <Checkbox name="l" checked={this.state.board_lasers} onClick={this.check.bind(this, 'board_lasers')} readOnly/>
                 Board lasers
@@ -104,7 +104,7 @@ export default class CreateGame extends React.Component {
             </Label>
         </Card>
         <Card>
-            <Text bold center f={4}>Special Rules</Text>
+            <Text textAlign="center" fontWeight="bold" f={2}>Special Rules</Text>
             <Label>
                 <Checkbox name="4" checked={this.state.start_with_4_lives} onClick={this.check.bind(this, 'start_with_4_lives')} readOnly/>
                 All robots start with 4 Lives
