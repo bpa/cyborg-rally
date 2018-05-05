@@ -15,6 +15,9 @@ export default function Player (props) {
     else if (p.options['Fourth Gear'] && r === '3') {
       watermark = <Watermark active={true} img='images/fourth-gear.svg' text="Fourth Gear"/>
     }
+    else if (p.options['Reverse Gear'] && r === 'b') {
+      watermark = <Watermark active={true} img='images/reverse-gear.svg' text="Reverse Gear"/>
+    }
   }
 
   return (
