@@ -6,12 +6,6 @@ import Watermark from "./Watermark";
 
 export default function Player (props) {
   const p = props.player;
-  let watermark = null;
-  if (props.register && gs.id === props.register.player) {
-    if (p.options.Brakes && props.register.program[0].name === '1') {
-      watermark = <Watermark img='images/brakes.svg' text="Brakes"/>;
-    }
-  }
 
   return (
       <Card bg={p.ready?'green':'red'} color="white"
@@ -20,11 +14,15 @@ export default function Player (props) {
             justifyContent:'space-between',
             alignItems:'center',
           }}>
-        {watermark}
         <Register register={props.register}/>
         <Options player={p}/>
         <div style={{padding:'4px 0px'}}>{p.name}{p.shutdown ? '.zZ' : ''}</div>
         <Vitality player={p}/>
+        <Watermark active={props.register
+            && gs.id === props.register.player
+            && p.options.Brakes
+            && props.register.program[0].name === '1'}
+          img='images/brakes.svg' text="Brakes"/>
       </Card>
   )
 }

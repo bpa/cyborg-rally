@@ -1,21 +1,24 @@
 export default function Watermark(props) {
-    const bg = {
-      position: 'fixed',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: props.z || 'auto',
-      pointerEvents: 'none',
-      paddingTop: '50%',
-    };
+  if (!props.active)
+    return null;
 
-    let text = props.text
-      ? <span style={{fontSize:'42pt', color:'black', position: 'absolute',
-          opacity: '.3', top:'50%', left:'50%', 
-          transform: 'translate(-50%, -50%) rotate(45deg)'
-        }}>{props.text}</span>
-      : null;
+  const bg = {
+    position: 'fixed',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: props.z || 'auto',
+    pointerEvents: 'none',
+    paddingTop: '50%',
+  };
+
+  let text = props.text
+    ? <span style={{fontSize:'42pt', color:'black', position: 'absolute',
+        opacity: '.3', top:'50%', left:'50%',
+        transform: 'translate(-50%, -50%) rotate(45deg)'
+      }}>{props.text}</span>
+    : null;
 
     return (
 <div style={bg}>

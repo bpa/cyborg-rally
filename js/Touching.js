@@ -1,4 +1,5 @@
 import { Button, ButtonOutline } from 'rebass';
+import Watermark from './Watermark';
 
 export default class Touching extends React.Component {
     constructor(props) {
@@ -40,6 +41,11 @@ export default class Touching extends React.Component {
         buttons.push(this.button('Fell in pit', 'pit'));
         buttons.push(this.button('Off the board', 'off'));
 
-        return <div>{buttons}</div>;
+        return (
+          <div>{buttons}
+            <Watermark active={this.props.me.options['Mechanical Arm']}
+              img='images/mechanical-arm.svg' text="Mechanical Arm"/>
+          </div>
+        )
    }
 }
