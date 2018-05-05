@@ -17,6 +17,7 @@ sub on_enter {
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
         my $cards = $p->{public}{memory} - $p->{public}{damage};
+        $cards++ if exists $p->{public}{options}{'Extra Memory'};
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready}     = 1;
             $p->{public}{damage}    = 0 if $p->{public}{shutdown};

@@ -493,6 +493,17 @@ subtest 'Dual register option but not enough cards' => sub {
             registers => [ [$_2], [$_3], [$_R], [$_R], [$_1, $_L] ] }, $err);
 };
 
+subtest 'Extra Memory' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Extra Memory');
+    $rally->{state}->on_enter($rally);
+
+    is( $p1->{private}{cards}->count, 10, 'Got extra card' );
+    is( $p2->{private}{cards}->count, 9, 'No extra card' );
+};
+
 subtest 'programming after shutdown' => sub {
     my ( $rally, $p1 ) = Game( {} );
 
