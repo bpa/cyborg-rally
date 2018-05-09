@@ -1,4 +1,4 @@
-import MovementCard from './MovementCard';
+import Icon from './Icon';
 
 export default class Register extends React.Component {
   render() {
@@ -9,7 +9,7 @@ export default class Register extends React.Component {
     const program = this.props.register.program;
     var name = program.reduce((a, b) => a + b.name, '');
     return (
-      <MovementCard
+      <Icon
       onClick={this.props.onClick}
       damaged={register.damaged}
       inactive={this.props.inactive}

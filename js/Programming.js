@@ -1,12 +1,12 @@
-import MovementCard from './MovementCard';
-import Option from './Option';
+import Icon from './Icon';
+import OptionPanel from './OptionPanel';
 import Register from './Register';
 import { Panel, Shutdown } from 'rebass';
 import { Button, Content } from './Widgets';
 
 const RELEVANT_OPTIONS = {
   'Dual Processor': {2: ['r','l'], 3: ['r','l','u']},
-  'Crab Legs':      {1: ['r','l']},
+  'Crab Legs': {1: ['r','l']},
 };
 
 const VALID = {
@@ -14,6 +14,7 @@ const VALID = {
   2: { l: true, r: true },
   3: { l: true, r: true, u: true },
 };
+
 const ALL_CARDS = { 1: true, 2: true, 3: true, b: true, u: true, l: true, r: true,
     '1l': true, '1r': true,
     '2l': true, '2r': true,
@@ -119,6 +120,19 @@ export default class Programming extends React.Component {
     }
 
     activate(option) {
+      if (option === 'Recompile') {
+        this.setState({confirm_recompile: true});
+      }
+      else {
+        this.combine(option);
+      }
+    }
+
+    deactivate(option) {
+      this.setState({register: undefined, active: undefined, valid: ALL_CARDS});
+    }
+
+    combine(option) {
       let valid = {};
       let requirements = RELEVANT_OPTIONS[option];
       for (let k of Object.keys(requirements)) {
@@ -156,7 +170,7 @@ export default class Programming extends React.Component {
 
     registers() {
       const self = this;
-      var options = this.state.registers.map(function(r, i) {
+      var moves = this.state.registers.map(function(r, i) {
         if (self.state.valid[r.name]) {
           let f = self.state.active ? self.set_register : self.clear;
           return <Register register={r} key={i} onClick={f.bind(self, i)}/>;
@@ -165,27 +179,7 @@ export default class Programming extends React.Component {
           return <Register register={r} key={i} inactive={true}/>;
         }
       });
-
-      for (var k of Object.keys(RELEVANT_OPTIONS)) {
-        var o = this.props.me.options[k];
-        if (o) {
-          var opt = RELEVANT_OPTIONS[k];
-          var inactive=this.remaining < this.required;
-          var satisfies = false;
-          for (var mv of Object.keys(opt)) {
-            var have_turn = false;
-            for (var c of opt[mv]) {
-              have_turn = have_turn || this.held[c];
-            }
-            satisfies = satisfies || (have_turn && this.held[mv]);
-          }
-          inactive = inactive || !satisfies;
-          options.push(<button onClick={this.activate.bind(this,k)} key={k}>
-              <Option card={o} style={{height:"40px",width:"40px"}}/>
-            </button>);
-        }
-      }
-      return options;
+      return moves;
     }
 
     render() {
@@ -195,23 +189,27 @@ export default class Programming extends React.Component {
       }
       const cards = this.state.cards.map(function(c) {
         if (self.used[c.priority] || !self.state.valid[c.name]) {
-          return <MovementCard card={c} key={c.priority} inactive={true}/>;
+          return <Icon card={c} key={c.priority} inactive/>;
         }
         else {
           let click = self.choose.bind(self, c);
-          return <MovementCard card={c} key={c.priority} onClick={click}/>;
+          return <Icon card={c} key={c.priority} onClick={click}/>;
         }
       });
 
-      const registers = this.registers();
       return (
 <Content p={0}>
+  <OptionPanel me={this.props.me} notify={this} active={this.state.active}>
+    <o name='Dual Processor'/>
+    <o name='Crab Legs'/>
+    <o name='Recompile'/>
+  </OptionPanel>
   <Panel mt={2}>
     <Panel.Header bg="orange">Registers</Panel.Header>
-    <Content flexDirection="row">{registers}</Content>
+    <Content flexDirection="row">{this.registers()}</Content>
   </Panel>
   <Panel mt={2}>
-    <Panel.Header bg="blue">Movement Options</Panel.Header>
+    <Panel.Header bg="cyan">Movement Cards</Panel.Header>
     <Content flexDirection="row" flexWrap="wrap">{cards}</Content>
   </Panel>
   <Button bg={this.props.me.ready?'red':'green'} onClick={this.ready}>

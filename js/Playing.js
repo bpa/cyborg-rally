@@ -164,8 +164,6 @@ export default class Playing extends React.Component {
 )}
 }
 
-class Dead extends React.Component {
-    render() {
-        return <div style={{fontSize:120, textAlign:'center'}}>(x_x)</div>
-    }
+function Dead() {
+  return <div style={{fontSize:120, textAlign:'center'}}>(x_x)</div>
 }
