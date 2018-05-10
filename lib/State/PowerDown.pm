@@ -7,7 +7,7 @@ use parent 'State';
 sub on_enter {
     my ( $self, $game ) = @_;
     for my $p ( values %{ $game->{player} } ) {
-        if ( $p->{public}{shutdown} ) {
+        if ( $p->{public}{shutdown} && !$p->{public}{will_shutdown} ) {
             $p->{public}{shutdown} = '';
             $p->{public}{ready}    = '';
             $p->send('declare_shutdown');
@@ -16,7 +16,11 @@ sub on_enter {
             $p->{public}{ready} = 1;
         }
 
-        if ( $p->{public}{will_shutdown} ) {
+        if ($p->{public}{will_shutdown}
+            || ( exists $p->{public}{options}{'Circuit Breaker'}
+                && $p->{public}{damage} >= 3 )
+          )
+        {
             $p->{public}{shutdown} = 1;
             delete $p->{public}{will_shutdown};
             $game->broadcast(

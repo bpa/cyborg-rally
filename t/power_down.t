@@ -46,4 +46,28 @@ subtest 'skip phase if no powered down' => sub {
     done;
 };
 
+subtest 'circuit breaker' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->give_option($p2, 'Circuit Breaker');
+    $p2->{public}{damage}  = 3;
+    $rally->set_state('POWER');
+    $rally->update;
+    is( ref( $rally->{state} ), 'State::Programming' );
+    is( $p2->{public}{shutdown}, 1, 'Auto Shutdown enabled' );
+
+    done;
+};
+
+subtest 'circuit breaker, two damage' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->give_option($p2, 'Circuit Breaker');
+    $p2->{public}{damage}  = 2;
+    $rally->set_state('POWER');
+    $rally->update;
+    is( ref( $rally->{state} ), 'State::Programming' );
+    is( $p2->{public}{shutdown}, '', 'No Shutdown' );
+
+    done;
+};
+
 done_testing();

@@ -2,8 +2,8 @@ import Icon from './Icon';
 import Modal from './Modal';
 import OptionPanel from './OptionPanel';
 import Register from './Register';
-import { Panel, Shutdown } from 'rebass';
-import { Button, Content } from './Widgets';
+import { Panel } from 'rebass';
+import { Button, Content, Shutdown } from './Widgets';
 
 const RELEVANT_OPTIONS = {
   'Dual Processor': {2: ['r','l'], 3: ['r','l','u']},

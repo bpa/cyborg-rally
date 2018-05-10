@@ -2,8 +2,12 @@ import { Button as rButton, Card as rCard, Dot } from 'rebass';
 import { Flex } from 'grid-styled';
 import styled from 'styled-components'
 
-export function Shutdown() {
-    return <div style={{textAlign:'center',fontSize:120}}>ZZZ</div>;
+export function Shutdown(props) {
+    return (
+      <div>
+        <div style={{textAlign:'center',fontSize:120}}>ZZZ</div>
+        {props.children}
+      </div>);
 }
 
 export function Registers(props) {

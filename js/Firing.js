@@ -124,10 +124,22 @@ export default class Firing extends React.Component {
     }
 
     render() {
-        if (this.props.me.shutdown) {
-            return <Shutdown/>;
-        }
-    return (
+      var pending = this.state.pending_shots.map((s) => (
+        <ConfirmShot player={this.props.me} shot={s} key={s.player}
+          confirm={this.confirm.bind(this, s)}
+          deny={this.deny.bind(this, s)}/>
+      ));
+
+      var disputed = this.state.disputed.map((d) => (
+          <Dispute type={d.type} player={d.player} key={d.player}
+            target={d.target} vote={this.vote.bind(this, d)}/>
+      ));
+
+      if (this.props.me.shutdown) {
+        return <Shutdown>{pending}{disputed}</Shutdown>;
+      }
+
+      return (
 <Content p={0}>
     <Ready ready={this.props.me.ready}
         readyText="No one in line of sight"/>
@@ -135,17 +147,10 @@ export default class Firing extends React.Component {
     {this.players()}
     <FireType player={this.props.me} weapons={weapons} target={this.state.target}
         onChoose={this.fire_type} close={this.cancelFire}/>
-    {this.state.pending_shots.map((s) => (
-        <ConfirmShot player={this.props.me} shot={s} key={s.player}
-            confirm={this.confirm.bind(this, s)}
-            deny={this.deny.bind(this, s)}/>))}
     {this.state.denied.map((d) => (
         <Deny type={d.type} target={d.player} key={d.player}
             close={this.acceptDeny.bind(this, d)}
             escalate={this.escalate.bind(this, d)}/>))}
-    {this.state.disputed.map((d) => (
-        <Dispute type={d.type} player={d.player} key={d.player} target={d.target}
-            vote={this.vote.bind(this, d)}/>))}
 </Content>
     )}
 
