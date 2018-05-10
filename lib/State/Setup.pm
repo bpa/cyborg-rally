@@ -14,7 +14,7 @@ sub on_enter {
     $game->{options} = Deck::Options->new;
     $game->{options}->shuffle;
     $game->{movement}
-      = Deck::Movement->new( scalar( keys %{ $game->{player} } ) );
+      = Deck::Movement->new( scalar( keys %{ $game->{player} } ) + 1 );
     my $dock = 1;
     for my $p ( shuffle values %{ $game->{player} } ) {
         $p->{public}{dock}      = $dock++;

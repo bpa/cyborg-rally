@@ -1,4 +1,5 @@
 import Icon from './Icon';
+import Modal from './Modal';
 import OptionPanel from './OptionPanel';
 import Register from './Register';
 import { Panel, Shutdown } from 'rebass';
@@ -33,12 +34,16 @@ export default class Programming extends React.Component {
           }
           gs.private.registers = reg;
         }
+        if (gs.state === undefined) {
+          gs.state = {};
+        }
         this.state={
           valid: ALL_CARDS,
           cards: cards.sort((a,b)=>b.priority-a.priority),
           registers: reg.clone(),
         };
         this.ready = this.ready.bind(this);
+        this.cancel_recompile = this.cancel_recompile.bind(this);
         this.update_used(this.state.registers);
     }
 
@@ -48,6 +53,7 @@ export default class Programming extends React.Component {
             cards = msg.cards.sort((a,b)=>b.priority-a.priority);
         }
         gs.private.cards = cards;
+        gs.state = {recompiled: msg.recompiled};
         this.used = {};
         this.setState({
             cards: cards,
@@ -168,6 +174,41 @@ export default class Programming extends React.Component {
         ws.send({cmd: 'ready'});
     }
 
+    recompile() {
+      ws.send({cmd: 'recompile'});
+      this.setState({confirm_recompile: false});
+    }
+
+    cancel_recompile() {
+      this.setState({confirm_recompile: false});
+    }
+
+    confirm_recompile() {
+      let imgStyle = {
+        width: '60px',
+        height: '60px',
+        margin: '5px',
+        backgroundColor: 'green',
+        borderRadius: 6,
+        overflow: 'hidden',
+        float: 'left',
+      };
+      return this.state.confirm_recompile ? (
+      <Modal title="Confirm Recompile" closeText="Cancel" close={this.cancel_recompile}>
+        <div style={imgStyle}>
+          <img src="images/recompile.svg" style={{width: '100%'}}/>
+        </div>
+        <span style={{color: 'black'}}>
+          Are you sure?<br/>
+          You will take 1 damage and get new cards.
+        </span>
+        <Button onClick={this.recompile.bind(this)} bg="green">
+            Yes
+        </Button>
+      </Modal>)
+      : null;
+    }
+
     registers() {
       const self = this;
       var moves = this.state.registers.map(function(r, i) {
@@ -215,6 +256,7 @@ export default class Programming extends React.Component {
   <Button bg={this.props.me.ready?'red':'green'} onClick={this.ready}>
     {this.props.me.ready?'Not Ready':'Ready'}
   </Button>
+  {this.confirm_recompile()}
 </Content>
     )}
 }

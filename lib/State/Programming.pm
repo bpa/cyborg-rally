@@ -14,6 +14,7 @@ sub on_enter {
     my ( $self, $game ) = @_;
     my $ready = 0;
     my $total = 0;
+    $self->{public} = {recompiled => ''};
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
         my $cards = $p->{public}{memory} - $p->{public}{damage};
@@ -21,7 +22,7 @@ sub on_enter {
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready}     = 1;
             $p->{public}{damage}    = 0 if $p->{public}{shutdown};
-            $p->{public}{registers} = State::Setup::CLEAN;
+            $p->{private}{registers} = State::Setup::CLEAN;
             $p->send( { cmd => 'programming' } );
         }
         elsif ( $cards < 2 ) {
@@ -33,17 +34,9 @@ sub on_enter {
         else {
             $total++;
             $p->{public}{ready} = '';
-            $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
             map { $_->{program} = [] unless $_ && $_->{damaged} }
               @{ $p->{public}{registers} };
-            $p->{private}{registers}
-              = [ map { dclone($_) } @{ $p->{public}{registers} } ];
-            $p->send(
-                {   cmd       => 'programming',
-                    cards     => $p->{private}{cards},
-                    registers => $p->{private}{registers}
-                }
-            );
+            $self->give_cards($game, $p, $cards);
         }
     }
 
@@ -62,6 +55,20 @@ sub on_enter {
     elsif ( $game->{opts}{timer} eq '1m' ) {
         $game->timer( 60, \&Game::set_state, $game, 'ANNOUNCE' );
     }
+}
+
+sub give_cards {
+    my ($self, $game, $p, $cards) = @_;
+    $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
+    $p->{private}{registers}
+      = [ map { dclone($_) } @{ $p->{public}{registers} } ];
+    $p->send(
+        {   cmd        => 'programming',
+            cards      => $p->{private}{cards},
+            registers  => $p->{private}{registers},
+            recompiled => $self->{public}{recompiled},
+        }
+    );
 }
 
 sub do_program {
@@ -129,6 +136,30 @@ sub do_program {
     $c->send( program => { registers => $c->{private}{registers} } );
 }
 
+sub do_recompile {
+    my ( $self, $game, $c, $msg ) = @_;
+
+    if ( $c->{public}{ready} ) {
+        $c->err('Registers are already programmed');
+        return;
+    }
+
+    if ( $self->{public}{recompiled} eq $c->{id} ) {
+        $c->err('Already recompiled');
+        return;
+    }
+
+    unless (exists $c->{public}{options}{'Recompile'}) {
+        $c->err('Invalid Option');
+        return;
+    }
+
+    $self->{public}{recompiled} = $c->{id};
+    my $cards = $c->{public}{memory} - $c->{public}{damage};
+    $cards++ if exists $c->{public}{options}{'Extra Memory'};
+    $self->give_cards($game, $c, $cards);
+}
+
 sub too_many_doubles {
     my ($program, $player) = @_;
     my ($used, $needed) = (0, 0);
@@ -174,7 +205,6 @@ sub do_ready {
     }
 
     $c->{public}{ready} = 1;
-    $c->{public}{registers} = $c->{private}{registers};
     $game->broadcast( ready => { player => $c->{id} } );
 
     my $not_ready = false { $_->{public}{ready} } values %{ $game->{player} };
@@ -207,20 +237,27 @@ sub locked_but_not_matching {
 
 sub on_exit {
     my ( $self, $game ) = @_;
+
     for my $p ( values %{ $game->{player} } ) {
         my $cards     = delete $p->{private}{cards};
         my $registers = delete $p->{private}{registers};
 
-        next if $p->{public}{ready};
-
-        $cards->shuffle;
-        for my $i ( 0 .. 4 ) {
-            my $r = $registers->[$i];
-            map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
-            $r->{program}[0] = $cards->deal unless @{ $r->{program} };
-            $p->{public}{registers}[$i]{program} = $r->{program};
+        if ($p->{public}{ready}) {
+            $p->{public}{registers} = $registers;
+        }
+        else {
+            $cards->shuffle;
+            for my $i ( 0 .. 4 ) {
+                my $r = $registers->[$i];
+                map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
+                $r->{program}[0] = $cards->deal unless @{ $r->{program} };
+                $p->{public}{registers}[$i]{program} = $r->{program};
+            }
         }
     }
+
+    my $p = $game->{player}{$self->{public}{recompiled}};
+    $game->damage( $p, 1 ) if $p;
 }
 
 1;

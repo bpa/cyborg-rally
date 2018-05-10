@@ -38,7 +38,7 @@ var OptionCards = {
     active: combo_active.bind({2: ['r','l'], 3: ['r','l','u']}),
   },
   'Recompile': {
-    active: () => true,
+    active: () => (gs.state || {}).recompiled !== gs.id,
   },
 };
 

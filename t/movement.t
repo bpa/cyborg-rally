@@ -15,7 +15,7 @@ sub set_registers {
         $_[$p]->{public}{ready} = 1;
         for my $r ( 0 .. 4 ) {
             next unless $_[$p]->{public}{lives};
-            $_[$p]->{public}{registers}[$r]{program} = [
+            $_[$p]->{private}{registers}[$r]{program} = [
                 Card->new(
                     {   priority => ( 10 * $r + PERMUTATIONS->[$r][$p] ) * 10,
                         name     => CARD_NAME->[$p],
