@@ -122,13 +122,24 @@ sub upgrade {
     my ( $self, $game, $c ) = @_;
     my $card = $game->{options}->deal;
     if ( defined $card ) {
-        $c->{public}{options}{$card->{name}} = $card;
+        $c->{public}{options}{ $card->{name} } = $card;
         $game->broadcast( option => { player => $c->{id}, option => $card } );
     }
 }
 
 sub on_exit {
     my ( $self, $game ) = @_;
+    for my $c ( values %{ $game->{player} } ) {
+        my $tile = $self->{public}{ $c->{id} };
+        if ( grep { $tile eq $_ } qw/repair upgrade flag/ ) {
+            if ( exists $c->{public}{options}{'Superior Archive'} ) {
+                $c->{public}{archive} = 'superior';
+            }
+            else {
+                $c->{public}{archive} = 'standard';
+            }
+        }
+    }
     $self->{public} = {};
 }
 

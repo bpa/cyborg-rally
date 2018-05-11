@@ -10,10 +10,15 @@ sub on_enter {
     my $all_ready = 1;
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} && $p->{public}{lives} ) {
-            $p->{public}{dead}      = '';
-            $p->{public}{ready}     = '';
-            $p->{public}{shutdown}  = 1;
-            $p->{public}{damage}    = 2;
+            $p->{public}{dead}     = '';
+            $p->{public}{ready}    = '';
+            $p->{public}{shutdown} = 1;
+            if ( $p->{public}{archive} eq 'superior' ) {
+                $p->{public}{damage} = 0;
+            }
+            else {
+                $p->{public}{damage} = 2;
+            }
             $p->{public}{registers} = State::Setup::CLEAN();
             delete $p->{public}{will_shutdown};
             $game->broadcast(
