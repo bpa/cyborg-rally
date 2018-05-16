@@ -1,4 +1,6 @@
 import { Button, ButtonOutline } from 'rebass';
+import { Content } from './Widgets';
+import { Tile, TileSet } from './TileSet';
 import Watermark from './Watermark';
 
 export default class Touching extends React.Component {
@@ -17,35 +19,21 @@ export default class Touching extends React.Component {
         this.setState({tiles: tiles});
     }
 
-    button(label, key) {
-        if (this.state.tiles[gs.id] === key) { return (
-    <Button bg="blue" style={{width:'45%',paddingBottom:'30%',
-            margin:'.4em',marginBottom:'.4em'}} key={key}>
-        {label}
-    </Button>
-        )}
-        else { return (
-    <ButtonOutline style={{width:'45%',paddingBottom:'30%'}}
-        key={key} onClick={this.touch.bind(this, key)}>
-        {label}
-    </ButtonOutline>
-        )}
-    }
     render() {
-        var buttons = [this.button('None', 'floor')];
-        if (!this.props.me.shutdown) {
-            buttons.push(this.button('Repair', 'repair'));
-            buttons.push(this.button('Upgrade', 'upgrade'));
-            buttons.push(this.button('Flag', 'flag'));
-        }
-        buttons.push(this.button('Fell in pit', 'pit'));
-        buttons.push(this.button('Off the board', 'off'));
-
-        return (
-          <div>{buttons}
-            <Watermark active={this.props.me.options['Mechanical Arm']}
-              img='images/mechanical-arm.svg' text="Mechanical Arm"/>
-          </div>
-        )
+      const hide = this.props.me.shutdown;
+      return (
+        <div>
+          <TileSet onClick={this.touch.bind(this)}>
+            <Tile id="floor">None</Tile>
+            <Tile id='repair' hide={hide}>Repair</Tile>
+            <Tile id='upgrade' hide={hide}>Upgrade</Tile>
+            <Tile id='flag' hide={hide}>Flag</Tile>
+            <Tile id='pit'>Fell in pit</Tile>
+            <Tile id='off'>Off the board</Tile>
+          </TileSet>
+          <Watermark active={this.props.me.options['Mechanical Arm']}
+            img='images/mechanical-arm.svg' text="Mechanical Arm"/>
+        </div>
+      );
    }
 }
