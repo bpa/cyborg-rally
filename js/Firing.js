@@ -1,7 +1,6 @@
 import ConfirmShot from './ConfirmShot';
 import Deny from './Deny';
 import Dispute from './Dispute';
-import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
 import OptionPanel from './OptionPanel';
@@ -50,7 +49,11 @@ export default class Firing extends React.Component {
     }
 
     fire(p) {
-        ws.send({cmd: 'fire', type: this.state.active, target: p});
+      let weapon = this.state.active;
+      if (weapon === 'Rear-Firing Laser') {
+        weapon = 'laser';
+      }
+      ws.send({cmd: 'fire', type: weapon, target: p});
     }
 
     on_deny(msg) {
@@ -139,6 +142,7 @@ export default class Firing extends React.Component {
 <Content p={0}>
   <OptionPanel notify={this} active={this.state.active} min={2}>
     <o name='laser'/>
+    <o name='Rear-Firing Laser'/>
     <o name='Fire Control'/>
     <o name='Mini Howitzer'/>
     <o name='Pressor Beam'/>

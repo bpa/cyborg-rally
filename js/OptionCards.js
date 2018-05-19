@@ -100,16 +100,17 @@ class LaserOption extends Option {
 }
 
 var OptionCards = {
-  'Crab Legs':      new ComboOption('Crab Legs', {1: ['r','l']}),
-  'Dual Processor': new ComboOption('Dual Processor', {2: ['r','l'], 3: ['r','l','u']}),
-  'Recompile':      new RecompileOption('Recompile'),
-  'Fire Control':   new FiringOption('Fire Control'),
-  'Mini Howitzer':  new FiringOption('Mini Howitzer'),
-  'Pressor Beam':   new FiringOption('Pressor Beam'),
-  'Radio Control':  new FiringOption('Radio Control'),
-  'Scrambler':      new FiringOption('Scrambler'),
-  'Tractor Beam':   new FiringOption('Tractor Beam'),
-  'laser':          new LaserOption(),
+  'Crab Legs':         new ComboOption('Crab Legs', {1: ['r','l']}),
+  'Dual Processor':    new ComboOption('Dual Processor', {2: ['r','l'], 3: ['r','l','u']}),
+  'Recompile':         new RecompileOption('Recompile'),
+  'Rear-Firing Laser': new FiringOption('Rear-Firing Laser'),
+  'Fire Control':      new FiringOption('Fire Control'),
+  'Mini Howitzer':     new FiringOption('Mini Howitzer'),
+  'Pressor Beam':      new FiringOption('Pressor Beam'),
+  'Radio Control':     new FiringOption('Radio Control'),
+  'Scrambler':         new FiringOption('Scrambler'),
+  'Tractor Beam':      new FiringOption('Tractor Beam'),
+  'laser':             new LaserOption(),
 };
 
 export default OptionCards;

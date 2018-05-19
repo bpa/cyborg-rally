@@ -18,7 +18,7 @@ let btnStyle = {
 
 let optStyle = {height: "30px"};
 
-export default class FireType extends React.Component {
+export default class ConfirmShot extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
