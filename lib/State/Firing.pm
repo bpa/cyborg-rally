@@ -8,7 +8,7 @@ use List::MoreUtils 'firstidx';
 use constant FIRE_TYPE => {
     'Fire Control'      => \&on_main_laser,
     'laser'             => \&on_main_laser,
-    'Mini Howitzer'     => \&on_main_laser,
+    'Mini Howitzer'     => \&on_howitzer,
     'Pressor Beam'      => \&nop,
     'Radio Control'     => \&on_main_laser,
     'Rear-Firing Laser' => \&on_rear_laser,
@@ -182,6 +182,22 @@ sub on_main_laser {
 
 sub on_rear_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
+    $game->damage( $target, 1 );
+}
+
+sub on_howitzer {
+    my ( $self, $game, $bot, $target, $beam ) = @_;
+    my $howitzer = $bot->{public}{options}{'Mini Howitzer'};
+    $howitzer->{uses}--;
+    if ($howitzer->{uses} == 0) {
+        delete $bot->{public}{options}{'Mini Howitzer'};
+    }
+    $game->broadcast(
+        {   cmd     => 'options',
+            player  => $bot->{id},
+            options => $bot->{public}{options}
+        }
+    );
     $game->damage( $target, 1 );
 }
 

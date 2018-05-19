@@ -50,9 +50,6 @@ export class Option extends React.Component {
 
   render() {
     let o = this.props.card;
-    if (o.uses > 0) {
-        file += o.uses;
-    }
     return (
       <span>
         <img src={this.file}
