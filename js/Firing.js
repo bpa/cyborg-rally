@@ -4,6 +4,7 @@ import Dispute from './Dispute';
 import FireType from './FireType';
 import Player from './Player';
 import Ready from './Ready';
+import OptionPanel from './OptionPanel';
 import { Button, Content, Hr, Shutdown } from './Widgets';
 
 var weapons = [
@@ -24,7 +25,6 @@ export default class Firing extends React.Component {
             for (var shot of gs.state) {
                 if (shot.dispute) {
                     if (shot.voted[gs.id] == undefined) {
-                        //shot.player = k;
                         disputed.push(shot);
                     }
                 }
@@ -33,23 +33,24 @@ export default class Firing extends React.Component {
                 }
             }
         }
-        this.fire_type = this.fire_type.bind(this);
-        this.cancelFire = this.cancelFire.bind(this);
-        this.state = {pending_shots: pending_shots, denied: [], disputed: disputed};
+        this.state = {
+          pending_shots: pending_shots,
+          denied: [],
+          disputed: disputed,
+          active: 'laser',
+        };
+    }
+
+    activate(o) {
+      this.setState({active: o});
+    }
+
+    deactivate(o) {
+      this.setState({active: 'laser'});
     }
 
     fire(p) {
-        for (var w of weapons) {
-            if (this.props.me.options[w]) {
-                this.setState({target: p})
-                return;
-            }
-        }
-        ws.send({cmd: 'fire', type: 'laser', target: p});
-    }
-
-    cancelFire() {
-        this.setState({target: null});
+        ws.send({cmd: 'fire', type: this.state.active, target: p});
     }
 
     on_deny(msg) {
@@ -58,11 +59,6 @@ export default class Firing extends React.Component {
         denied.push({player: msg.player, type: msg.type});
         this.setState({denied: denied})
       }
-    }
-
-    fire_type(w) {
-        ws.send({cmd: 'fire', type: w, target: this.state.target});
-        this.setState({target: null});
     }
 
     on_fire(msg) {
@@ -141,16 +137,24 @@ export default class Firing extends React.Component {
 
       return (
 <Content p={0}>
+  <OptionPanel notify={this} active={this.state.active} min={2}>
+    <o name='laser'/>
+    <o name='Fire Control'/>
+    <o name='Mini Howitzer'/>
+    <o name='Pressor Beam'/>
+    <o name='Radio Control'/>
+    <o name='Scrambler'/>
+    <o name='Tractor Beam'/>
+  </OptionPanel>
     <Ready ready={this.props.me.ready}
         readyText="No one in line of sight"/>
     <Hr/>
     {this.players()}
-    <FireType player={this.props.me} weapons={weapons} target={this.state.target}
-        onChoose={this.fire_type} close={this.cancelFire}/>
     {this.state.denied.map((d) => (
         <Deny type={d.type} target={d.player} key={d.player}
             close={this.acceptDeny.bind(this, d)}
             escalate={this.escalate.bind(this, d)}/>))}
+    {pending}
 </Content>
     )}
 

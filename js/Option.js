@@ -1,11 +1,20 @@
 import Modal from './Modal';
 
-export default class Option extends React.Component {
+const SPACE = new RegExp(' ', 'g');
+
+export function getFile(option) {
+  let file = "images/" + option.name.toLowerCase().replace(SPACE, "-");
+  if (option.uses > 0) {
+      file += option.uses;
+  }
+  return file + ".svg";
+}
+
+export class Option extends React.Component {
   constructor(props) {
     super(props);
     let o = this.props.card;
-    this.re = new RegExp(' ', 'g');
-    this.file = "images/" + o.name.toLowerCase().replace(this.re, "-") + ".svg";
+    this.file = getFile(o);
     this.state = { showing: false };
     this.done = this.done.bind(this);
     this.show = this.show.bind(this);

@@ -1,4 +1,5 @@
-const SPACE = new RegExp(' ', 'g');
+import { getFile } from './Option';
+
 export default class Icon extends React.Component {
     normal() {
         return {
@@ -10,6 +11,20 @@ export default class Icon extends React.Component {
         return {
             color: 'white',
             background: 'radial-gradient(red, black)',
+            border: 'thin solid black',
+        };
+    }
+    selected() {
+        return {
+            color: 'white',
+            background: 'radial-gradient(yellow, orange)',
+            border: 'thin solid black',
+        };
+    }
+    showHelp() {
+        return {
+            color: 'white',
+            background: 'radial-gradient(white, blue)',
             border: 'thin solid black',
         };
     }
@@ -32,6 +47,8 @@ export default class Icon extends React.Component {
         = this.props.damaged  ? this.damaged()
         : this.props.inactive ? this.inactive()
         : this.props.addOn    ? this.addOn()
+        : this.props.selected ? this.selected()
+        : this.props.showHelp ? this.showHelp()
         :                       this.normal();
         style.borderRadius = 6;
         style.marginTop = '8px';
@@ -47,23 +64,21 @@ export default class Icon extends React.Component {
         </svg>
       );
     }
-    if (this.props.src !== undefined) {
-      return (
-        <span style={style} onClick={this.props.onClick}>
-          <img style={{height: '40px', width: '40px', padding: '4px'}}
-            src={this.props.src}/>
-        </span>
-      );
+    let src
+      = this.props.src !== undefined ? this.props.src
+      : this.props.name !== undefined ? getFile(gs.public.player[gs.id].options[this.props.name])
+      : this.props.option !== undefined ? getFile(this.props.option)
+      : null;
+
+    if (src === null) {
+      return null;
     }
-    if (this.props.name !== undefined) {
-      let file = "images/" + this.props.name.toLowerCase().replace(SPACE, "-") + ".svg";
-      return (
-        <span style={style} onClick={this.props.onClick}>
-          <img style={{height: '40px', width: '40px', padding: '4px'}}
-            src={file}/>
-        </span>
-      );
-    }
-    return null;
+
+    return (
+      <span style={style} onClick={this.props.onClick}>
+        <img style={{height: '40px', width: '40px', padding: '4px'}}
+          src={src}/>
+      </span>
+    );
   }
 }

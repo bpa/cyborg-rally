@@ -1,7 +1,7 @@
 import { Button } from './Widgets';
-import Card from './Card.js';
-import Modal from './Modal.js';
-import Option from './Option.js';
+import Card from './Card';
+import Modal from './Modal';
+import { Option } from './Option';
 
 var damage_weapons = {
     'laser':             true,

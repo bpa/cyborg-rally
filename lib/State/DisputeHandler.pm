@@ -21,6 +21,8 @@ sub do_deny {
     my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
     if ($bot) {
         delete $self->{shot}{ $bot->{id} }{ $msg->{target} };
+        $self->{shot}{ $bot->{id} }{used}--;
+        $self->remove($beam);
         $bot->send( { cmd => 'deny', player => $c->{id}, type => $beam->{type} } );
     }
 }

@@ -1,11 +1,11 @@
 import Modal from './Modal';
+import { getFile } from './Option';
 
 export default class Card extends React.Component {
     constructor(props) {
         super(props);
         this.show = this.show.bind(this);
         this.hide = this.hide.bind(this);
-        this.re = new RegExp(' ', 'g');
     }
 
     show() {
@@ -31,13 +31,10 @@ export default class Card extends React.Component {
         if (!o) {
             return null;
         }
-        let file = o.name.toLowerCase().replace(this.re, "-");
-        if (o.uses > 0) {
-            file += o.uses;
-        }
+
         return (
 <span>
-    <img src={"images/"+file+".svg"}
+    <img src={getFile(o)}
         style={style} onClick={this.onClick}/>;
     {this.cardModal()}
 </span>);

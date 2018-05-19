@@ -1,4 +1,4 @@
-import Option from './Option';
+import { Option } from './Option';
 
 export default class Options extends React.Component {
   render() {

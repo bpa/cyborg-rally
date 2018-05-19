@@ -1,39 +1,43 @@
 import Icon from './Icon';
 import OptionCards from './OptionCards';
-import { Panel } from 'rebass';
+import { Circle, Panel } from 'rebass';
 import { Content } from './Widgets';
 
-function option(name, props) {
-  if (props.active === name) {
-    return <Icon name={name} key={name}
-      onClick={props.notify.deactivate.bind(props.notify, name)}/>;
+export default class OptionPanel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
   }
 
-  if (!(props.active === undefined && OptionCards[name].active())) {
-    return <Icon name={name} key={name} inactive/>;
+  toggleHelp() {
+    let show = !this.state.showHelp;
+    this.setState({showHelp: show});
   }
 
-  return <Icon name={name} key={name}
-      onClick={props.notify.activate.bind(props.notify, name)}/>;
-}
-
-export default function OptionPanel(props) {
-  let held = [];
-  let opts = props.me.options;
-  for (var o of props.children) {
-    if (opts[o.props.name] !== undefined) {
-      held.push(option(o.props.name, props));
+  render() {
+    let held = [];
+    let props = this.props;
+    for (var o of props.children) {
+      let element = OptionCards[o.props.name].render(props, this.state);
+      if (element !== null) {
+        held.push(element);
+      }
     }
-  }
 
-  if (held.length === 0) {
-    return null;
-  }
+    if (held.length < (props.min || 1)) {
+      return null;
+    }
 
-  return (
-    <Panel mt={2}>
-      <Panel.Header bg="green">Option Cards</Panel.Header>
-      <Content flexDirection="row" flexWrap="wrap">{held}</Content>
-    </Panel>
-  );
+    return (
+      <Panel mt={2}>
+        <Panel.Header bg="green">
+          Option Cards
+          <span style={{position: 'absolute', right: ''}}>
+            <Circle onClick={this.toggleHelp.bind(this)}>?</Circle>
+          </span>
+        </Panel.Header>
+        <Content flexDirection="row" flexWrap="wrap">{held}</Content>
+      </Panel>
+    );
+  }
 }
