@@ -50,7 +50,7 @@ export default class Firing extends React.Component {
 
     fire(p) {
       let weapon = this.state.active;
-      if (weapon === 'Rear-Firing Laser') {
+      if (weapon.includes('Laser')) {
         weapon = 'laser';
       }
       ws.send({cmd: 'fire', type: weapon, target: p});
@@ -143,6 +143,7 @@ export default class Firing extends React.Component {
   <OptionPanel notify={this} active={this.state.active} min={2}>
     <o name='laser'/>
     <o name='Rear-Firing Laser'/>
+    <o name='High-Power Laser'/>
     <o name='Fire Control'/>
     <o name='Mini Howitzer'/>
     <o name='Pressor Beam'/>

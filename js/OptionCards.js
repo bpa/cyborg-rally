@@ -104,6 +104,7 @@ var OptionCards = {
   'Dual Processor':    new ComboOption('Dual Processor', {2: ['r','l'], 3: ['r','l','u']}),
   'Recompile':         new RecompileOption('Recompile'),
   'Rear-Firing Laser': new FiringOption('Rear-Firing Laser'),
+  'High-Power Laser':  new FiringOption('High-Power Laser'),
   'Fire Control':      new FiringOption('Fire Control'),
   'Mini Howitzer':     new FiringOption('Mini Howitzer'),
   'Pressor Beam':      new FiringOption('Pressor Beam'),
