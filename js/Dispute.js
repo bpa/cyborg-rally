@@ -1,16 +1,35 @@
 import { Button } from './Widgets';
-import Modal from './Modal.js';
+import Modal from './Modal';
+import { Option } from './Option';
+import { Flex } from 'grid-styled';
+import { Badge } from 'rebass';
 
 export default class Dispute extends React.Component {
-    render() {
-        let p_name = gs.public.player[this.props.player].name;
-        let t_name = gs.public.player[this.props.target].name;
-        return (
-<Modal title={"Did " + p_name + " shoot " + t_name + "?"}
-    closeText="No" close={this.props.vote.bind(null, false)}>
-    <Button onClick={this.props.vote.bind(null,true)} bg="green">
-        Yes
-    </Button>
+  render() {
+    let shot = this.props.shot;
+    let player = gs.public.player[shot.player];
+    let target = gs.public.player[shot.target];
+    let card = player['options'][shot.type];
+    if (card === undefined) {
+      card = { name: 'Laser', text: 'Standard issue laser cannon.  Fires one shot.' };
+    }
+    let title =
+      <Flex>
+        <Badge bg="blue">
+          <Option card={card} style={{height: '2em'}}/>
+        </Badge>
+        <span style={{margin: 'auto'}}>
+          Disputed shot
+        </span>
+      </Flex>;
+    return (
+<Modal title={title} closeText="No" close={this.props.vote.bind(null, false)}>
+  <span style={{paddingTop: '8px', margin: 'auto'}}>
+    Did {player.name} shoot {target.name} with a {shot.type}?
+  </span>
+  <Button onClick={this.props.vote.bind(null,true)} bg="green">
+    Yes
+  </Button>
 </Modal>);
     }
 }

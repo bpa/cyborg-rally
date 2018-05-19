@@ -101,7 +101,12 @@ export default class Firing extends React.Component {
     }
 
     vote(d, v) {
-        ws.send({cmd: 'vote', type: d.type, player: d.player, hit: v});
+        ws.send({cmd: 'vote',
+          type: d.type,
+          player: d.player,
+          target: d.target,
+          hit: v,
+        });
         let disputed = this.state.disputed;
         disputed.remove((s) => s.target === d.target && s.player === d.player);
         this.setState({disputed: disputed});
@@ -121,8 +126,7 @@ export default class Firing extends React.Component {
       ));
 
       var disputed = this.state.disputed.map((d) => (
-          <Dispute type={d.type} player={d.player} key={d.player}
-            target={d.target} vote={this.vote.bind(this, d)}/>
+        <Dispute shot={d} key={d.player} vote={this.vote.bind(this, d)}/>
       ));
 
       if (this.props.me.shutdown) {
@@ -151,6 +155,7 @@ export default class Firing extends React.Component {
             close={this.acceptDeny.bind(this, d)}
             escalate={this.escalate.bind(this, d)}/>))}
     {pending}
+    {disputed}
 </Content>
     )}
 

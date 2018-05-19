@@ -93,6 +93,8 @@ sub do_vote {
         }
         else {
             $beam->{invalid} = 1;
+            delete $self->{shot}{ $bot->{id} }{ $msg->{target} };
+            $self->{shot}{ $bot->{id} }{used}--;
             $self->remove($beam);
         }
     }

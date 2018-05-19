@@ -1,5 +1,6 @@
 import { Button } from './Widgets';
-import Card from './Card';
+import { Badge } from 'rebass';
+import { Flex } from 'grid-styled';
 import Modal from './Modal';
 import { Option } from './Option';
 
@@ -76,15 +77,29 @@ export default class ConfirmShot extends React.Component {
     }
 
     render() {
-        let name = gs.public.player[this.props.shot.player].name;
-        return (
-<Modal title={"Confirm shot by " + name} closeText="Deny" close={this.props.deny} z="100">
-    <Button onClick={this.props.confirm} bg="green">
-        Confirm
-    </Button>
-    {this.discardable()}
-    {this.confirmation()}
+      let style = {height:"2em"};
+      let player = gs.public.player[this.props.shot.player];
+      let card = player['options'][this.props.shot.type];
+      if (card === undefined) {
+        card = { name: 'Laser', text: 'Standard issue laser cannon.  Fires one shot.' };
+      }
+      let title =
+        <Flex>
+          <Badge bg="blue">
+            <Option card={card} style={style}/>
+          </Badge>
+          <span style={{margin: 'auto'}}>You have been shot</span>
+        </Flex>;
+      return (
+<Modal title={title} closeText="Deny" close={this.props.deny} z="100">
+  <span style={{paddingTop: '8px', margin: 'auto'}}>
+    {player.name} fired a {this.props.shot.type}
+  </span>
+  <Button onClick={this.props.confirm} bg="green">
+      Confirm
+  </Button>
+  {this.confirmation()}
 </Modal>);
-    }
+  }
 }
 
