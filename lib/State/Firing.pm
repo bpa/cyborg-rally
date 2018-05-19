@@ -6,13 +6,14 @@ use parent 'State::DisputeHandler';
 use List::MoreUtils 'firstidx';
 
 use constant FIRE_TYPE => {
-    'Fire Control'  => \&on_laser,
-    'laser'         => \&on_laser,
-    'Mini Howitzer' => \&on_laser,
-    'Pressor Beam'  => \&nop,
-    'Radio Control' => \&on_laser,
-    'Scrambler'     => \&on_scrambler,
-    'Tractor Beam'  => \&nop,
+    'Fire Control'      => \&on_main_laser,
+    'laser'             => \&on_main_laser,
+    'Mini Howitzer'     => \&on_main_laser,
+    'Pressor Beam'      => \&nop,
+    'Radio Control'     => \&on_main_laser,
+    'Rear-Firing Laser' => \&on_rear_laser,
+    'Scrambler'         => \&on_scrambler,
+    'Tractor Beam'      => \&nop,
 };
 
 sub on_enter {
@@ -173,10 +174,15 @@ sub remove {
 
 sub nop { }
 
-sub on_laser {
+sub on_main_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
-    my $damage = 1;
+    my $damage = exists $bot->{public}{options}{'Double Barreled Laser'} ? 2 : 1;
     $game->damage( $target, $damage );
+}
+
+sub on_rear_laser {
+    my ( $self, $game, $bot, $target, $beam ) = @_;
+    $game->damage( $target, 1 );
 }
 
 sub on_scrambler {

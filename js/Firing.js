@@ -6,15 +6,6 @@ import Ready from './Ready';
 import OptionPanel from './OptionPanel';
 import { Button, Content, Hr, Shutdown } from './Widgets';
 
-var weapons = [
-    'Fire Control',
-    'Mini Howitzer',
-    'Pressor Beam',
-    'Radio Control',
-    'Scrambler',
-    'Tractor Beam',
-];
-
 export default class Firing extends React.Component {
     constructor(props) {
         super(props);
@@ -50,7 +41,7 @@ export default class Firing extends React.Component {
 
     fire(p) {
       let weapon = this.state.active;
-      if (weapon.includes('Laser')) {
+      if (weapon === ('High-Power Laser')) {
         weapon = 'laser';
       }
       ws.send({cmd: 'fire', type: weapon, target: p});
