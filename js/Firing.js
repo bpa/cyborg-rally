@@ -40,11 +40,7 @@ export default class Firing extends React.Component {
     }
 
     fire(p) {
-      let weapon = this.state.active;
-      if (weapon === ('High-Power Laser')) {
-        weapon = 'laser';
-      }
-      ws.send({cmd: 'fire', type: weapon, target: p});
+      ws.send({cmd: 'fire', type: this.state.active, target: p});
     }
 
     on_deny(msg) {

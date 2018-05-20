@@ -4,13 +4,15 @@ use strict;
 use warnings;
 use parent 'State::DisputeHandler';
 use List::MoreUtils 'firstidx';
+use Storable 'dclone';
 
 use constant FIRE_TYPE => {
     'Fire Control'      => \&on_main_laser,
+    'High-Power Laser'  => \&on_main_laser,
     'laser'             => \&on_main_laser,
     'Mini Howitzer'     => \&on_howitzer,
     'Pressor Beam'      => \&nop,
-    'Radio Control'     => \&on_main_laser,
+    'Radio Control'     => \&on_radio_control,
     'Rear-Firing Laser' => \&on_rear_laser,
     'Scrambler'         => \&on_scrambler,
     'Tractor Beam'      => \&nop,
@@ -199,6 +201,16 @@ sub on_howitzer {
         }
     );
     $game->damage( $target, 1 );
+}
+
+sub on_radio_control {
+    my ( $self, $game, $bot, $target, $beam ) = @_;
+    $target->{public}{registers} = dclone( $bot->{public}{registers} );
+    for my $r ( @{ $target->{public}{registers} } ) {
+        for my $program (@{$r->{program}}) {
+            $program->{priority} -= $game->{public}{register} + 1;
+        }
+    }
 }
 
 sub on_scrambler {

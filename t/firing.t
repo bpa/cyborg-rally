@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Test::Deep;
 use CyborgTest;
+use Storable 'dclone';
 
 subtest 'no hits' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
@@ -462,6 +463,37 @@ subtest 'Rear-Firing Laser' => sub {
     );
     is( $p3->{public}{damage}, 1 );
     is( $rally->{state}{shot}{$p1->{id}}, undef, 'shots cleared out when ready');
+
+    done;
+};
+
+subtest 'Radio Control' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->give_option( $p1, 'Radio Control' );
+    $rally->{public}{register} = 1;
+    $rally->set_state('FIRE');
+    is($rally->{public}{register}, 1);
+    $rally->update;
+    $rally->drop_packets;
+
+    $p1->game(
+        fire => { type => 'Radio Control', target => $p2->{id}, damage => 1 } );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'fire', type => 'Radio Control', player => $p1->{id} } ] );
+    cmp_deeply( $rally->{state}{public},
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'Radio Control' } ] );
+    $p2->game( { cmd => 'confirm', type => 'Radio Control', player => $p1->{id} },
+    );
+
+    is( $p2->{public}{damage}, 0 );
+    cmp_deeply( $rally->{state}{shot}, { $p2->{id} => { max => 1, used => 0 } }, );
+
+    my @expected = map {
+        my $r = dclone($_);
+        $r->{program}[0]{priority}-=2;
+        $r;
+    } @{$p1->{public}{registers}};
+    cmp_deeply( $p2->{public}{registers}, \@expected);
 
     done;
 };
