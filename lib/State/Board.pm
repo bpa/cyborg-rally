@@ -3,7 +3,6 @@ package State::Board;
 use strict;
 use warnings;
 use parent 'State';
-use List::Util 'all';
 
 sub BUILD {
     my ( $self, $name, $next ) = @_;

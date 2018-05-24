@@ -3,7 +3,6 @@ package State::Announcing;
 use strict;
 use warnings;
 use parent 'State';
-use List::Util 'all';
 
 sub on_enter {
     my ( $self, $game ) = @_;
