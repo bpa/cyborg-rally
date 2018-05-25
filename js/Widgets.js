@@ -5,7 +5,7 @@ import styled from 'styled-components'
 export function Shutdown(props) {
     return (
       <div>
-        <div style={{textAlign:'center',fontSize:120}}>ZZZ</div>
+        <img src="images/power-down.svg" style={{width: "100%"}}/>
         {props.children}
       </div>);
 }
