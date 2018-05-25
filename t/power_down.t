@@ -46,21 +46,23 @@ subtest 'skip phase if no powered down' => sub {
     done;
 };
 
-subtest 'circuit breaker' => sub {
+subtest 'Emergency Shutdown' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->give_option($p2, 'Circuit Breaker');
+    $rally->drop_packets;
+    $rally->give_option($p2, 'Emergency Shutdown');
     $p2->{public}{damage}  = 3;
     $rally->set_state('POWER');
     $rally->update;
-    is( ref( $rally->{state} ), 'State::Programming' );
-    is( $p2->{public}{shutdown}, 1, 'Auto Shutdown enabled' );
+    is( ref( $rally->{state} ), 'State::PowerDown' );
+    cmp_deeply( $p1->{packets}, [] );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'declare_shutdown' } ] );
 
     done;
 };
 
-subtest 'circuit breaker, two damage' => sub {
+subtest 'Emergency Shutdown, two damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->give_option($p2, 'Circuit Breaker');
+    $rally->give_option($p2, 'Emergency Shutdown');
     $p2->{public}{damage}  = 2;
     $rally->set_state('POWER');
     $rally->update;
