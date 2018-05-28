@@ -1,5 +1,5 @@
 import Modal from './Modal';
-import { getFile } from './Option';
+import { getFile } from './Util';
 
 export default class Card extends React.Component {
     constructor(props) {

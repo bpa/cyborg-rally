@@ -1,4 +1,4 @@
-import { getFile } from './Option';
+import { getFile } from './Util';
 
 export default class Icon extends React.Component {
     normal() {
@@ -21,7 +21,8 @@ export default class Icon extends React.Component {
             border: 'thin solid black',
         };
     }
-    showHelp() {
+    help() {
+      console.log('showHelp');
         return {
             color: 'white',
             background: 'radial-gradient(white, blue)',
@@ -44,11 +45,11 @@ export default class Icon extends React.Component {
     }
     render() {
       var style
-        = this.props.damaged  ? this.damaged()
+        = this.props.help     ? this.help()
+        : this.props.damaged  ? this.damaged()
         : this.props.inactive ? this.inactive()
         : this.props.addOn    ? this.addOn()
         : this.props.selected ? this.selected()
-        : this.props.showHelp ? this.showHelp()
         :                       this.normal();
         style.borderRadius = 6;
         style.marginTop = '8px';

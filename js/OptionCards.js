@@ -4,11 +4,21 @@ class Option {
   constructor(name) {
     this.name = name;
   }
+
   render(props, state) {
     if (gs.public.player[gs.id].options[this.name] === undefined) {
       return null;
     }
 
+    if (state.showHelp) {
+      return <Icon name={this.name} key={this.name} help
+        onClick={state.openHelp.bind(null, this.name)}/>;
+    }
+
+    return this.render_option(props, state);
+  }
+
+  render_option(props, state) {
     if (props.active === this.name) {
       return <Icon name={this.name} key={this.name}
         onClick={props.notify.deactivate.bind(props.notify, this.name)}/>;
@@ -47,8 +57,8 @@ class ComboOption extends Option {
       }
     }
 
-    for (var m of Object.keys(this)) {
-      var required = this[m];
+    for (var m of Object.keys(this.data)) {
+      var required = this.data[m];
       if (held[m] > 0) {
         for (var turn of required) {
           if (held[turn]) {
@@ -69,7 +79,7 @@ class RecompileOption extends Option {
 }
 
 class FiringOption extends Option {
-  render(props) {
+  render_option(props, state) {
     if (gs.public.player[gs.id].options[this.name] === undefined) {
       return null;
     }
@@ -85,7 +95,7 @@ class FiringOption extends Option {
 }
 
 class LaserOption extends Option {
-  render(props) {
+  render_option(props, state) {
     let options = gs.public.player[gs.id].options;
     let o = options['Double Barreled Laser'] || {name: 'laser'};
 

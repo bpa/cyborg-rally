@@ -1,12 +1,25 @@
 import Icon from './Icon';
 import OptionCards from './OptionCards';
+import OptionModal from './OptionModal';
 import { Circle, Panel } from 'rebass';
 import { Content } from './Widgets';
 
 export default class OptionPanel extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      showHelp: false,
+      openHelp: this.openHelp.bind(this),
+    };
+    this.closeHelp = this.closeHelp.bind(this);
+  }
+
+  openHelp(option) {
+    this.setState({show: option, showHelp: false});
+  }
+
+  closeHelp() {
+    this.setState({show: undefined});
   }
 
   toggleHelp() {
@@ -28,6 +41,12 @@ export default class OptionPanel extends React.Component {
       return null;
     }
 
+    let card = gs.public.player[gs.id].options[this.state.show];
+
+    let modal = card !== undefined
+      ? <OptionModal card={card} done={this.closeHelp}/>
+      : null;
+
     return (
       <Panel mt={2}>
         <Panel.Header bg="green">
@@ -37,6 +56,7 @@ export default class OptionPanel extends React.Component {
           </span>
         </Panel.Header>
         <Content flexDirection="row" flexWrap="wrap">{held}</Content>
+      {modal}
       </Panel>
     );
   }
