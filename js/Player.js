@@ -28,10 +28,10 @@ export default function Player (props) {
             alignItems:'center',
           }}>
         <Register register={props.register}/>
+        {watermark}
         <Options player={p}/>
         <div style={{padding:'4px 0px'}}>{p.name}{p.shutdown ? '.zZ' : ''}</div>
         <Vitality player={p}/>
-        {watermark}
       </Card>
   )
 }
