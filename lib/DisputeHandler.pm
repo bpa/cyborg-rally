@@ -1,8 +1,7 @@
-package State::DisputeHandler;
+package DisputeHandler;
 
 use strict;
 use warnings;
-use parent 'State';
 
 sub do_confirm {
     my ( $self, $game, $c, $msg ) = @_;

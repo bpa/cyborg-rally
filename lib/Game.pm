@@ -5,7 +5,7 @@ use warnings;
 use Data::UUID;
 use Carp;
 use State;
-use List::MoreUtils 'false';
+use List::MoreUtils 'all';
 use EV;
 use Time::HiRes 'time';
 
@@ -103,7 +103,7 @@ sub set_state {
 sub ready {
     my $self = shift;
 
-    return !false { $_->{public}{ready} } values %{ $self->{player} };
+    return all { $_->{public}{ready} } values %{ $self->{player} };
 }
 
 sub set_ready_to_dead_or_shutdown {

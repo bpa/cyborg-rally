@@ -256,8 +256,7 @@ sub on_exit {
         }
     }
 
-    my $p = $game->{player}{$self->{public}{recompiled}};
-    $game->damage( $p, 1 ) if $p;
+    $game->{public}{recompiled} = $self->{public}{recompiled};
 }
 
 1;

@@ -2,7 +2,7 @@ package State::Firing;
 
 use strict;
 use warnings;
-use parent 'State::DisputeHandler';
+use parent qw/State DisputeHandler DamageHandler/;
 use List::MoreUtils 'firstidx';
 use Storable 'dclone';
 
@@ -179,12 +179,12 @@ sub nop { }
 sub on_main_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
     my $damage = exists $bot->{public}{options}{'Double Barreled Laser'} ? 2 : 1;
-    $game->damage( $target, $damage );
+    $self->damage( $game, $target, $damage );
 }
 
 sub on_rear_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
-    $game->damage( $target, 1 );
+    $self->damage( $game, $target, 1 );
 }
 
 sub on_howitzer {
@@ -200,7 +200,7 @@ sub on_howitzer {
             options => $bot->{public}{options}
         }
     );
-    $game->damage( $target, 1 );
+    $self->damage( $game, $target, 1 );
 }
 
 sub on_radio_control {

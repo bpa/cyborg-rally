@@ -2,7 +2,7 @@ package State::Lasers;
 
 use strict;
 use warnings;
-use parent 'State';
+use parent qw/State DamageHandler/;
 
 use constant DIR => qw/n e s w/;
 
@@ -23,7 +23,7 @@ sub do_laser {
     $c->{public}{ready} = 1;
     for my $d (DIR) {
         if ($msg->{$d}) {
-            $game->damage($c, $msg->{$d});
+            $self->damage( $game, $c, $msg->{$d});
         }
     }
 

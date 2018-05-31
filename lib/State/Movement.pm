@@ -2,7 +2,7 @@ package State::Movement;
 
 use strict;
 use warnings;
-use parent 'State';
+use parent qw/State DamageHandler/;
 use List::Util 'all';
 
 sub on_enter {

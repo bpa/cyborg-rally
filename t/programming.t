@@ -178,8 +178,9 @@ subtest 'locked registers' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
     $rally->{state}->on_exit($rally);
-    $rally->damage( $p1, 5 );
-    $rally->damage( $p2, 2 );
+    $p1->{public}{damage} = 5;
+    $p1->{public}{registers}[4]{damaged} = 1;
+    $p2->{public}{damage} = 2;
     $rally->drop_packets;
     my $locked = $p1->{public}{registers}[4];
     $rally->{state}->on_enter($rally);
@@ -621,17 +622,8 @@ subtest 'recompile' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    cmp_deeply(
-        $rally->{packets},
-        [
-            {   cmd       => 'damage',
-                player    => $p1->{id},
-                damage    => 1,
-                registers => ignore
-            },
-        ]
-    );
-    is( $p1->{public}{damage}, 1, 'Took damage from recompile' );
+    cmp_deeply( $rally->{packets}, [ ]);
+    is( $p1->{public}{damage}, 0, 'Damage will come later' );
 
     done;
 };
@@ -652,17 +644,7 @@ subtest 'recompile with programmed' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    cmp_deeply(
-        $rally->{packets},
-        [
-            {   cmd       => 'damage',
-                player    => $p1->{id},
-                damage    => 1,
-                registers => ignore
-            },
-        ]
-    );
-    is( $p1->{public}{damage}, 1, 'Took damage from recompile' );
+    is( $rally->{public}{recompiled}, $p1->{id});
 
     done;
 };
@@ -672,8 +654,9 @@ subtest 'recompile with locked' => sub {
 
     $rally->give_option( $p1, 'Recompile' );
     $rally->{state}->on_exit($rally);
-    $rally->damage( $p1, 5 );
-    $rally->damage( $p2, 2 );
+    $p1->{public}{damage} = 5;
+    $p1->{public}{registers}[4]{damaged} = 1;
+    $p2->{public}{damage} = 2;
     $rally->drop_packets;
     my $locked = $p1->{public}{registers}[4];
     $rally->{state}->on_enter($rally);
@@ -697,18 +680,23 @@ subtest 'recompile with locked' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    cmp_deeply(
-        $rally->{packets},
-        [
-            {   cmd       => 'damage',
-                player    => $p1->{id},
-                damage    => 6,
-                registers => ignore
-            },
-        ]
-    );
-    is( $p1->{public}{damage}, 6, 'Took damage from recompile' );
-    cmp_deeply( $p1->{public}{registers}, [ N, N, N, L, $locked ] );
+    is( $rally->{public}{recompiled}, $p1->{id});
+    is( $p1->{public}{damage}, 5, 'Damage will come later' );
+
+    done;
+};
+
+subtest 'unused recompile' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option( $p1, 'Recompile' );
+    $rally->{state}->on_enter($rally);
+    $p1->drop_packets;
+
+    $rally->drop_packets;
+    $rally->{state}->on_exit($rally);
+    is( $rally->{public}{recompiled}, '');
 
     done;
 };

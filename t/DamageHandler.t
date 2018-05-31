@@ -5,6 +5,7 @@ use Test::Deep;
 use CyborgTest;
 use Scalar::Util 'looks_like_number';
 use List::Util;
+use DamageHandler;
 
 use constant EMPTY => { damaged => '', program => [] };
 use constant LOCK => {
@@ -25,7 +26,8 @@ subtest 'normal damage' => sub {
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
     $p1->drop_packets;
-    $rally->damage( $p1, 4 );
+    $rally->{state} = bless({}, 'DamageHandler');
+    $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -38,7 +40,7 @@ subtest 'normal damage' => sub {
     );
 
     $p1->drop_packets;
-    $rally->damage( $p1, 1 );
+    $rally->{state}->damage( $rally, $p1, 1 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -51,7 +53,7 @@ subtest 'normal damage' => sub {
     );
 
     $p1->drop_packets;
-    $rally->damage( $p1, 4 );
+    $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -64,7 +66,7 @@ subtest 'normal damage' => sub {
     );
 
     $p1->drop_packets;
-    $rally->damage( $p1, 1 );
+    $rally->{state}->damage( $rally, $p1, 1 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -81,8 +83,9 @@ subtest 'over damage' => sub {
 
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
+    $rally->{state} = bless({}, 'DamageHandler');
     $p1->drop_packets;
-    $rally->damage( $p1, 8 );
+    $rally->{state}->damage( $rally, $p1, 8 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -95,7 +98,7 @@ subtest 'over damage' => sub {
     );
 
     $p1->drop_packets;
-    $rally->damage( $p1, 4 );
+    $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
         $rally->{packets},
         [
@@ -111,10 +114,11 @@ subtest 'over damage' => sub {
 
 subtest 'lock registers when shutdown' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{state} = bless({}, 'DamageHandler');
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] );
-    $rally->damage( $p1, 5 );
+    $rally->{state}->damage( $rally, $p1, 5 );
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, LOCK ] );
-    $rally->damage( $p1, 3 );
+    $rally->{state}->damage( $rally, $p1, 3 );
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, LOCK, LOCK, LOCK, LOCK ] );
     done;
 };

@@ -6,8 +6,10 @@ use CyborgTest;
 
 subtest 'Normal damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->set_state('FIRE');
+    $rally->update;
     $rally->drop_packets;
-    $rally->damage( $p1, 1 );
+    $rally->{state}->damage( $rally, $p1, 1 );
     is( $p1->{public}{damage}, 1 );
 
     cmp_deeply(
@@ -27,6 +29,8 @@ subtest 'Normal damage' => sub {
 subtest 'One damage saved' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Ablative Coat' );
+    $rally->set_state('FIRE');
+    $rally->update;
     $rally->drop_packets;
 
     is( $p1->{public}{damage}, 0 );
@@ -41,7 +45,7 @@ subtest 'One damage saved' => sub {
         }
     );
 
-    $rally->damage( $p1, 1 );
+    $rally->{state}->damage( $rally, $p1, 1 );
     is( $p1->{public}{damage},                         0 );
     is( $p1->{public}{options}{'Ablative Coat'}{uses}, 2 );
 
@@ -67,11 +71,13 @@ subtest 'One damage saved' => sub {
 subtest 'Two damage saved' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Ablative Coat' );
+    $rally->set_state('FIRE');
+    $rally->update;
     $rally->drop_packets;
 
     #Also tests to see if options are reset
     is( $p1->{public}{options}{'Ablative Coat'}{uses}, 3 );
-    $rally->damage( $p1, 2 );
+    $rally->{state}->damage( $rally, $p1, 2 );
     is( $p1->{public}{damage},                         0 );
     is( $p1->{public}{options}{'Ablative Coat'}{uses}, 1 );
 
@@ -97,10 +103,12 @@ subtest 'Two damage saved' => sub {
 subtest 'Shield breaks' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Ablative Coat' );
+    $rally->set_state('FIRE');
+    $rally->update;
     $rally->drop_packets;
     $p1->{public}{options}{'Ablative Coat'}{uses} = 1;
 
-    $rally->damage( $p1, 1 );
+    $rally->{state}->damage( $rally, $p1, 1 );
     is( $p1->{public}{damage}, 0 );
     cmp_deeply( $p1->{public}{options}, {} );
 
@@ -120,10 +128,12 @@ subtest 'Shield breaks' => sub {
 subtest 'More damage than shield' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Ablative Coat' );
+    $rally->set_state('FIRE');
+    $rally->update;
     $rally->drop_packets;
     $p1->{public}{options}{'Ablative Coat'}{uses} = 1;
 
-    $rally->damage( $p1, 2 );
+    $rally->{state}->damage( $rally, $p1, 2 );
     is( $p1->{public}{damage}, 1 );
     cmp_deeply( $p1->{public}{options}, {} );
 

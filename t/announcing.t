@@ -14,7 +14,7 @@ subtest 'on_enter for two' => sub {
     is( $p2->{public}{shutdown}, '' );
     cmp_deeply(
         $rally->{packets},
-        [   { cmd => 'state', state => 'Announcing' },
+        [   { cmd => 'state', state    => 'Announcing' },
             { cmd => 'timer', duration => '10000', start => ignore }
         ]
     );
@@ -36,7 +36,7 @@ subtest 'want shutdown' => sub {
     is( $p1->{public}{shutdown}, '' );
     is( ref( $rally->{state} ),  'State::Movement' );
 
-    is( $p1->{public}{shutdown}, '' );
+    is( $p1->{public}{shutdown},      '' );
     is( $p2->{public}{will_shutdown}, 1 );
 
     done;
@@ -47,6 +47,35 @@ subtest 'no shutdown' => sub {
     $rally->set_state('ANNOUNCE');
     $rally->update;
     $rally->drop_packets;
+
+    $p1->game( { cmd => 'shutdown', activate => 0 } );
+    $p2->game( { cmd => 'shutdown', activate => 0 } );
+
+    is( ref( $rally->{state} ),  'State::Movement' );
+    is( $p1->{public}{shutdown}, '' );
+    is( $p2->{public}{shutdown}, '' );
+
+    done;
+};
+
+subtest 'recompile damage' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{state}{public}{recompiled} = $p1->{id};
+    $rally->set_state('ANNOUNCE');
+    $rally->drop_packets;
+    $rally->update;
+
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Announcing' },
+            {   cmd       => 'damage',
+                player    => $p1->{id},
+                damage    => 1,
+                registers => ignore
+            },
+            { cmd => 'timer', duration => ignore, start => ignore },
+        ]
+    );
 
     $p1->game( { cmd => 'shutdown', activate => 0 } );
     $p2->game( { cmd => 'shutdown', activate => 0 } );

@@ -2,10 +2,13 @@ package State::Announcing;
 
 use strict;
 use warnings;
-use parent 'State';
+use parent qw/State DamageHandler/;
 
 sub on_enter {
     my ( $self, $game ) = @_;
+
+    my $p = $game->{player}{$game->{public}{recompiled}};
+    $self->damage($game, $p, 1) if $p;
 
     $game->set_ready_to_dead_or_shutdown;
 
