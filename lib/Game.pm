@@ -103,7 +103,8 @@ sub set_state {
 sub ready {
     my $self = shift;
 
-    return all { $_->{public}{ready} } values %{ $self->{player} };
+    return !scalar( keys %{ $self->{state}{public}{pending_damage} } )
+      && all { $_->{public}{ready} } values %{ $self->{player} };
 }
 
 sub set_ready_to_dead_or_shutdown {
