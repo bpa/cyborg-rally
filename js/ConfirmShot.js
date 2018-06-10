@@ -3,6 +3,7 @@ import { Badge } from 'rebass';
 import { Flex } from 'grid-styled';
 import Modal from './Modal';
 import { Option } from './Option';
+import { LASER_OPTION } from './Util';
 
 var damage_weapons = {
     'laser':             true,
@@ -81,7 +82,7 @@ export default class ConfirmShot extends React.Component {
       let player = gs.public.player[this.props.shot.player];
       let card = player['options'][this.props.shot.type];
       if (card === undefined) {
-        card = { name: 'Laser', text: 'Standard issue laser cannon.  Fires one shot.' };
+        card = LASER_OPTION;
       }
       let title =
         <Flex>

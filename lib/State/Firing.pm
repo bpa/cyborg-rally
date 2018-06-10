@@ -22,7 +22,7 @@ sub on_enter {
     my ( $self, $game ) = @_;
 
     $self->{shot}   = {};
-    $self->{public} = [];
+    $self->{public} = { shots => [] };
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready} = 1;
@@ -143,7 +143,7 @@ sub on_shot {
 
     my $beam = $weapon->{ $msg->{target} }
       = { player => $c->{id}, target => $msg->{target}, type => $msg->{type} };
-    push( @{ $self->{public} }, $beam );
+    push( @{ $self->{public}{shots} }, $beam );
     $self->{shot}{ $c->{id} }{used}++;
 
     return $target, $beam;
@@ -165,11 +165,11 @@ sub on_hit {
 sub remove {
     my ( $self, $beam ) = @_;
     splice(
-        @{ $self->{public} },
+        @{ $self->{public}{shots} },
         firstidx {
             $_->{player} eq $beam->{player} && $_->{target} eq $beam->{target};
         }
-        @{ $self->{public} },
+        @{ $self->{public}{shots} },
         1
     );
 }

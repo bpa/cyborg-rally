@@ -4,6 +4,7 @@ import Announcing from "./Announcing";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
 import Movement from "./Movement";
+import PendingDamage from "./PendingDamage";
 import Programming from "./Programming";
 import Timer from "./Timer";
 import Touching from "./Touching";
@@ -22,17 +23,21 @@ var STATE = {
 
 export default class Playing extends React.Component {
     constructor(props) {
-        super(props);
-        var view = STATE[gs.public.state];
-        if (!view) {
-            view = Waiting;
-        }
-        this.quit = this.quit.bind(this);
-        this.view = [];
-        this.state = {
-            view: view,
-            players: gs.public.player,
-        };
+      super(props);
+      var view = STATE[gs.public.state];
+      if (!view) {
+          view = Waiting;
+      }
+      this.quit = this.quit.bind(this);
+      this.view = [];
+      var pending = gs.state || {};
+      pending = pending.pending_damage || {};
+      pending = pending[gs.id] || 0;
+      this.state = {
+        view: view,
+        players: gs.public.player,
+        pending_damage: pending,
+      };
     }
 
     on_state(msg) {
@@ -88,6 +93,10 @@ export default class Playing extends React.Component {
     on_shutdown(msg) {
         gs.public.player[msg.player].shutdown = msg.activate;
         this.setState({players:gs.public.player});
+    }
+
+    on_pending_damage(msg) {
+        this.setState({pending_damage: msg.damage});
     }
 
     on_damage(msg) {
@@ -160,6 +169,7 @@ export default class Playing extends React.Component {
       Quit
     </Button>
   </Content>
+  <PendingDamage pending={this.state.pending_damage}/>
 </Panel>
 )}
 }

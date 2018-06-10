@@ -189,6 +189,7 @@ sub player {
 sub broadcast {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $self = shift;
+    $self->{packets} = [];
     $self->{game}{packets} = [];
     my $msg = shift;
     if ( ref($msg) ne 'HASH' ) {

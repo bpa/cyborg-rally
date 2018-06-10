@@ -3,6 +3,7 @@ import Modal from './Modal';
 import { Option } from './Option';
 import { Flex } from 'grid-styled';
 import { Badge } from 'rebass';
+import { LASER_OPTION } from './Util';
 
 export default class Dispute extends React.Component {
   render() {
@@ -11,7 +12,7 @@ export default class Dispute extends React.Component {
     let target = gs.public.player[shot.target];
     let card = player['options'][shot.type];
     if (card === undefined) {
-      card = { name: 'Laser', text: 'Standard issue laser cannon.  Fires one shot.' };
+      card = LASER_OPTION;
     }
     let title =
       <Flex>

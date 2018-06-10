@@ -1,8 +1,8 @@
-import Icon from './Icon';
 import OptionCards from './OptionCards';
 import OptionModal from './OptionModal';
 import { Circle, Panel } from 'rebass';
 import { Content } from './Widgets';
+import { LASER_OPTION } from './Util';
 
 export default class OptionPanel extends React.Component {
   constructor(props) {
@@ -41,7 +41,9 @@ export default class OptionPanel extends React.Component {
       return null;
     }
 
-    let card = gs.public.player[gs.id].options[this.state.show];
+    let card = this.state.show === 'laser'
+      ? LASER_OPTION
+      : gs.public.player[gs.id].options[this.state.show];
 
     let modal = card !== undefined
       ? <OptionModal card={card} done={this.closeHelp}/>
@@ -56,7 +58,7 @@ export default class OptionPanel extends React.Component {
           </span>
         </Panel.Header>
         <Content flexDirection="row" flexWrap="wrap">{held}</Content>
-      {modal}
+        {modal}
       </Panel>
     );
   }

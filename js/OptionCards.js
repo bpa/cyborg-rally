@@ -6,7 +6,8 @@ class Option {
   }
 
   render(props, state) {
-    if (gs.public.player[gs.id].options[this.name] === undefined) {
+    let me = gs.public.player[gs.id];
+    if (me.options === undefined || me.options[this.name] === undefined) {
       return null;
     }
 
@@ -95,9 +96,14 @@ class FiringOption extends Option {
 }
 
 class LaserOption extends Option {
-  render_option(props, state) {
+  render(props, state) {
     let options = gs.public.player[gs.id].options;
     let o = options['Double Barreled Laser'] || {name: 'laser'};
+
+    if (state.showHelp) {
+      return <Icon option={o} key={o.name} help
+        onClick={state.openHelp.bind(null, o.name)}/>;
+    }
 
     if (props.active === 'laser') {
       return <Icon option={o} key={o.name} selected

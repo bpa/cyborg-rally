@@ -12,7 +12,7 @@ export default class Firing extends React.Component {
         var pending_shots = [];
         var disputed = [];
         if (gs.state) {
-            for (var shot of gs.state) {
+            for (var shot of gs.state.shots) {
                 if (shot.dispute) {
                     if (shot.voted[gs.id] == undefined) {
                         disputed.push(shot);

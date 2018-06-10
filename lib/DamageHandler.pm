@@ -48,7 +48,7 @@ sub apply_damage {
     $target->{public}{damage} += $damage;
     if ( $target->{public}{damage} > 9 ) {
         $target->{public}{dead} = 1;
-        $target->{public}{lives}-- if $game->{opts}{lives} ne 'Inf';
+        $target->{public}{lives}--;
         $game->broadcast(
             {   cmd    => 'death',
                 player => $target->{id},
@@ -119,6 +119,7 @@ sub do_damage {
 
     if ( $c->{public}{dead} ) {
         delete $self->{public}{pending_damage}{ $c->{id} };
+        $c->send( { cmd => 'pending_damage', damage => 0 } );
         return;
     }
 
@@ -142,6 +143,7 @@ sub do_damage {
             }
         );
     }
+    $c->send( { cmd => 'pending_damage', damage => $remaining } );
 }
 
 1;

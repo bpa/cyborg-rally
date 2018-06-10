@@ -27,6 +27,7 @@ subtest 'normal damage' => sub {
 
     $p1->drop_packets;
     $rally->{state} = bless( {}, 'DamageHandler' );
+
     $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
         $rally->{packets},
@@ -151,6 +152,8 @@ subtest 'option for damage' => sub {
         }
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
+
     is( $rally->ready, 1 );
 
     done;
@@ -175,6 +178,7 @@ subtest 'keep damage' => sub {
         }
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, {} );
 
     done;
@@ -204,6 +208,7 @@ subtest 'split damage' => sub {
         },
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, {} );
 
     done;
@@ -228,6 +233,7 @@ subtest 'one of two damage' => sub {
         },
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 1 } ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, { $p1->{id} => 1 } );
 
     done;
@@ -258,6 +264,7 @@ subtest 'three damage' => sub {
         }
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, {} );
 
     done;
@@ -285,6 +292,7 @@ subtest 'corner case where damage taken kills' => sub {
         }
     );
 
+    cmp_deeply( $p1->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
     cmp_deeply( $p1->{public}{options}, { Brakes => ignore, Flywheel => ignore } );
     cmp_deeply( $rally->{state}{public}{pending_damage}, { $p2->{id} => 2 } );
 
@@ -296,7 +304,8 @@ subtest 'corner case where damage taken kills' => sub {
         }
     );
 
-    cmp_deeply( [ keys %{ $p2->{public}{options} } ],
+    cmp_deeply( $p2->{packets}, [ { cmd => 'pending_damage', damage => 0 } ] );
+    cmp_deeply( [ sort keys %{ $p2->{public}{options} } ],
         [ 'Recompile', 'Scrambler' ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, {} );
 

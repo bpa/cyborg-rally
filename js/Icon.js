@@ -22,7 +22,6 @@ export default class Icon extends React.Component {
         };
     }
     help() {
-      console.log('showHelp');
         return {
             color: 'white',
             background: 'radial-gradient(white, blue)',

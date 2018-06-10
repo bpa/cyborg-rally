@@ -103,7 +103,10 @@ sub set_state {
 sub ready {
     my $self = shift;
 
-    return !scalar( keys %{ $self->{state}{public}{pending_damage} } )
+    my $public  = $self->{state}{public}    || {};
+    my $pending = ref($public) eq 'HASH' ? $public->{pending_damage} : {};
+
+    return !scalar( keys %$pending )
       && all { $_->{public}{ready} } values %{ $self->{player} };
 }
 
