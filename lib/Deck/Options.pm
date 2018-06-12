@@ -23,6 +23,7 @@ sub generate_cards {
 
 __DATA__
 Ablative Coat:3:Ablative Coat absorbs the next 3 Damage your robot receives.  Put those Damage tokens onto this card instead of onto your Program Sheet.  Discard this card and the tokens when you put the third one on.
+Abort Switch:0:Once each turn, you may replace one of the Program cards you reveal with the top card from the deck.  If you do, you must replace the Program cards for all your remaining reigsters the same way that turn.
 Brakes:0:Whenever you execute a Move 1, you may move your robot 0 spaces instead of 1.  Priority is that of the Move 1.
 Conditional Program:0:After you program your registers each turn, you may put one of the Program cards left in your hand face down onto this Option instead of discarding it.  Later that turn, you can substitute that card for one you had programmed in any register, discarding the original card.  Announce the change before anyone reveals Program cards for that register.  If you put a card on this Option and don't use it, discard it at the end of the turn.
 Crab Legs:0:When programming your registers, you may put a Move 1 card in the same register as a Rotate Left or Rotate Right card.  If you do, during that register your robot will move 1 space to the left or right, respectively, without rotating.  Priortiy is that of the Move 1.
