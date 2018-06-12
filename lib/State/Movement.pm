@@ -15,6 +15,12 @@ sub on_enter {
     else {
         $self->broadcast_movement($game);
     }
+
+    my $recompiled = delete $game->{public}{recompiled};
+    if ($recompiled) {
+        my $p = $game->{player}{$recompiled};
+        $self->damage( $game, $p, 1 ) if $p;
+    }
 }
 
 sub broadcast_movement {
@@ -23,13 +29,12 @@ sub broadcast_movement {
     my $r = $game->{public}{register};
     my @order = sort { $b->{priority} <=> $a->{priority} }
       map {
-        my $p
-          = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
+        my $p = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
         $p->{priority} = $p->{program}[0]{priority};
         $p;
       } grep { !( $_->{public}{dead} || $_->{public}{shutdown} ) }
       values %{ $game->{player} };
-    $self->{public} = \@order;
+    $self->{public} = { order => \@order };
     $game->broadcast( { cmd => 'move', order => \@order } );
 }
 
@@ -47,7 +52,7 @@ sub do_abort {
     }
 
     my $registers = $c->{public}{registers};
-    for my $r ($game->{public}{register} .. 4) {
+    for my $r ( $game->{public}{register} .. 4 ) {
         $registers->[$r]{program} = [ $game->{movement}->deal ];
     }
 

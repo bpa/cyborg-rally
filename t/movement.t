@@ -156,4 +156,34 @@ subtest 'shutdown' => sub {
     done;
 };
 
+subtest 'recompile damage' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{state}{public}{recompiled} = $p1->{id};
+    $rally->set_state('EXECUTE');
+    $rally->drop_packets;
+    $rally->update;
+
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'Movement' },
+            { cmd => 'move',  order => ignore },
+            {   cmd       => 'damage',
+                player    => $p1->{id},
+                damage    => 1,
+                registers => ignore
+            },
+        ]
+    );
+
+    $p1->game( { cmd => 'shutdown', activate => 0 } );
+    $p2->game( { cmd => 'shutdown', activate => 0 } );
+
+    is( ref( $rally->{state} ),  'State::Movement' );
+    is( $p1->{public}{shutdown}, '' );
+    is( $p2->{public}{shutdown}, '' );
+
+    done;
+};
+
 done_testing;

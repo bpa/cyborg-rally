@@ -21,11 +21,11 @@ export default class PendingDamage extends React.Component {
   }
 
   damageRobot() {
-    this.setState({selected: {name: 'robot'}});
+    this.setState({selected: 'robot'});
   }
 
   discard() {
-    ws.send({cmd: 'damage', target: this.state.selected.name});
+    ws.send({cmd: 'damage', target: this.state.selected});
     this.reset();
   }
 
@@ -36,7 +36,7 @@ export default class PendingDamage extends React.Component {
   choice(options, option) {
     let src = getFile(options[option]);
     return (
-      <div key={option} onClick={this.select.bind(this, options[option])}
+      <div key={option} onClick={this.select.bind(this, option)}
         style={{height: '48px', width: '48px',
           padding: '8px', margin: '8px 4px 0px 4px',
           border: '2px solid green', borderRadius: '8px',
@@ -74,7 +74,7 @@ export default class PendingDamage extends React.Component {
   render_confirm() {
     return (
 <Modal title="Damage Pending" close={this.reset} closeText="Nevermind">
-  Are you sure you want to discard {this.state.selected.name}?
+  Are you sure you want to discard {this.state.selected}?
   <Button onClick={this.discard}>Yes, discard option</Button>
 </Modal>);
   }
@@ -83,7 +83,7 @@ export default class PendingDamage extends React.Component {
     console.log(this.state);
     return this.props.pending === 0 ? null
       : this.state.selected === undefined ? this.render_discard()
-      : this.state.selected.name === 'robot' ? this.render_robot()
+      : this.state.selected === 'robot' ? this.render_robot()
       : this.render_confirm();
   }
 }

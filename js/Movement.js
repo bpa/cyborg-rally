@@ -4,8 +4,9 @@ import { Content, Hr, Shutdown } from './Widgets';
 
 export default class Movement extends React.Component {
     constructor(props) {
-        super(props);
-        this.state = { order:gs.state || [] };
+      super(props);
+      let state = gs.state || {};
+      this.state = { order:state.order || [] };
     }
     
     on_move(msg) {
