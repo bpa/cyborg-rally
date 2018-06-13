@@ -48,7 +48,7 @@ sub apply_damage {
     $target->{public}{damage} += $damage;
     if ( $target->{public}{damage} > 9 ) {
         $target->{public}{dead} = 1;
-        $target->{public}{lives}--;
+        $target->{public}{lives}-- unless $game->{opts}{lives} eq 'Inf';
         $game->broadcast(
             {   cmd    => 'death',
                 player => $target->{id},

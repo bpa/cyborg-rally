@@ -72,13 +72,13 @@ sub check_for_done {
         || all { $_->{public}{dead} } values %{ $game->{player} } )
     {
         delete $game->{public}{register};
-        $game->set_state('REVIVE');
         for my $p ( values %{ $game->{player} } ) {
             my $t = VALID->{ $self->{public}{ $p->{id} } };
             for my $f (@$t) {
                 $f->( $self, $game, $p );
             }
         }
+        $game->set_state('REVIVE');
     }
     else {
         $game->set_state('MOVE');
@@ -90,7 +90,7 @@ sub die {
     return if $c->{public}{dead};
 
     $c->{public}{dead} = 1;
-    $c->{public}{lives}--;
+    $c->{public}{lives}-- unless $game->{opts}{lives} eq 'Inf';
     $game->broadcast(
         {   cmd    => 'death',
             player => $c->{id},

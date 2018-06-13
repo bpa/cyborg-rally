@@ -41,9 +41,17 @@ subtest 'No game options' => sub {
 };
 
 subtest 'Start with 4 lives' => sub {
-    my ( $rally, @p ) = Game( { start_with_4_lives => 1 } );
+    my ( $rally, @p ) = Game( { lives => 4 } );
     for my $p (@p) {
         is( $p->{public}{lives}, 4 );
+    }
+    done;
+};
+
+subtest 'Infinite lives' => sub {
+    my ( $rally, @p ) = Game( { lives => 'Inf' } );
+    for my $p (@p) {
+        is( $p->{public}{lives}, 1 );
     }
     done;
 };
@@ -63,7 +71,7 @@ subtest 'Start with 2 damage' => sub {
 };
 
 subtest 'Start with option' => sub {
-    my ( $rally, @p ) = Game( { start_with_option => 1 } );
+    my ( $rally, @p ) = Game( { options => 1 } );
     is( ref( $rally->{state} ),
         'State::Programming', "Don't wait for input if none is required" );
     for my $p (@p) {
@@ -78,7 +86,7 @@ subtest 'Start with option' => sub {
 };
 
 subtest 'Choose 1 of 3 options' => sub {
-    my ( $rally, @p ) = Game( { choose_1_of_3_options => 1 } );
+    my ( $rally, @p ) = Game( { options => '1of3' } );
     is( ref( $rally->{state} ), 'State::Setup', "Have to wait for input" );
     for my $p (@p) {
         is( $p->{public}{lives},  3 );

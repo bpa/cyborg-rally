@@ -20,15 +20,14 @@ use Storable 'dclone';
 sub BUILD {
     my ( $self, $opts ) = @_;
     $self->{opts}{timer}                 = $opts->{timer} || '1st+30s';
+    $self->{opts}{lives}                 = $opts->{lives} || '3';
+    $self->{opts}{options}               = $opts->{options} || '0';
     $self->{opts}{board_lasers}          = !!$opts->{board_lasers};
     $self->{opts}{conveyors}             = !!$opts->{conveyors};
     $self->{opts}{express_conveyors}     = !!$opts->{express_conveyors};
     $self->{opts}{pushers}               = !!$opts->{pushers};
     $self->{opts}{gears}                 = !!$opts->{gears};
-    $self->{opts}{start_with_4_lives}    = !!$opts->{start_with_4_lives};
     $self->{opts}{start_with_2_damage}   = !!$opts->{start_with_2_damage};
-    $self->{opts}{choose_1_of_3_options} = !!$opts->{choose_1_of_3_options};
-    $self->{opts}{start_with_option}     = !!$opts->{start_with_option};
     $self->{opts}{no_power_down}         = !!$opts->{no_power_down};
     $self->{opts}{option_for_heal}       = !!$opts->{option_for_heal};
 

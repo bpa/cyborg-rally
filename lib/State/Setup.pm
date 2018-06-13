@@ -15,11 +15,13 @@ sub on_enter {
     $game->{options}->shuffle;
     $game->{movement}
       = Deck::Movement->new( scalar( keys %{ $game->{player} } ) + 1 );
-    my $dock = 1;
+    my $dock  = 1;
+    my $lives = validate_lives($game);
+
     for my $p ( shuffle values %{ $game->{player} } ) {
         $p->{public}{dock}      = $dock++;
         $p->{public}{dead}      = '';
-        $p->{public}{lives}     = $game->{opts}{start_with_4_lives} ? 4 : 3;
+        $p->{public}{lives}     = $lives;
         $p->{public}{memory}    = 9;
         $p->{public}{damage}    = $game->{opts}{start_with_2_damage} ? 2 : 0;
         $p->{public}{options}   = {};
@@ -28,13 +30,13 @@ sub on_enter {
         $p->{public}{registers} = CLEAN;
         $p->{private}{cards}    = [];
 
-        if ( $game->{opts}{start_with_option} ) {
+        if ( $game->{opts}{options} eq '1' ) {
             my $opt = $game->{options}->deal;
-            $p->{public}{options}{$opt->{name}} = $opt;
+            $p->{public}{options}{ $opt->{name} } = $opt;
         }
     }
 
-    if ( $game->{opts}{choose_1_of_3_options} ) {
+    if ( $game->{opts}{options} eq '1of3') {
         for my $p ( values %{ $game->{player} } ) {
             push @{ $p->{private}{options} }, $game->{options}->deal(3);
         }
@@ -42,6 +44,14 @@ sub on_enter {
     else {
         $game->set_state('PROGRAM');
     }
+}
+
+sub validate_lives {
+    my $lives = $_[0]->{opts}{lives};
+    return
+        $lives == 4     ? 4
+      : $lives == 'Inf' ? 1
+      :                   3;
 }
 
 sub do_choose {
@@ -63,7 +73,7 @@ sub do_choose {
         return;
     }
 
-    $c->{public}{options}{$card->{name}} = $card;
+    $c->{public}{options}{ $card->{name} } = $card;
     undef $c->{private}{options};
     $c->send( { cmd => 'choose', options => $c->{public}{options} } );
 

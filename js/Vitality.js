@@ -1,9 +1,15 @@
 import { Badge, Heading } from 'rebass';
 
 export default class Vitality extends React.Component {
-    render() {
-        const p = this.props.player;
-        const total = gs.opts.start_with_4_lives ? 4 :3;
+  render() {
+    const p = this.props.player;
+    var life = gs.opts.lives == 'Inf' ? null : (
+      <div>
+        <span>Life:</span>
+        <Badge bg="green">{p.lives}/{gs.opts.lives}</Badge>
+      </div>
+    );
+
 		if (!p.memory) {
 			return <div width="16px"/>;
 		}
@@ -17,10 +23,7 @@ export default class Vitality extends React.Component {
       {p.memory-p.damage}/{p.memory}
     </Badge>
 	</div>
-	<div>
-    <span>Life:</span>
-		<Badge bg="green">{p.lives}/{total}</Badge>
-	</div>
+  {life}
 </div>
     )}
 }

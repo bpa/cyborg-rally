@@ -114,7 +114,7 @@ subtest 'healing unlocks registers' => sub {
     $p2->{public}{damage} = 7;
 
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r( 4, 1 ) ];
-    $p2->{public}{registers} = [ r(5), r(6), r(7), r(8, 1 ), r( 9, 1 ) ];
+    $p2->{public}{registers} = [ r(5), r(6), r(7), r( 8, 1 ), r( 9, 1 ) ];
 
     $p1->broadcast( { cmd => 'touch', tile => 'repair' },
         { cmd => 'touch', player => $p1->{id}, tile => 'repair' } );
@@ -172,11 +172,71 @@ subtest "shutdown players don't trigger" => sub {
         { cmd => 'error', reason => 'Invalid tile' }
     );
 
+    $p1->broadcast( { cmd => 'touch', tile => 'floor' },
+        { cmd => 'touch', player => $p1->{id}, tile => 'floor' } );
+
+    done;
+};
+
+subtest "Death" => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $rally->set_state('TOUCH');
+    $rally->update;
+    $rally->drop_packets;
+
     $p1->broadcast(
-        { cmd => 'touch', tile   => 'floor' },
-        { cmd => 'touch', player => $p1->{id}, tile => 'floor' }
+        { cmd => 'touch', tile   => 'pit' },
+        { cmd => 'touch', player => $p1->{id}, tile => 'pit' },
+        { cmd => 'death', player => $p1->{id}, lives => 2 },
     );
 
+    $p2->broadcast(
+        { cmd => 'touch', tile   => 'off' },
+        { cmd => 'touch', player => $p2->{id}, tile => 'off' },
+        { cmd => 'death', player => $p2->{id}, lives => 2 },
+    );
+
+    $p3->broadcast(
+        { cmd => 'touch', tile   => 'floor' },
+        { cmd => 'touch', player => $p3->{id}, tile => 'floor' },
+        { cmd => 'state', state  => 'Movement' },
+        { cmd => 'move',  order  => ignore },
+    );
+
+    is ($p1->{public}{lives}, 2);
+    is ($p2->{public}{lives}, 2);
+    is ($p3->{public}{lives}, 3);
+    done;
+};
+
+subtest "Infinite lives" => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {lives => 'Inf'}, 3 );
+    $rally->set_state('TOUCH');
+    $rally->update;
+    $rally->drop_packets;
+
+    $p1->broadcast(
+        { cmd => 'touch', tile   => 'pit' },
+        { cmd => 'touch', player => $p1->{id}, tile => 'pit' },
+        { cmd => 'death', player => $p1->{id}, lives => 1 },
+    );
+
+    $p2->broadcast(
+        { cmd => 'touch', tile   => 'off' },
+        { cmd => 'touch', player => $p2->{id}, tile => 'off' },
+        { cmd => 'death', player => $p2->{id}, lives => 1 },
+    );
+
+    $p3->broadcast(
+        { cmd => 'touch', tile   => 'floor' },
+        { cmd => 'touch', player => $p3->{id}, tile => 'floor' },
+        { cmd => 'state', state  => 'Movement' },
+        { cmd => 'move',  order  => ignore },
+    );
+
+    is ($p1->{public}{lives}, 1);
+    is ($p2->{public}{lives}, 1);
+    is ($p3->{public}{lives}, 1);
     done;
 };
 
