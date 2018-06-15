@@ -176,6 +176,11 @@ sub remove {
 
 sub nop { }
 
+sub on_damage_resolved {
+    my ($self, $game) = @_;
+    $game->set_state('TOUCH') if $game->ready;
+}
+
 sub on_main_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
     my $damage = exists $bot->{public}{options}{'Double Barreled Laser'} ? 2 : 1;

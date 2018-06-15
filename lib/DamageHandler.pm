@@ -120,6 +120,7 @@ sub do_damage {
     if ( $c->{public}{dead} ) {
         delete $self->{public}{pending_damage}{ $c->{id} };
         $c->send( { cmd => 'pending_damage', damage => 0 } );
+        $self->on_damage_resolved($game);
         return;
     }
 
@@ -144,6 +145,7 @@ sub do_damage {
         );
     }
     $c->send( { cmd => 'pending_damage', damage => $remaining } );
+    $self->on_damage_resolved($game);
 }
 
 1;

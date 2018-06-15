@@ -32,4 +32,9 @@ sub do_laser {
     }
 }
 
+sub on_damage_resolved {
+    my ($self, $game) = @_;
+    $game->set_state('FIRE') if $game->ready;
+}
+
 1;

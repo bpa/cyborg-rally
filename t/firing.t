@@ -59,7 +59,7 @@ subtest 'hit second' => sub {
     cmp_deeply( $p2->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply( $rally->{state}{public}{shots},
-        [ { player => $p1->{id}, target=> $p2->{id}, type => 'laser' } ] );
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'laser' } ] );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
         {   cmd       => 'damage',
@@ -83,11 +83,13 @@ subtest 'invalid actions' => sub {
 
     is( $p2->{public}{damage}, 0 );
     $p2->game( confirm => { type => 'laser', player => $p1->{id} } );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid player' } ] );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'error', reason => 'Invalid player' } ] );
     $p2->drop_packets;
 
     $p2->game( confirm => { player => $p1->{id} } );
-    cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Invalid player' } ] );
+    cmp_deeply( $p2->{packets},
+        [ { cmd => 'error', reason => 'Invalid player' } ] );
     $p2->drop_packets;
 
     $p1->game( fire => { type => 'laser', target => $p2->{id} } );
@@ -95,7 +97,12 @@ subtest 'invalid actions' => sub {
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply(
         $rally->{state}{shot},
-        {   $p1->{id} => { max => 1, used => 1, $p2->{id} => { player=>$p1->{id}, target => $p2->{id}, type => 'laser' } },
+        {   $p1->{id} => {
+                max  => 1,
+                used => 1,
+                $p2->{id} =>
+                  { player => $p1->{id}, target => $p2->{id}, type => 'laser' }
+            },
             $p2->{id} => { max => 1, used => 0, },
             $p3->{id} => { max => 1, used => 0, },
         }
@@ -314,13 +321,13 @@ subtest 'dispute majority call miss' => sub {
     cmp_deeply(
         $rally->{state}{public}{shots},
         [
-            {   player  => $p[0]->{id},
-                target  => $p[1]->{id},
-                type    => 'laser',
+            {   player => $p[0]->{id},
+                target => $p[1]->{id},
+                type   => 'laser',
                 voted => { $p[0]->{id} => 1, $p[1]->{id} => '', $p[2]->{id} => '' },
                 dispute => 1,
-                hit   => 1,
-                miss  => 2
+                hit     => 1,
+                miss    => 2
             }
         ]
     );
@@ -388,7 +395,7 @@ subtest 'dispute tie goes to miss' => sub {
     cmp_deeply(
         $rally->{state}{public}{shots},
         [
-            {   player => $p[0]->{id},
+            {   player  => $p[0]->{id},
                 target  => $p[1]->{id},
                 type    => 'laser',
                 dispute => 1,
@@ -416,18 +423,18 @@ subtest 'dispute tie goes to miss' => sub {
 
 subtest 'Rear-Firing Laser' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
-    $rally->give_option($p1, 'Rear-Firing Laser');
+    $rally->give_option( $p1, 'Rear-Firing Laser' );
     $rally->{public}{register} = 0;
     $rally->set_state('FIRE');
     $rally->update;
     $rally->drop_packets;
 
-    cmp_deeply( $rally->{state}{shot}{$p1->{id}}, { max => 2, used => 0 });
+    cmp_deeply( $rally->{state}{shot}{ $p1->{id} }, { max => 2, used => 0 } );
     $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
     cmp_deeply( $p2->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply( $rally->{state}{public}{shots},
-        [ { player => $p1->{id}, target=> $p2->{id}, type => 'laser' } ] );
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'laser' } ] );
     $p2->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
         {   cmd       => 'damage',
@@ -437,19 +444,24 @@ subtest 'Rear-Firing Laser' => sub {
         },
     );
     is( $p2->{public}{damage}, 1 );
-    cmp_deeply( $rally->{state}{shot}{$p1->{id}}, { max => 2, used => 1, $p2->{id} => ignore });
+    cmp_deeply(
+        $rally->{state}{shot}{ $p1->{id} },
+        { max => 2, used => 1, $p2->{id} => ignore }
+    );
 
     $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
-    cmp_deeply( $p1->{packets},
+    cmp_deeply(
+        $p1->{packets},
         [ { cmd => 'error', reason => "Shot already pending" } ],
-        "Can't shoot player twice" );
+        "Can't shoot player twice"
+    );
     $rally->drop_packets;
 
     $p1->game( fire => { type => 'laser', target => $p3->{id}, damage => 1 } );
     cmp_deeply( $p3->{packets},
         [ { cmd => 'fire', type => 'laser', player => $p1->{id} } ] );
     cmp_deeply( $rally->{state}{public}{shots},
-        [ { player => $p1->{id}, target=> $p3->{id}, type => 'laser' } ] );
+        [ { player => $p1->{id}, target => $p3->{id}, type => 'laser' } ] );
     $p3->broadcast(
         { cmd => 'confirm', type => 'laser', player => $p1->{id} },
         {   cmd       => 'damage',
@@ -462,7 +474,7 @@ subtest 'Rear-Firing Laser' => sub {
         }
     );
     is( $p3->{public}{damage}, 1 );
-    is( $rally->{state}{shot}{$p1->{id}}, undef, 'shots cleared out when ready');
+    is( $rally->{state}{shot}{ $p1->{id} }, undef, 'shots cleared out when ready' );
 
     done;
 };
@@ -472,7 +484,7 @@ subtest 'Radio Control' => sub {
     $rally->give_option( $p1, 'Radio Control' );
     $rally->{public}{register} = 1;
     $rally->set_state('FIRE');
-    is($rally->{public}{register}, 1);
+    is( $rally->{public}{register}, 1 );
     $rally->update;
     $rally->drop_packets;
 
@@ -490,10 +502,44 @@ subtest 'Radio Control' => sub {
 
     my @expected = map {
         my $r = dclone($_);
-        $r->{program}[0]{priority}-=2;
+        $r->{program}[0]{priority} -= 2;
         $r;
-    } @{$p1->{public}{registers}};
-    cmp_deeply( $p2->{public}{registers}, \@expected);
+    } @{ $p1->{public}{registers} };
+    cmp_deeply( $p2->{public}{registers}, \@expected );
+
+    done;
+};
+
+subtest 'Pending damage with everyone ready' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->give_option( $p2, 'Recompile' );
+    $rally->{public}{register} = 0;
+    $rally->set_state('FIRE');
+    $rally->update;
+    $rally->drop_packets;
+
+    $p2->broadcast( 'ready', { cmd => 'ready', player => $p2->{id} } );
+
+    $p1->game( fire => { type => 'laser', target => $p2->{id}, damage => 1 } );
+    $p2->game( confirm => { type => 'laser', player => $p1->{id} } );
+
+    cmp_deeply(
+        $p2->{packets},
+        [   { cmd => 'fire', type => 'laser', player => $p1->{id} },
+            { cmd => 'pending_damage', damage => 1 }
+        ]
+    );
+
+    is( ref( $rally->{state} ), 'State::Firing' );
+
+    $p2->broadcast(
+        { cmd => 'damage', target => 'Recompile' },
+        {   cmd     => 'options',
+            player  => $p2->{id},
+            options => {}
+        },
+        { cmd => 'state', state => 'Touching' },
+    );
 
     done;
 };
