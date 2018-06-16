@@ -1,6 +1,9 @@
 import { Button, ButtonOutline } from 'rebass';
 
 export function Tile(props) {
+  if (props.hide) {
+    return null;
+  }
   let state = gs.state || {};
   let Btn = state[gs.id] === props.id ? Button : ButtonOutline;
   return (
