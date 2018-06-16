@@ -80,7 +80,6 @@ export default class PendingDamage extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     return this.props.pending === 0 ? null
       : this.state.selected === undefined ? this.render_discard()
       : this.state.selected === 'robot' ? this.render_robot()

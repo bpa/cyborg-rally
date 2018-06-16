@@ -525,7 +525,7 @@ subtest 'Pending damage with everyone ready' => sub {
 
     cmp_deeply(
         $p2->{packets},
-        [   { cmd => 'fire', type => 'laser', player => $p1->{id} },
+        [   { cmd => 'fire',           type   => 'laser', player => $p1->{id} },
             { cmd => 'pending_damage', damage => 1 }
         ]
     );
@@ -539,6 +539,25 @@ subtest 'Pending damage with everyone ready' => sub {
             options => {}
         },
         { cmd => 'state', state => 'Touching' },
+    );
+
+    done;
+};
+
+subtest 'One live player' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $rally->drop_packets;
+    $p1->{public}{dead} = 1;
+    $p2->{public}{dead} = 1;
+    $rally->set_state('FIRE');
+    $rally->update;
+
+    is( ref( $rally->{state} ), 'State::Touching' );
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Firing' },
+            { cmd => 'state', state => 'Touching' },
+        ]
     );
 
     done;

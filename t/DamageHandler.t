@@ -5,7 +5,6 @@ use Test::Deep;
 use CyborgTest;
 use Scalar::Util 'looks_like_number';
 use List::Util;
-use DamageHandler;
 
 use constant EMPTY => { damaged => '', program => [] };
 use constant LOCK => {
@@ -26,7 +25,7 @@ subtest 'normal damage' => sub {
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
     $p1->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
 
     $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
@@ -84,7 +83,7 @@ subtest 'over damage' => sub {
 
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
 
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $p1->drop_packets;
     $rally->{state}->damage( $rally, $p1, 8 );
     cmp_deeply(
@@ -115,7 +114,7 @@ subtest 'over damage' => sub {
 
 subtest 'lock registers when shutdown' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] );
     $rally->{state}->damage( $rally, $p1, 5 );
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, LOCK ] );
@@ -127,7 +126,7 @@ subtest 'lock registers when shutdown' => sub {
 subtest 'option for damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
     $p1->{public}{ready} = 1;
     $p2->{public}{ready} = 1;
@@ -162,7 +161,7 @@ subtest 'option for damage' => sub {
 subtest 'keep damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
 
     $rally->{state}->damage( $rally, $p1, 1 );
@@ -187,7 +186,7 @@ subtest 'keep damage' => sub {
 subtest 'split damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
     $rally->give_option( $p1, 'Flywheel' );
 
@@ -217,7 +216,7 @@ subtest 'split damage' => sub {
 subtest 'one of two damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
     $rally->give_option( $p1, 'Flywheel' );
 
@@ -242,7 +241,7 @@ subtest 'one of two damage' => sub {
 subtest 'three damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
     $rally->give_option( $p1, 'Flywheel' );
     $rally->give_option( $p1, 'Recompile' );
@@ -273,7 +272,7 @@ subtest 'three damage' => sub {
 subtest 'corner case where damage taken kills' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageHandler' );
+    $rally->{state} = bless( {}, 'DamageState' );
     $rally->give_option( $p1, 'Brakes' );
     $rally->give_option( $p1, 'Flywheel' );
     $rally->give_option( $p2, 'Recompile' );
@@ -313,3 +312,8 @@ subtest 'corner case where damage taken kills' => sub {
 };
 
 done_testing;
+
+package DamageState;
+use parent qw/State DamageHandler/;
+
+sub on_damage_resolved {}

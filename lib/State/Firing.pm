@@ -21,9 +21,11 @@ use constant FIRE_TYPE => {
 sub on_enter {
     my ( $self, $game ) = @_;
 
+    my $targets = 0;
     $self->{shot}   = {};
     $self->{public} = { shots => [] };
     for my $p ( values %{ $game->{player} } ) {
+        $targets++ unless $p->{public}{dead};
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready} = 1;
         }
@@ -34,7 +36,7 @@ sub on_enter {
             $shot->{max}++ if exists $p->{public}{options}{'High-Power Laser'};
         }
     }
-    $game->set_state('TOUCH') if $game->ready;
+    $game->set_state('TOUCH') if $game->ready || $targets < 2;
 }
 
 sub do_ready {
