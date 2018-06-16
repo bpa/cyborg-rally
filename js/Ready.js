@@ -8,8 +8,9 @@ export default class Ready extends React.Component {
         const r = this.ready;
         const btn = 
         !this.props.ready ?
-            <Button bg="green" onClick={r.bind(this, true)}>
-                {this.props.readyText ? this.props.readyText : 'Ready'}
+            <Button onClick={r.bind(this, true)}
+                style={{background: "radial-gradient(circle, orange 40%, red)"}}>
+              {this.props.readyText ? this.props.readyText : 'Ready'}
             </Button>
         : this.props.state === 'Waiting' ?
             <Button bg="red" onClick={r.bind(this, false)}>Not Ready</Button>
