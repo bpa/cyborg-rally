@@ -53,7 +53,7 @@ function on_message(m) {
         else {
             deliver(msg, o);
         }
-        if (o.view) {
+        if (o && o.view) {
             ii++;
             q.push(o.view);
         }
