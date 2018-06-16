@@ -20,7 +20,9 @@ my $null = NullSock->new;
 my $game = CyborgRally->new;
 
 get '/' => sub {
-    shift->reply->static('index.html');
+    my $c = shift;
+    $c->res->headers->content_type('application/xhtml+xml');
+    $c->reply->static('index.html');
 };
 
 websocket '/websocket' => sub {
