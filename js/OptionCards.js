@@ -73,9 +73,14 @@ class ComboOption extends Option {
   }
 }
 
-class RecompileOption extends Option {
+class OneTimeOption extends Option {
+  constructor(name, flag) {
+    super(name);
+    this.flag = flag;
+  }
+
   active() {
-    return (gs.state || {}).recompiled !== gs.id;
+    return !gs.public.player[gs.id].options[this.name].tapped;
   }
 }
 
@@ -116,9 +121,10 @@ class LaserOption extends Option {
 }
 
 var OptionCards = {
+  'Abort Switch':      new OneTimeOption('Abort Switch', 'aborted'),
   'Crab Legs':         new ComboOption('Crab Legs', {1: ['r','l']}),
   'Dual Processor':    new ComboOption('Dual Processor', {2: ['r','l'], 3: ['r','l','u']}),
-  'Recompile':         new RecompileOption('Recompile'),
+  'Recompile':         new OneTimeOption('Recompile', 'recompiled'),
   'Rear-Firing Laser': new FiringOption('Rear-Firing Laser'),
   'High-Power Laser':  new FiringOption('High-Power Laser'),
   'Fire Control':      new FiringOption('Fire Control'),

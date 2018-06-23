@@ -158,7 +158,7 @@ subtest 'shutdown' => sub {
 
 subtest 'recompile damage' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->{state}{public}{recompiled} = $p1->{id};
+    $rally->{public}{option}{Recompile}{tapped} = $p1->{id};
     $rally->set_state('EXECUTE');
     $rally->drop_packets;
     $rally->update;
@@ -169,8 +169,8 @@ subtest 'recompile damage' => sub {
             { cmd => 'state', state => 'Movement' },
             { cmd => 'move',  order => ignore },
             {   cmd       => 'damage',
-                player    => $p1->{id},
                 damage    => 1,
+                player    => $p1->{id},
                 registers => ignore
             },
         ]

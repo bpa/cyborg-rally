@@ -16,9 +16,9 @@ sub on_enter {
         $self->broadcast_movement($game);
     }
 
-    my $recompiled = delete $game->{public}{recompiled};
-    if ($recompiled) {
-        my $p = $game->{player}{$recompiled};
+    my $tapped = delete $game->{public}{option}{Recompile}{tapped};
+    if ( defined $tapped ) {
+        my $p = $game->{player}{$tapped};
         $self->damage( $game, $p, 1 ) if $p;
     }
 }
@@ -29,7 +29,8 @@ sub broadcast_movement {
     my $r = $game->{public}{register};
     my @order = sort { $b->{priority} <=> $a->{priority} }
       map {
-        my $p = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
+        my $p
+          = { player => $_->{id}, program => $_->{public}{registers}[$r]{program} };
         $p->{priority} = $p->{program}[0]{priority};
         $p;
       } grep { !( $_->{public}{dead} || $_->{public}{shutdown} ) }
@@ -41,12 +42,8 @@ sub broadcast_movement {
 sub do_abort {
     my ( $self, $game, $c, $msg ) = @_;
 
-    unless ( exists $c->{public}{options}{'Abort Switch'} ) {
-        $c->err('Not available');
-        return;
-    }
-
-    if ( $c->{public}{options}{'Abort Switch'}{triggered} ) {
+    my $abort_switch = $c->{public}{options}{'Abort Switch'};
+    unless ( defined $abort_switch && !$abort_switch->{tapped} ) {
         $c->err('Not available');
         return;
     }
@@ -56,9 +53,11 @@ sub do_abort {
         $registers->[$r]{program} = [ $game->{movement}->deal ];
     }
 
-    $c->{public}{options}{'Abort Switch'}{triggered} = 1;
+    $abort_switch->{tapped} = $c->{id};
 
     $self->broadcast_movement($game);
+    $game->broadcast(
+        { cmd => 'option', player => $c->{id}, option => $abort_switch } );
 }
 
 sub do_ready {
@@ -79,7 +78,7 @@ sub do_ready {
 }
 
 sub on_damage_resolved {
-    my ($self, $game) = @_;
+    my ( $self, $game ) = @_;
     $game->set_state('BOARD') if $game->ready;
 }
 

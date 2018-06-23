@@ -62,10 +62,9 @@ subtest 'on_enter for two' => sub {
                     state   => ignore,
                     now     => ignore,
                 },
-                {   cmd        => 'programming',
-                    cards      => cnt(9),
-                    registers  => ignore,
-                    recompiled => ''
+                {   cmd       => 'programming',
+                    cards     => cnt(9),
+                    registers => ignore,
                 }
             ]
         );
@@ -178,9 +177,9 @@ subtest 'locked registers' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
 
     $rally->{state}->on_exit($rally);
-    $p1->{public}{damage} = 5;
+    $p1->{public}{damage}                = 5;
     $p1->{public}{registers}[4]{damaged} = 1;
-    $p2->{public}{damage} = 2;
+    $p2->{public}{damage}                = 2;
     $rally->drop_packets;
     my $locked = $p1->{public}{registers}[4];
     $rally->{state}->on_enter($rally);
@@ -191,20 +190,18 @@ subtest 'locked registers' => sub {
     cmp_deeply(
         $p1->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(4),
-                recompiled => '',
-                registers  => [ EMPTY, EMPTY, EMPTY, EMPTY, noclass( j($locked) ) ]
+            {   cmd       => 'programming',
+                cards     => cnt(4),
+                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, noclass( j($locked) ) ]
             }
         ]
     );
     cmp_deeply(
         $p2->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(7),
-                recompiled => '',
-                registers  => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ]
+            {   cmd       => 'programming',
+                cards     => cnt(7),
+                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ]
             }
         ]
     );
@@ -235,10 +232,9 @@ subtest 'dead' => sub {
     cmp_deeply(
         $alive->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(9),
-                registers  => ignore,
-                recompiled => ''
+            {   cmd       => 'programming',
+                cards     => cnt(9),
+                registers => ignore,
             }
         ]
     );
@@ -359,10 +355,9 @@ subtest 'powered down' => sub {
     cmp_deeply(
         $p2->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(7),
-                registers  => ignore,
-                recompiled => ''
+            {   cmd       => 'programming',
+                cards     => cnt(7),
+                registers => ignore,
             }
         ]
     );
@@ -381,10 +376,9 @@ subtest 'powered down' => sub {
     cmp_deeply(
         $p1->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(9),
-                registers  => ignore,
-                recompiled => ''
+            {   cmd       => 'programming',
+                cards     => cnt(9),
+                registers => ignore,
             }
         ]
     );
@@ -588,17 +582,28 @@ subtest 'recompile' => sub {
     $p2->drop_packets;
 
     my $cards = join( "", map { $_->{name} } @{ $p1->{private}{cards}{cards} } );
-    $p1->game( { cmd => 'recompile' } );
+    $p1->broadcast(
+        { cmd => 'recompile' },
+        {   cmd    => 'option',
+            player => $p1->{id},
+            option => {
+                name   => 'Recompile',
+                tapped => $p1->{id},
+                text   => ignore,
+                uses   => 0,
+            }
+        }
+    );
     cmp_deeply(
         $p1->{packets},
         [
-            {   cmd        => 'programming',
-                cards      => cnt(9),
-                registers  => ignore,
-                recompiled => $p1->{id}
+            {   cmd       => 'programming',
+                cards     => cnt(9),
+                registers => ignore,
             }
         ]
     );
+    is( $p1->{public}{options}{Recompile}{tapped}, $p1->{id} );
     my $new = join( "", map { $_->{name} } @{ $p1->{private}{cards}{cards} } );
     isnt( $cards, $new, 'Got new cards' );
     $p1->drop_packets;
@@ -622,7 +627,7 @@ subtest 'recompile' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    cmp_deeply( $rally->{packets}, [ ]);
+    cmp_deeply( $rally->{packets}, [] );
     is( $p1->{public}{damage}, 0, 'Damage will come later' );
 
     done;
@@ -644,7 +649,7 @@ subtest 'recompile with programmed' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    is( $rally->{public}{recompiled}, $p1->{id});
+    is( $rally->{public}{option}{'Recompile'}{tapped}, $p1->{id} );
 
     done;
 };
@@ -654,9 +659,9 @@ subtest 'recompile with locked' => sub {
 
     $rally->give_option( $p1, 'Recompile' );
     $rally->{state}->on_exit($rally);
-    $p1->{public}{damage} = 5;
+    $p1->{public}{damage}                = 5;
     $p1->{public}{registers}[4]{damaged} = 1;
-    $p2->{public}{damage} = 2;
+    $p2->{public}{damage}                = 2;
     $rally->drop_packets;
     my $locked = $p1->{public}{registers}[4];
     $rally->{state}->on_enter($rally);
@@ -680,7 +685,7 @@ subtest 'recompile with locked' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    is( $rally->{public}{recompiled}, $p1->{id});
+    is( $rally->{public}{option}{Recompile}{tapped}, $p1->{id} );
     is( $p1->{public}{damage}, 5, 'Damage will come later' );
 
     done;
@@ -696,7 +701,7 @@ subtest 'unused recompile' => sub {
 
     $rally->drop_packets;
     $rally->{state}->on_exit($rally);
-    is( $rally->{public}{recompiled}, '');
+    is( $rally->{public}{option}{Recompile}{tapped}, undef );
 
     done;
 };

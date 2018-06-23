@@ -14,7 +14,7 @@ sub on_enter {
     my ( $self, $game ) = @_;
     my $ready = 0;
     my $total = 0;
-    $self->{public} = {recompiled => ''};
+    delete $game->{public}{option}{'Recompile'}{tapped};
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
         my $cards = $p->{public}{memory} - $p->{public}{damage};
@@ -66,7 +66,6 @@ sub give_cards {
         {   cmd        => 'programming',
             cards      => $p->{private}{cards},
             registers  => $p->{private}{registers},
-            recompiled => $self->{public}{recompiled},
         }
     );
 }
@@ -144,20 +143,23 @@ sub do_recompile {
         return;
     }
 
-    if ( $self->{public}{recompiled} eq $c->{id} ) {
-        $c->err('Already recompiled');
-        return;
-    }
-
-    unless (exists $c->{public}{options}{'Recompile'}) {
+    my $recompile = $c->{public}{options}{'Recompile'};
+    unless ( defined $recompile ) {
         $c->err('Invalid Option');
         return;
     }
 
-    $self->{public}{recompiled} = $c->{id};
+    if ( $recompile->{tapped} ) {
+        $c->err('Already recompiled');
+        return;
+    }
+
+    $recompile->{tapped} = $c->{id};
     my $cards = $c->{public}{memory} - $c->{public}{damage};
     $cards++ if exists $c->{public}{options}{'Extra Memory'};
-    $self->give_cards($game, $c, $cards);
+    $self->give_cards( $game, $c, $cards );
+    $game->broadcast(
+        { cmd => 'option', player => $c->{id}, option => $recompile } );
 }
 
 sub too_many_doubles {
@@ -255,8 +257,6 @@ sub on_exit {
             }
         }
     }
-
-    $game->{public}{recompiled} = $self->{public}{recompiled};
 }
 
 1;

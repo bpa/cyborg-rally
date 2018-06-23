@@ -11,8 +11,12 @@ sub CLEAN { return [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] }
 
 sub on_enter {
     my ( $self, $game ) = @_;
+    $game->{public}{option} = {};
     $game->{options} = Deck::Options->new;
     $game->{options}->shuffle;
+    for my $o (@{$game->{options}{cards}}) {
+        $game->{public}{option}{$o->{name}} = $o;
+    }
     $game->{movement}
       = Deck::Movement->new( scalar( keys %{ $game->{player} } ) + 1 );
     my $dock  = 1;

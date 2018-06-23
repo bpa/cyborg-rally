@@ -20,14 +20,25 @@ subtest 'abort' => sub {
     $p2->game( { cmd => 'abort' } );
     cmp_deeply( $p2->{packets}, [ { cmd => 'error', reason => 'Not available' } ] );
 
+    is($rally->{public}{option}{'Abort Switch'}{tapped}, undef);
     my $old = dclone( $p1->{public}{registers} );
 
     $p1->broadcast(
         { cmd => 'abort' },
         { cmd => 'move', order => ignore },
+        {   cmd    => 'option',
+            player => $p1->{id},
+            option => {
+                name   => 'Abort Switch',
+                text   => ignore,
+                tapped => $p1->{id},
+                uses   => 0,
+            }
+        },
         'Get new moves after abort'
     );
 
+    is($rally->{public}{option}{'Abort Switch'}{tapped}, $p1->{id});
     my $r = $p1->{public}{registers};
     cmp_deeply( $r->[0], $old->[0] );
     cmp_deeply( $r->[1], $old->[1] );
@@ -49,12 +60,12 @@ subtest 'abort' => sub {
 subtest 'abort' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Abort Switch' );
-    $p1->{public}{options}{'Abort Switch'}{triggered} = 1;
+    $rally->{public}{option}{'Abort Switch'}{tapped} = $p1->{id};
     $rally->set_state('EXECUTE');
     $rally->update;
 
     is( ref( $rally->{state} ), 'State::Movement' );
-    is($p1->{public}{options}{'Abort Switch'}{triggered}, undef);
+    is($rally->{public}{option}{'Abort Switch'}{tapped}, undef);
 
     done;
 };

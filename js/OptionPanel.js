@@ -30,7 +30,11 @@ export default class OptionPanel extends React.Component {
   render() {
     let held = [];
     let props = this.props;
-    for (var o of props.children) {
+    let children = props.children;
+    if (!Array.isArray(children)) {
+      children = [children];
+    }
+    for (var o of children) {
       let element = OptionCards[o.props.name].render(props, this.state);
       if (element !== null) {
         held.push(element);
