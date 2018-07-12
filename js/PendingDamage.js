@@ -5,7 +5,6 @@ import { Flex } from 'grid-styled';
 import Icon from './Icon';
 import Modal from './Modal';
 import { Option } from './Option';
-import { getFile } from './Util';
 
 export default class PendingDamage extends React.Component {
   constructor(props) {

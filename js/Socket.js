@@ -1,7 +1,6 @@
 export default class Socket {
     constructor(on_message) {
-        this.on_message = on_message;
-        this.init();
+        this.on_message = m => console.log("Dropped ", m.data);
     }
 
     init() {

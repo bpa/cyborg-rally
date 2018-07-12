@@ -1,5 +1,4 @@
 import Modal from './Modal';
-import { getFile } from './Util';
 
 const imgStyle = {
   width: '60px',

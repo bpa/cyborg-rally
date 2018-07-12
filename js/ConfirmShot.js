@@ -3,7 +3,6 @@ import { Badge } from 'rebass';
 import { Flex } from 'grid-styled';
 import Modal from './Modal';
 import { Option } from './Option';
-import { LASER_OPTION } from './Util';
 
 var damage_weapons = {
     'laser':             true,

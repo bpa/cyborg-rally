@@ -2,7 +2,6 @@ import OptionCards from './OptionCards';
 import OptionModal from './OptionModal';
 import { Circle, Panel } from 'rebass';
 import { Content } from './Widgets';
-import { LASER_OPTION } from './Util';
 
 export default class OptionPanel extends React.Component {
   constructor(props) {

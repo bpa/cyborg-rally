@@ -1,4 +1,9 @@
+import Socket from "./Socket";
+
 const SPACE = new RegExp(' ', 'g');
+
+export let gs = {};
+export let ws = new Socket();
 
 export let LASER_OPTION = { name: 'Laser', text: 'Standard issue laser cannon.  Fires one shot.' };
 export function getFile(option) {

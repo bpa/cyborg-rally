@@ -3,7 +3,6 @@ import Modal from './Modal';
 import { Option } from './Option';
 import { Flex } from 'grid-styled';
 import { Badge } from 'rebass';
-import { LASER_OPTION } from './Util';
 
 export default class Dispute extends React.Component {
   render() {

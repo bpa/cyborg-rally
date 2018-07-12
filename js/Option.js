@@ -1,6 +1,5 @@
 import Modal from './Modal';
 import OptionModal from './OptionModal';
-import { getFile } from './Util';
 
 export class Option extends React.Component {
   constructor(props) {

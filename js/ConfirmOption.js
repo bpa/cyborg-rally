@@ -1,4 +1,3 @@
-import { getFile } from './Util';
 import { Button } from './Widgets';
 import Icon from './Icon';
 import Modal from './Modal';

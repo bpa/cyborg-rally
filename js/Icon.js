@@ -1,4 +1,3 @@
-import { getFile } from './Util';
 
 export default class Icon extends React.Component {
     normal() {

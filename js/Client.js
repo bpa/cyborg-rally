@@ -1,5 +1,4 @@
 import { Provider } from 'rebass'
-import Socket from "./Socket";
 import Playing from "./Playing";
 import Lobby from "./Lobby";
 import theme from "./theme";
@@ -63,7 +62,8 @@ function on_message(m) {
 class Client extends React.Component {
     constructor() {
         super();
-        ws = new Socket(on_message.bind(this));
+        ws.on_message = on_message.bind(this);
+        ws.init();
         window.onerror =  function(messageOrEvent, source, lineno, colno, error) {
             ws.send({cmd: 'error',
                 message: error.message,
@@ -114,7 +114,7 @@ class Client extends React.Component {
     on_joined(msg) {
         delete msg.cmd;
         msg.timediff = new Date().getTime() - msg.now;
-        gs = msg;
+        Object.assign(gs, msg);
         this.setState({view: msg.game === 'Rally' ? Playing : Lobby});
     }
 }
