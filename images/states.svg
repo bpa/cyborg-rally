@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" baseProfile="full" width="925" height="520" version="1.1">
+  <defs>
+    <marker id="from" markerWidth="5" markerHeight="5" refX="3" refY="3">
+      <circle cx="3" cy="3" r="2"/>
+    </marker>
+
+    <marker id="to" markerWidth="21" markerHeight="21" refX="14" refY="11" orient="auto">
+      <path d="M14,11 L5,7 L8,11 L5,15 z"/>
+    </marker>
+
+    <pattern id="state" width="1" height="1">
+      <g stroke="black" fill="transparent">
+        <rect x=".5" y=".5" width="164" height="109"/>
+        <rect x=".5" y=".5" width="164" height="24"/>
+      </g>
+    </pattern>
+  </defs>
+
+  <rect x="370" y="0" width="165" height="110" fill="url(#state)"/>
+  <text x="452.5" y="18" text-anchor="middle" font-weight="bold" font-size="18">
+    Waiting
+  </text>
+  <g font-size="14">
+    <text x="375" y="43">Wait for players to join</text>
+    <text x="375" y="62">Requires 2+ players to</text>
+    <text x="375" y="81">change state</text>
+  </g>
+
+  <rect x="370" y="130" width="165" height="110" fill="url(#state)"/>
+  <text x="452.5" y="148" text-anchor="middle" font-weight="bold" font-size="18">
+    Setup
+  </text>
+  <g font-size="14">
+    <text x="375" y="173">Sets lives, damage</text>
+    <text x="375" y="192">based on options.</text>
+    <text x="375" y="211">Gives out options cards</text>
+    <text x="375" y="230">as appropriate</text>
+  </g>
+
+  <rect x="0" y="260" width="165" height="110" fill="url(#state)"/>
+  <text x="82.5" y="278" text-anchor="middle" font-weight="bold" font-size="18">
+    Revive
+  </text>
+  <g font-size="14">
+    <text x="5" y="303">Destroyed bots reenter</text>
+    <text x="5" y="322">play</text>
+  </g>
+
+  <rect x="185" y="260" width="165" height="110" fill="url(#state)"/>
+  <text x="267.5" y="278" text-anchor="middle" font-weight="bold" font-size="18">
+    PowerDown
+  </text>
+  <g font-size="14">
+    <text x="190" y="303">Declare if you will stay</text>
+    <text x="190" y="322">powered down, or</text>
+    <text x="190" y="341">reenter play powered</text>
+    <text x="190" y="360">down</text>
+  </g>
+
+  <rect x="370" y="260" width="165" height="110" fill="url(#state)"/>
+  <text x="452.5" y="278" text-anchor="middle" font-weight="bold" font-size="18">
+    Programming
+  </text>
+  <g font-size="14">
+    <text x="375" y="303">Hand out cards, let</text>
+    <text x="375" y="322">players program.  Set</text>
+    <text x="375" y="341">timers according to</text>
+    <text x="375" y="360">options</text>
+  </g>
+
+  <rect x="555" y="260" width="165" height="110" fill="url(#state)"/>
+  <text x="637.5" y="278" text-anchor="middle" font-weight="bold" font-size="18">
+    Announcing
+  </text>
+  <g font-size="14">
+    <text x="560" y="303">Declare shutdown, set</text>
+    <text x="560" y="322">timer to keep game</text>
+    <text x="560" y="341">moving.</text>
+  </g>
+
+  <rect x="740" y="260" width="165" height="110" fill="url(#state)"/>
+  <text x="822.5" y="278" text-anchor="middle" font-weight="bold" font-size="18">
+    Executing
+  </text>
+  <g font-size="14">
+    <text x="745" y="303">Set game register to 0</text>
+    <text x="745" y="322">in preparation for</text>
+    <text x="745" y="341">movement.</text>
+  </g>
+
+  <rect x="0" y="390" width="165" height="110" fill="url(#state)"/>
+  <text x="82.5" y="408" text-anchor="middle" font-weight="bold" font-size="18">
+    Touching
+  </text>
+  <g font-size="14">
+    <text x="5" y="433">Declare what tile type</text>
+    <text x="5" y="452">you ended on</text>
+  </g>
+
+  <rect x="185" y="390" width="165" height="110" fill="url(#state)"/>
+  <text x="267.5" y="408" text-anchor="middle" font-weight="bold" font-size="18">
+    Firing
+  </text>
+  <g font-size="14">
+    <text x="190" y="433">Players shoot at each</text>
+    <text x="190" y="452">other</text>
+  </g>
+
+  <rect x="370" y="390" width="165" height="110" fill="url(#state)"/>
+  <text x="452.5" y="408" text-anchor="middle" font-weight="bold" font-size="18">
+    Lasers
+  </text>
+  <g font-size="14">
+    <text x="375" y="433">Board lasers fire</text>
+  </g>
+
+  <rect x="555" y="390" width="165" height="110" fill="url(#state)"/>
+  <text x="637.5" y="408" text-anchor="middle" font-weight="bold" font-size="18">
+    &lt;various&gt;
+  </text>
+  <g font-size="14">
+    <text x="560" y="433">Whichever board</text>
+    <text x="560" y="452">elements were selected</text>
+  </g>
+
+  <rect x="740" y="390" width="165" height="110" fill="url(#state)"/>
+  <text x="822.5" y="408" text-anchor="middle" font-weight="bold" font-size="18">
+    Movement
+  </text>
+  <g font-size="14">
+    <text x="745" y="433">Players move around</text>
+  </g>
+  <g stroke="black" fill="transparent">
+    <g marker-start="url(#from)" marker-end="url(#to)">
+      <path d="M452.5,110 l0,20"/>
+      <path d="M452.5,240 l0,20"/>
+      <path d="M165,315 l20,0"/>
+      <path d="M350,315 l20,0"/>
+      <path d="M535,315 l20,0"/>
+      <path d="M720,315 l20,0"/>
+      <path d="M822.5,370 l0,20"/>
+      <path d="M82.5,390 l0,-20"/>
+      <path d="M82.5,500 l0,20 l740,0 l0,-20"/>
+      <path d="M185,445 l-20,0"/>
+      <path d="M370,445 l-20,0"/>
+      <path d="M555,445 l-20,0"/>
+      <path d="M740,445 l-20,0"/>
+    </g>
+  </g>
+</svg>
