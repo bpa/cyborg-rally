@@ -5,6 +5,7 @@ use warnings;
 use parent 'Game';
 use State::Announcing;
 use State::Board;
+use State::Configuring;
 use State::Executing;
 use State::Firing;
 use State::Lasers;
@@ -32,17 +33,18 @@ sub BUILD {
     $self->{opts}{option_for_heal}       = !!$opts->{option_for_heal};
 
     $self->{states} = {
-        INITIAL  => State::Waiting->new,
-        SETUP    => State::Setup->new,
-        PROGRAM  => State::Programming->new,
-        ANNOUNCE => State::Announcing->new,
-        EXECUTE  => State::Executing->new,
-        MOVE     => State::Movement->new,
-        LASER    => State::Lasers->new,
-        FIRE     => State::Firing->new,
-        TOUCH    => State::Touching->new,
-        REVIVE   => State::Revive->new,
-        POWER    => State::PowerDown->new,
+        INITIAL   => State::Waiting->new,
+        SETUP     => State::Setup->new,
+        PROGRAM   => State::Programming->new,
+        CONFIGURE => State::Configuring->new,
+        ANNOUNCE  => State::Announcing->new,
+        EXECUTE   => State::Executing->new,
+        MOVE      => State::Movement->new,
+        LASER     => State::Lasers->new,
+        FIRE      => State::Firing->new,
+        TOUCH     => State::Touching->new,
+        REVIVE    => State::Revive->new,
+        POWER     => State::PowerDown->new,
     };
 
     my $last;

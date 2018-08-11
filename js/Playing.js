@@ -1,6 +1,7 @@
 import { Column, Panel, Row } from 'rebass';
 import { Button, Content, Hr, Registers } from "./Widgets";
 import Announcing from "./Announcing";
+import Configuring from "./Configuring"
 import Firing from "./Firing"
 import Lasers from "./Lasers";
 import Movement from "./Movement";
@@ -13,6 +14,7 @@ import Waiting from "./Waiting";
 
 var STATE = {
     Announcing: Announcing,
+    Configuring: Configuring,
     Firing: Firing,
     Lasers: Lasers,
     Movement: Movement,

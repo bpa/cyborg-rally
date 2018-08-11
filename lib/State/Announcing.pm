@@ -10,10 +10,10 @@ sub on_enter {
     $game->set_ready_to_dead_or_shutdown;
 
     if ( $game->ready ) {
-        $game->set_state('EXECUTE');
+        $game->set_state('CONFIGURE');
     }
     else {
-        $game->timer( 10, \&Game::set_state, $game, 'EXECUTE' );
+        $game->timer( 10, \&Game::set_state, $game, 'CONFIGURE' );
     }
 }
 
@@ -33,7 +33,7 @@ sub do_shutdown {
         }
     );
 
-    $game->set_state('EXECUTE') if $game->ready;
+    $game->set_state('CONFIGURE') if $game->ready;
 }
 
 1;

@@ -79,6 +79,22 @@ my %state = (
     reenter play powered
     down
   ',
+  Configuring => '
+    Make choices for Flywheel,
+    Gyroscopic Stabilizer,
+    and Conditional Program
+  ',
+  ChoosingOption => '
+    If the choose one of
+    three options opt is
+    set, have each player
+    choose one
+  ',
+  GotOption => '
+    If any player got an
+    option, show everyone
+    what it was
+  ',
 );
 
 sub write_header {
@@ -216,13 +232,16 @@ my $filename = "images/states.svg";
 open(SVG, ">", $filename) || die "Can't open $filename for writing: $!\n";
 
 write_header(5,4);
-write_state(2, 0, 'Waiting', 'd');
-write_state(2, 1, 'Setup', 'd');
-write_state(0, 2, 'Revive', 'r');
-write_state(1, 2, 'PowerDown', 'r');
-write_state(2, 2, 'Programming', 'r');
-write_state(3, 2, 'Announcing', 'r');
+write_state(0, 0, 'Waiting', 'r');
+write_state(1, 0, 'Setup', 'r');
+write_state(2, 0, 'ChoosingOption', 'd');
+write_state(0, 1, 'Revive', 'r');
+write_state(1, 1, 'PowerDown', 'r');
+write_state(2, 1, 'Programming', 'r');
+write_state(3, 1, 'Announcing', 'r');
+write_state(4, 1, 'Configuring', 'd');
 write_state(4, 2, 'Executing', 'd');
+write_state(0, 2, 'GotOption', 'u');
 write_state(0, 3, 'Touching', 'u', 'd4ru');
 write_state(1, 3, 'Firing', 'l');
 write_state(2, 3, 'Lasers', 'l');
