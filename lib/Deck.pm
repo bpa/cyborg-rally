@@ -19,6 +19,11 @@ sub TO_JSON {
     return $self->{cards};
 }
 
+sub add {
+    my ( $self, $card ) = @_;
+    push @{ $self->{cards} }, $card;
+}
+
 sub contains {
     my ( $self, $card ) = @_;
     return any { $_ eq $card } @{ $self->{cards} };
@@ -27,6 +32,15 @@ sub contains {
 sub count {
     my $self = shift;
     return scalar( @{ $self->{cards} } );
+}
+
+sub getMatch {
+    my ( $self, $card ) = @_;
+    my $idx = firstidx { $_ eq $card } @{ $self->{cards} };
+    if ($idx != -1) {
+        return $self->{cards}[$idx];
+    }
+    return;
 }
 
 sub remove {

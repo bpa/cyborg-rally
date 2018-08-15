@@ -67,6 +67,16 @@ sub BUILD {
     }
 }
 
+sub broadcast_options {
+    my ($self, $c) = @_;
+    $self->broadcast(
+        {   cmd     => 'options',
+            player  => $c->{id},
+            options => $c->{public}{options},
+        }
+    );
+}
+
 sub on_disconnect {
     my ( $self, $c ) = @_;
 

@@ -15,9 +15,10 @@ sub on_enter {
             $self->{choices}{stabilizer} = ();
             $p->{public}{ready}          = '';
         }
-        if ( defined $flywheel ) {
+        if ( defined $flywheel && $p->{private}{cards}->count > 0 ) {
             $self->{choices}{flywheel} = ();
             $p->{public}{ready}        = '';
+            $p->send( { cmd => 'remaining', cards => $p->{private}{cards} } );
         }
     }
 
@@ -41,6 +42,7 @@ sub do_stabilizer {
         delete $stabilizer->{tapped};
     }
     delete $self->{choices}{'stabilizer'};
+    $game->broadcast_options($c);
 
     if ( !%{ $self->{choices} } ) {
         $game->set_state('EXECUTE');
@@ -55,16 +57,30 @@ sub do_flywheel {
         return;
     }
 
-    if ( defined $msg->{card} ) {
-        $flywheel->{card} = $msg->{card};
-    }
-    else {
+    if ( !defined $msg->{card} ) {
         $c->err('Missing card');
+        return;
     }
+
+    my $card = $c->{private}{cards}->getMatch( $msg->{card} );
+    unless ( defined $card ) {
+        $c->err("Invalid card");
+        return;
+    }
+
+    $c->{public}{options}{Flywheel}{card} = $card;
     delete $self->{choices}{flywheel};
 
     if ( !%{ $self->{choices} } ) {
         $game->set_state('EXECUTE');
+    }
+}
+
+sub on_exit {
+    my ( $self, $game ) = @_;
+
+    for my $p ( values %{ $game->{player} } ) {
+        delete $p->{private}{cards};
     }
 }
 

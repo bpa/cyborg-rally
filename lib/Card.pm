@@ -1,8 +1,8 @@
 package Card;
 
 use overload
-  eq  => \&streq,
-  cmp => \&strcmp;
+  eq  => \&eq_priority,
+  cmp => \&cmp_priority;
 
 sub new {
     my ( $pkg, $data ) = @_;
@@ -13,12 +13,12 @@ sub TO_JSON {
     return { %{ $_[0] } };
 }
 
-sub streq {
+sub eq_priority {
     my ( $self, $other ) = @_;
     return $self->{priority} == $other->{priority};
 }
 
-sub strcmp {
+sub cmp_priority {
     my ( $self, $other, $swap ) = @_;
     return $other->{priority} <=> $self->{priority};
 }

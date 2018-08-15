@@ -17,26 +17,32 @@ sub on_enter {
     delete $game->{public}{option}{'Recompile'}{tapped};
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
-        my $cards = $p->{public}{memory} - $p->{public}{damage};
-        $cards++ if exists $p->{public}{options}{'Extra Memory'};
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
-            $p->{public}{ready}     = 1;
-            $p->{public}{damage}    = 0 if $p->{public}{shutdown};
+            $p->{public}{ready}      = 1;
+            $p->{public}{damage}     = 0 if $p->{public}{shutdown};
             $p->{private}{registers} = State::Setup::CLEAN;
             $p->send( { cmd => 'programming' } );
+            next;
         }
-        elsif ( $cards < 2 ) {
+
+        $total++;
+        $p->{public}{ready} = '';
+        my $cards = $p->{public}{memory} - $p->{public}{damage};
+        $cards++ if exists $p->{public}{options}{'Extra Memory'};
+
+        my $flywheel = $p->{public}{options}{'Flywheel'};
+        if ( defined $flywheel ) {
+            $self->{flywheel} = delete $flywheel->{card};
+        }
+
+        map { $_->{program} = [] unless $_ && $_->{damaged} }
+          @{ $p->{public}{registers} };
+        $self->give_cards( $game, $p, $cards );
+
+        if ( $p->{private}{cards}->count < 2 ) {
             $p->{public}{ready} = 1;
-            $p->send( { cmd => 'programming' } );
+            $game->broadcast( ready => { player => $p->{id} } );
             $ready++;
-            $total++;
-        }
-        else {
-            $total++;
-            $p->{public}{ready} = '';
-            map { $_->{program} = [] unless $_ && $_->{damaged} }
-              @{ $p->{public}{registers} };
-            $self->give_cards($game, $p, $cards);
         }
     }
 
@@ -58,14 +64,17 @@ sub on_enter {
 }
 
 sub give_cards {
-    my ($self, $game, $p, $cards) = @_;
+    my ( $self, $game, $p, $cards ) = @_;
     $p->{private}{cards} = Deck->new( $game->{movement}->deal($cards) );
+    if ( defined $self->{flywheel} && defined $p->{public}{options}{'Flywheel'} ) {
+        $p->{private}{cards}->add( $self->{flywheel} );
+    }
     $p->{private}{registers}
       = [ map { dclone($_) } @{ $p->{public}{registers} } ];
     $p->send(
-        {   cmd        => 'programming',
-            cards      => $p->{private}{cards},
-            registers  => $p->{private}{registers},
+        {   cmd       => 'programming',
+            cards     => $p->{private}{cards},
+            registers => $p->{private}{registers},
         }
     );
 }
@@ -88,7 +97,7 @@ sub do_program {
         my $r = $msg->{registers}[$i];
         if (   ref($r) ne 'ARRAY'
             || locked_but_not_matching( $i, $r, $c->{public}{registers} )
-            || (@$r > 1 && invalid_combo($r, $c)))
+            || ( @$r > 1 && invalid_combo( $r, $c ) ) )
         {
             $c->err("Invalid program");
             return;
@@ -97,7 +106,7 @@ sub do_program {
         push @cards, @$r unless $c->{public}{registers}[$i]{damaged};
     }
 
-    if (too_many_doubles($msg->{registers}, $c)) {
+    if ( too_many_doubles( $msg->{registers}, $c ) ) {
         $c->err("Invalid program");
         return;
     }
@@ -118,7 +127,7 @@ sub do_program {
             $c->err("Invalid program");
             return;
         }
-        $id{$card->{priority}} = ();
+        $id{ $card->{priority} } = ();
     }
 
     for my $i ( 0 .. 4 ) {
@@ -163,13 +172,13 @@ sub do_recompile {
 }
 
 sub too_many_doubles {
-    my ($program, $player) = @_;
-    my ($used, $needed) = (0, 0);
+    my ( $program, $player ) = @_;
+    my ( $used, $needed ) = ( 0, 0 );
     my $registers = $player->{public}{registers};
-    for my $i (0 .. 4) {
+    for my $i ( 0 .. 4 ) {
         next if $registers->[$i]{damaged};
-        if ($program->[$i]) {
-            $used += @{$program->[$i]};
+        if ( $program->[$i] ) {
+            $used += @{ $program->[$i] };
         }
         else {
             $needed++;
@@ -180,18 +189,18 @@ sub too_many_doubles {
 }
 
 sub invalid_combo {
-    my ($register, $player) = @_;
-    my ($move, $rot) = map { $_->{name} } @$register;
-    if (exists $player->{public}{options}{'Crab Legs'}) {
-        if ($move eq '1') {
+    my ( $register, $player ) = @_;
+    my ( $move, $rot ) = map { $_->{name} } @$register;
+    if ( exists $player->{public}{options}{'Crab Legs'} ) {
+        if ( $move eq '1' ) {
             return none { $_ eq $rot } qw/r l/;
         }
     }
-    if (exists $player->{public}{options}{'Dual Processor'}) {
-        if ($move eq '2') {
+    if ( exists $player->{public}{options}{'Dual Processor'} ) {
+        if ( $move eq '2' ) {
             return none { $_ eq $rot } qw/r l/;
         }
-        if ($move eq '3') {
+        if ( $move eq '3' ) {
             return none { $_ eq $rot } qw/r l u/;
         }
     }
@@ -241,17 +250,19 @@ sub on_exit {
     my ( $self, $game ) = @_;
 
     for my $p ( values %{ $game->{player} } ) {
-        my $cards     = delete $p->{private}{cards};
+        my $cards     = $p->{private}{cards};
         my $registers = delete $p->{private}{registers};
 
-        if ($p->{public}{ready}) {
+        for my $r (@$registers) {
+            map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
+        }
+        if ( $p->{public}{ready} ) {
             $p->{public}{registers} = $registers;
         }
         else {
             $cards->shuffle;
             for my $i ( 0 .. 4 ) {
                 my $r = $registers->[$i];
-                map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
                 $r->{program}[0] = $cards->deal unless @{ $r->{program} };
                 $p->{public}{registers}[$i]{program} = $r->{program};
             }

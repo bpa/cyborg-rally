@@ -706,6 +706,52 @@ subtest 'unused recompile' => sub {
     done;
 };
 
+subtest 'Flywheel' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Flywheel');
+    my $flywheel_card = $rally->{movement}->deal(1);
+    my $flywheel = $p1->{public}{options}{Flywheel};
+    $flywheel->{card} = $flywheel_card;
+    $rally->{state}->on_enter($rally);
+    ok(!defined $flywheel->{card}, 'Card is cleared from Flywheel');
+
+    is( $p1->{private}{cards}->count, 10, 'Got cards + flywheel' );
+    cmp_deeply(
+        $p1->{packets},
+        [
+            {   cmd       => 'programming',
+                cards     => cnt(10),
+                registers => ignore,
+            }
+        ]
+    );
+
+    done;
+};
+
+subtest 'Empty Flywheel' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $rally->drop_packets;
+    $rally->give_option($p1, 'Flywheel');
+    $rally->{state}->on_enter($rally);
+
+    is( $p1->{private}{cards}->count, 9, 'Got cards' );
+    cmp_deeply(
+        $p1->{packets},
+        [
+            {   cmd       => 'programming',
+                cards     => cnt(9),
+                registers => ignore,
+            }
+        ]
+    );
+
+    done;
+};
+
 sub dmg {
     my ( $rally, $p, $dmg ) = @_;
     my @c = $rally->{movement}->deal(5);

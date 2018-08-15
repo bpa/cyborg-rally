@@ -163,6 +163,7 @@ sub game {
     else {
         $msg = $cmd;
     }
+    $msg = $json->decode( $json->encode($msg) );
     $rally->on_message( $self, $msg );
 }
 
@@ -178,6 +179,7 @@ sub player {
     if ( ref( $_[-1] ) eq '' ) {
         $comment = pop @_;
     }
+    $msg = $json->decode( $json->encode($msg) );
     $rally->on_message( $self, $msg );
     if ($comment && $comment =~ /DEBUG/) {
         print STDERR Data::Dumper->Dump([$msg, $self->{game}{packets}, $self->{packets}], ['Message', 'Game', 'Player']);
@@ -199,6 +201,7 @@ sub broadcast {
     if ( ref( $_[-1] ) eq '' ) {
         $comment = pop @_;
     }
+    $msg = $json->decode( $json->encode($msg) );
     $rally->on_message( $self, $msg );
     if ($comment && $comment =~ /DEBUG/) {
         print STDERR Data::Dumper->Dump([$msg, $self->{game}{packets}, $self->{packets}], ['Message', 'Game', 'Player']);

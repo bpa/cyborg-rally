@@ -6,7 +6,7 @@ import Watermark from './Watermark';
 export default class Waiting extends React.Component {
   gyroscopic_stabilizer() {
     let state = gs.public.state;
-    let options = gs.public.player[gs.id].options
+    let options = gs.public.player[gs.id].options || {};
     let stabilizer = options['Gyroscopic Stabilizer'];
     if ((state.includes('conveyor') || state === "gears") &&
       stabilizer !== undefined && stabilizer.tapped) {
