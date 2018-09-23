@@ -101,6 +101,21 @@ sub die {
 
 sub heal {
     my ( $self, $game, $c ) = @_;
+    for my $r (@{$c->{public}{registers}}) {
+        if ($r->{locked}) {
+            delete $r->{locked};
+            $game->broadcast(
+                heal => {
+                    player    => $c->{id},
+                    heal      => 0,
+                    damage    => $c->{public}{damage},
+                    registers => $c->{public}{registers}
+                }
+            );
+            return;
+        }
+    }
+
     if ( $c->{public}{damage} > 0 ) {
         my $r = 9 - $c->{public}{damage};
         if ( $r < 5 ) {

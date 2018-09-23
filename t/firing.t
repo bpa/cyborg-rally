@@ -563,4 +563,126 @@ subtest 'One live player' => sub {
     done;
 };
 
+subtest 'Fire Control Errors' => sub {
+    my ( $rally, $p1, $p2 ) = fire_control( {} );
+
+    $p2->player( { cmd => 'fire_control' },
+        { cmd => 'error', reason => 'Invalid command' } );
+
+    $p1->player(
+        { cmd => 'fire_control', register => 5 },
+        { cmd => 'error',          reason   => 'Invalid target' }
+    );
+    $p1->player(
+        { cmd => 'fire_control', target => $p2->{id} },
+        { cmd => 'error',        reason => 'Missing option or register' }
+    );
+    $p1->player( { cmd => 'fire_control', target => $p2->{id}, register => 5 },
+        { cmd => 'error', reason => 'Invalid register' } );
+    $p1->player( { cmd => 'fire_control', target => $p2->{id}, register => -1 },
+        { cmd => 'error', reason => 'Invalid register' } );
+    $p1->player( { cmd => 'fire_control', target => $p2->{id}, register => 'one' },
+        { cmd => 'error', reason => 'Invalid register' } );
+    $p1->player(
+        { cmd => 'fire_control', target => $p2->{id}, register => 4 },
+        { cmd => 'error', reason => 'Register is already locked' }
+    );
+    $p1->player(
+        { cmd => 'fire_control', target => $p2->{id}, option => 'Fire Control' },
+        { cmd => 'error', reason => 'Invalid option' } );
+    $p1->player( { cmd => 'fire_control', target => $p2->{id}, option => 'Fire' },
+        { cmd => 'error', reason => 'Invalid option' } );
+    $p1->player(
+        { cmd => 'fire_control', target => $p2->{id}, register => 'Ablative Coat' },
+        { cmd => 'error', reason => 'Invalid register' }
+    );
+
+    done;
+};
+
+subtest 'Fire Control option' => sub {
+    my ( $rally, $p1, $p2 ) = fire_control( {} );
+
+    $p1->broadcast(
+        { cmd => 'fire_control', target => $p2->{id}, option => 'Ablative Coat' },
+        {   cmd     => 'options',
+            player  => $p2->{id},
+            options => {}
+        },
+        { cmd => 'ready', player => $p1->{id} }
+    );
+    done;
+};
+
+subtest 'Fire Control option last action' => sub {
+    my ( $rally, $p1, $p2 ) = fire_control( {} );
+
+    $p2->broadcast( 'ready', { cmd => 'ready', player => $p2->{id} } );
+    $p1->broadcast(
+        { cmd => 'fire_control', target => $p2->{id}, option => 'Ablative Coat' },
+        {   cmd     => 'options',
+            player  => $p2->{id},
+            options => {}
+        },
+        { cmd => 'state', state  => 'Touching' }
+    );
+    done;
+};
+
+subtest 'Fire Control register' => sub {
+    my ( $rally, $p1, $p2 ) = fire_control( {} );
+
+    $p1->broadcast(
+        { cmd => 'fire_control', target => $p2->{id}, register => 0 },
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 0,
+            registers => noclass($p2->{public}{registers}),
+        },
+        { cmd => 'ready', player => $p1->{id} }
+    );
+
+    cmp_deeply( $p2->{public}{registers}, [ L, N, N, N, D ] );
+
+    done;
+};
+
+subtest 'Fire Control register last action' => sub {
+    my ( $rally, $p1, $p2 ) = fire_control( {} );
+
+    $p2->broadcast( 'ready', { cmd => 'ready', player => $p2->{id} } );
+    $p1->broadcast(
+        { cmd => 'fire_control', target => $p2->{id}, register => 0 },
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 0,
+            registers => noclass($p2->{public}{registers}),
+        },
+        { cmd => 'state', state  => 'Touching' }
+    );
+    done;
+};
+
+sub fire_control {
+    my $opts = shift;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my ( $rally, $p1, $p2 ) = Game($opts);
+    $rally->{public}{register} = 0;
+    $p2->{public}{registers}[4]{damaged} = 1;
+    $rally->give_option( $p1, 'Fire Control' );
+    $rally->give_option( $p2, 'Ablative Coat' );
+    $rally->set_state('FIRE');
+    $rally->update;
+    $rally->drop_packets;
+
+    $p1->game( fire => { target => $p2->{id}, type => 'Fire Control' } );
+    $p2->game( { cmd => 'confirm', type => 'Fire Control', player => $p1->{id} } );
+    is( $p2->{public}{damage}, 0 );
+    cmp_deeply( $p1->{packets},
+        [ { cmd => 'fire_control', target => $p2->{id} } ] );
+    cmp_deeply( $rally->{state}{public}{'Fire Control'}, { $p2->{id} => undef } );
+    $rally->drop_packets;
+    return ( $rally, $p1, $p2 );
+}
+
 done_testing;

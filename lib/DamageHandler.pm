@@ -61,6 +61,7 @@ sub apply_damage {
         if ( $locked > 0 ) {
             for my $i ( 5 - $locked .. 4 ) {
                 my $r = $target->{public}{registers}[$i];
+                delete $r->{locked};
                 $r->{damaged} = 1;
                 if ( !@{ $r->{program} } ) {
                     my $card = dclone $game->{movement}->deal;

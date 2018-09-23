@@ -8,7 +8,7 @@ use List::MoreUtils 'firstidx';
 
 require Exporter;
 our @ISA    = 'Exporter';
-our @EXPORT = qw/clone done Player Game r j c L N/;
+our @EXPORT = qw/clone done Player Game r j c D L N/;
 
 use CyborgRally;
 use JSON;
@@ -17,7 +17,8 @@ my $json  = JSON->new->convert_blessed;
 my $rally = CyborgRally->new;
 my $cards = Deck::Movement->new(4);
 
-use constant L => { damaged => 1,  program => ignore() };
+use constant D => { damaged => 1,  program => ignore() };
+use constant L => { damaged => '', program => ignore(), locked => 1 };
 use constant N => { damaged => '', program => ignore() };
 
 undef &Game::broadcast;

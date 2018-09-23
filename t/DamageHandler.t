@@ -47,7 +47,7 @@ subtest 'normal damage' => sub {
             {   cmd       => 'damage',
                 player    => $p1->{id},
                 damage    => 5,
-                registers => [ N, N, N, N, L ]
+                registers => [ N, N, N, N, D ]
             }
         ]
     );
@@ -60,7 +60,7 @@ subtest 'normal damage' => sub {
             {   cmd       => 'damage',
                 player    => $p1->{id},
                 damage    => 9,
-                registers => [ L, L, L, L, L ]
+                registers => [ D, D, D, D, D ]
             }
         ]
     );
@@ -92,7 +92,7 @@ subtest 'over damage' => sub {
             {   cmd       => 'damage',
                 player    => $p1->{id},
                 damage    => 8,
-                registers => [ N, L, L, L, L ]
+                registers => [ N, D, D, D, D ]
             }
         ]
     );
@@ -307,6 +307,34 @@ subtest 'corner case where damage taken kills' => sub {
     cmp_deeply( [ sort keys %{ $p2->{public}{options} } ],
         [ 'Recompile', 'Scrambler' ] );
     cmp_deeply( $rally->{state}{public}{pending_damage}, {} );
+
+    done;
+};
+
+subtest 'damage locked register' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
+    $p1->{public}{registers}[4]{locked} = 1;
+
+    $p1->drop_packets;
+    $rally->{state} = bless( {}, 'DamageState' );
+
+    cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, L ]);
+
+    $rally->{state}->damage( $rally, $p1, 5 );
+    cmp_deeply(
+        $rally->{packets},
+        [
+            {   cmd       => 'damage',
+                player    => $p1->{id},
+                damage    => 5,
+                registers => [ N, N, N, N, D ]
+            }
+        ]
+    );
+
+    cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, D ]);
 
     done;
 };

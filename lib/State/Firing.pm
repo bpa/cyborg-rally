@@ -5,9 +5,10 @@ use warnings;
 use parent qw/State DisputeHandler DamageHandler/;
 use List::MoreUtils 'firstidx';
 use Storable 'dclone';
+use Scalar::Util 'looks_like_number';
 
 use constant FIRE_TYPE => {
-    'Fire Control'      => \&on_main_laser,
+    'Fire Control'      => \&on_fire_control,
     'High-Power Laser'  => \&on_main_laser,
     'laser'             => \&on_main_laser,
     'Mini Howitzer'     => \&on_howitzer,
@@ -64,6 +65,68 @@ sub do_fire {
                 player => $c->{id},
             }
         );
+    }
+}
+
+sub do_fire_control {
+    my ( $self, $game, $c, $msg ) = @_;
+
+    unless (exists $c->{public}{options}{'Fire Control'}) {
+        $c->err('Invalid command');
+        return;
+    }
+
+    unless ( exists $msg->{target}
+        && exists $self->{public}{'Fire Control'}{ $msg->{target} } )
+    {
+        $c->err('Invalid target');
+        return;
+    }
+    my $target = $game->{player}{$msg->{target}};
+
+    my $register = $msg->{register};
+    if ( defined $register ) {
+        if (!looks_like_number($register) || $register < 0 || $register > 4) {
+            $c->err('Invalid register');
+            return;
+        }
+        my $reg = $target->{public}{registers}[$register];
+        if ($reg->{locked} || $reg->{damaged}) {
+            $c->err('Register is already locked');
+            return;
+        }
+        $reg->{locked} = 1;
+        $game->broadcast(
+            {   cmd       => 'damage',
+                player    => $target->{id},
+                damage    => $target->{public}{damage},
+                registers => $target->{public}{registers}
+            }
+        );
+    }
+    elsif ( exists $msg->{option} ) {
+        unless (defined $target->{public}{options}{$msg->{option}}) {
+            $c->err('Invalid option');
+            return;
+        }
+        delete $target->{public}{options}{$msg->{option}};
+        $game->broadcast(
+            {   cmd     => 'options',
+                player  => $target->{id},
+                options => $target->{public}{options}
+            }
+        );
+    }
+    else {
+        $c->err('Missing option or register');
+        return;
+    }
+
+    my $shot = $self->{shot}{ $c->{id} };
+    if ( $shot->{max} == grep { ref($_) eq 'HASH' && $_->{confirmed} }
+        values %$shot )
+    {
+        $self->do_ready( $game, $c, 1 );
     }
 }
 
@@ -157,8 +220,12 @@ sub on_hit {
     $beam->{confirmed} = 1;
     $self->remove($beam);
     my $shot = $self->{shot}{ $player->{id} };
-    if ( $shot->{max} == grep { ref($_) eq 'HASH' && $_->{confirmed} }
-        values %$shot )
+    if ($shot->{max} == grep {
+                 ref($_) eq 'HASH'
+              && $_->{confirmed}
+              && $_->{type} ne 'Fire Control'
+        } values %$shot
+      )
     {
         $self->do_ready( $game, $player );
     }
@@ -192,6 +259,12 @@ sub on_main_laser {
 sub on_rear_laser {
     my ( $self, $game, $bot, $target, $beam ) = @_;
     $self->damage( $game, $target, 1 );
+}
+
+sub on_fire_control {
+    my ( $self, $game, $bot, $target, $beam ) = @_;
+    $self->{public}{'Fire Control'}{$target->{id}} = ();
+    $bot->send( { cmd => 'fire_control', target => $target->{id} } );
 }
 
 sub on_howitzer {

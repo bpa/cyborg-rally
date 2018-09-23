@@ -133,7 +133,7 @@ subtest 'healing unlocks registers' => sub {
                 player    => $p2->{id},
                 heal      => 1,
                 damage    => 6,
-                registers => [ N, N, N, L, L ]
+                registers => [ N, N, N, D, D ]
             },
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
@@ -144,7 +144,44 @@ subtest 'healing unlocks registers' => sub {
     is( $p1->{public}{damage}, 4 );
     is( $p2->{public}{damage}, 6 );
     cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, N ] );
-    cmp_deeply( $p2->{public}{registers}, [ N, N, N, L, L ] );
+    cmp_deeply( $p2->{public}{registers}, [ N, N, N, D, D ] );
+
+    done;
+};
+
+subtest 'healing fire controlled registers' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->{public}{register} = 4;
+    $rally->set_state('TOUCH');
+    $rally->update;
+    $rally->drop_packets;
+
+    $p1->{public}{damage} = 5;
+
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r( 4, 1 ) ];
+    $p1->{public}{registers}[2]{locked} = 1;
+
+    $p1->broadcast( { cmd => 'touch', tile => 'repair' },
+        { cmd => 'touch', player => $p1->{id}, tile => 'repair' } );
+    $p2->game( { cmd => 'touch', tile => 'repair' } );
+
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'touch', player => $p2->{id}, tile => 'repair' },
+            {   cmd       => 'heal',
+                player    => $p1->{id},
+                heal      => 0,
+                damage    => 5,
+                registers => [ N, N, N, N, D ]
+            },
+            { cmd => 'state', state => 'Revive' },
+            { cmd => 'state', state => 'PowerDown' },
+            { cmd => 'state', state => 'Programming' },
+        ]
+    );
+
+    is( $p1->{public}{damage}, 5 );
+    cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, D ] );
 
     done;
 };
