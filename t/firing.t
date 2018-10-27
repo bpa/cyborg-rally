@@ -669,6 +669,7 @@ sub fire_control {
     my ( $rally, $p1, $p2 ) = Game($opts);
     $rally->{public}{register} = 0;
     $p2->{public}{registers}[4]{damaged} = 1;
+    $p2->{public}{registers}[4]{locked} = 1;
     $rally->give_option( $p1, 'Fire Control' );
     $rally->give_option( $p2, 'Ablative Coat' );
     $rally->set_state('FIRE');
@@ -680,7 +681,7 @@ sub fire_control {
     is( $p2->{public}{damage}, 0 );
     cmp_deeply( $p1->{packets},
         [ { cmd => 'fire_control', target => $p2->{id} } ] );
-    cmp_deeply( $rally->{state}{public}{'Fire Control'}, { $p2->{id} => undef } );
+    is( $rally->{state}{public}{'Fire Control'}, $p2->{id});
     $rally->drop_packets;
     return ( $rally, $p1, $p2 );
 }

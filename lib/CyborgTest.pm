@@ -17,9 +17,9 @@ my $json  = JSON->new->convert_blessed;
 my $rally = CyborgRally->new;
 my $cards = Deck::Movement->new(4);
 
-use constant D => { damaged => 1,  program => ignore() };
+use constant D => { damaged => 1,  program => ignore(), locked => 1 };
 use constant L => { damaged => '', program => ignore(), locked => 1 };
-use constant N => { damaged => '', program => ignore() };
+use constant N => { damaged => '', program => ignore(), locked => '' };
 
 undef &Game::broadcast;
 *Game::broadcast = sub {
@@ -114,12 +114,9 @@ sub r {
     if ( defined $r && !ref($r) ) {
         $r = c($r);
     }
-    if ( defined $r ) {
-        return { program => [$r], damaged => !!$dmg };
-    }
-    else {
-        return { program => [], damaged => !!$dmg };
-    }
+    my $register
+      = { program => defined($r) ? [$r] : [], damaged => !!$dmg, locked => !!$dmg };
+    return $register;
 }
 
 package TestPlayer;

@@ -6,8 +6,8 @@ import { Panel } from 'rebass';
 import { Button, Content, Shutdown } from './Widgets';
 
 const RELEVANT_OPTIONS = {
-  'Dual Processor': {2: ['r','l'], 3: ['r','l','u']},
-  'Crab Legs': {1: ['r','l']},
+  'Dual Processor': { 2: ['r', 'l'], 3: ['r', 'l', 'u'] },
+  'Crab Legs': { 1: ['r', 'l'] },
 };
 
 const VALID = {
@@ -16,248 +16,251 @@ const VALID = {
   3: { l: true, r: true, u: true },
 };
 
-const ALL_CARDS = { 1: true, 2: true, 3: true, b: true, u: true, l: true, r: true,
-    '1l': true, '1r': true,
-    '2l': true, '2r': true,
-    '3l': true, '3r': true, '3u': true };
+const ALL_CARDS = {
+  1: true, 2: true, 3: true, b: true, u: true, l: true, r: true,
+  '1l': true, '1r': true,
+  '2l': true, '2r': true,
+  '3l': true, '3r': true, '3u': true
+};
 
 export default class Programming extends React.Component {
-    constructor(props) {
-        super(props);
-        const keys = Object.keys(props.players);
-        const cards = gs.private.cards || []
-        var reg = gs.private.registers;
-        if (!reg) {
-          reg = [];
-          for (var i=0; i<5; i++) {
-            reg.push({damaged:0, program:[]});
-          }
-          gs.private.registers = reg;
-        }
-        if (gs.state === undefined) {
-          gs.state = {};
-        }
-        this.state={
-          valid: ALL_CARDS,
-          cards: cards.sort((a,b)=>b.priority-a.priority),
-          registers: reg.clone(),
-        };
-        this.ready = this.ready.bind(this);
-        this.cancel_recompile = this.cancel_recompile.bind(this);
-        this.update_used(this.state.registers);
-    }
-
-    on_programming(msg) {
-        var cards = [];
-        if (msg.cards) {
-            cards = msg.cards.sort((a,b)=>b.priority-a.priority);
-        }
-        gs.private.cards = cards;
-        gs.state = {recompiled: msg.recompiled};
-        this.used = {};
-        this.setState({
-            cards: cards,
-            registers: msg.registers
-        });
-    }
-
-    update_used(registers) {
-      let used = {}, held = {}, required = 0,
-          cards = this.state.cards, remaining = cards.length;
-      for (var c of Object.keys(ALL_CARDS)) {
-        held[c] = 0;
+  constructor(props) {
+    super(props);
+    const keys = Object.keys(props.players);
+    const cards = gs.private.cards || []
+    var reg = gs.private.registers;
+    if (!reg) {
+      reg = [];
+      for (var i = 0; i < 5; i++) {
+        reg.push({ locked: 0, program: [] });
       }
-      for (let c of cards) {
-        held[c.name]++;
-      }
-      for (var r of registers) {
-        remaining -= r.program.length;
-        if (!r.program) {
-          r.name = 'null';
-          required++;
-        }
-        else {
-          r.name = r.program.map((p)=>p.name).join('');
-        }
-        for (var c of r.program) {
-          used[c.priority] = true;
-          held[c.name]--;
-        }
-      }
-      this.used = used;
-      this.held = held;
-      this.remaining = remaining;
-      this.required = required;
+      gs.private.registers = reg;
     }
-
-    on_program(msg) {
-        gs.private.registers = msg.registers;
-        this.update_used(msg.registers);
-        this.setState({registers:msg.registers.clone()});
+    if (gs.state === undefined) {
+      gs.state = {};
     }
+    this.state = {
+      valid: ALL_CARDS,
+      cards: cards.sort((a, b) => b.priority - a.priority),
+      registers: reg.clone(),
+    };
+    this.ready = this.ready.bind(this);
+    this.cancel_recompile = this.cancel_recompile.bind(this);
+    this.update_used(this.state.registers);
+  }
 
-    on_error(msg) {
-        this.update_used(gs.private.registers);
-        this.setState({registers:gs.private.registers.clone()});
+  on_programming(msg) {
+    var cards = [];
+    if (msg.cards) {
+      cards = msg.cards.sort((a, b) => b.priority - a.priority);
     }
+    gs.private.cards = cards;
+    gs.state = { recompiled: msg.recompiled };
+    this.used = {};
+    this.setState({
+      cards: cards,
+      registers: msg.registers
+    });
+  }
 
-    choose(card) {
-      const registers = this.state.registers;
-      const reg = registers.map((r)=>r.program);
-
-      if (this.state.register !== undefined) {
-        reg[this.state.register][1] = card;
-        ws.send({ cmd:'program', registers:reg });
-        this.setState({register: undefined, active: undefined, valid: ALL_CARDS});
-        return;
-      }
-
-      const i = reg.findIndex((r)=>r.length==0);
-      if (i>=0) {
-        let r = reg[i];
-        r[0] = card;
-        this.update_used(registers);
-        this.setState({registers:registers});
-        ws.send({ cmd:'program', registers:reg });
-        if (this.state.active && this.state.register === undefined) {
-          this.set_register(i);
-        }
-      }
+  update_used(registers) {
+    let used = {}, held = {}, required = 0,
+      cards = this.state.cards, remaining = cards.length;
+    for (var c of Object.keys(ALL_CARDS)) {
+      held[c] = 0;
     }
-
-    activate(option) {
-      if (option === 'Recompile') {
-        this.setState({confirm_recompile: true});
+    for (let c of cards) {
+      held[c.name]++;
+    }
+    for (var r of registers) {
+      remaining -= r.program.length;
+      if (!r.program) {
+        r.name = 'null';
+        required++;
       }
       else {
-        this.combine(option);
+        r.name = r.program.map((p) => p.name).join('');
+      }
+      for (var c of r.program) {
+        used[c.priority] = true;
+        held[c.name]--;
       }
     }
+    this.used = used;
+    this.held = held;
+    this.remaining = remaining;
+    this.required = required;
+  }
 
-    deactivate(option) {
-      this.setState({register: undefined, active: undefined, valid: ALL_CARDS});
+  on_program(msg) {
+    gs.private.registers = msg.registers;
+    this.update_used(msg.registers);
+    this.setState({ registers: msg.registers.clone() });
+  }
+
+  on_error(msg) {
+    this.update_used(gs.private.registers);
+    this.setState({ registers: gs.private.registers.clone() });
+  }
+
+  choose(card) {
+    const registers = this.state.registers;
+    const reg = registers.map((r) => r.program);
+
+    if (this.state.register !== undefined) {
+      reg[this.state.register][1] = card;
+      ws.send({ cmd: 'program', registers: reg });
+      this.setState({ register: undefined, active: undefined, valid: ALL_CARDS });
+      return;
     }
 
-    combine(option) {
-      let valid = {};
-      let requirements = RELEVANT_OPTIONS[option];
-      for (let k of Object.keys(requirements)) {
-        var found = false;
-        for (let turn of requirements[k]) {
-          found = found || this.held[turn];
-        }
-        if (found &&
-            (this.held[k] || this.state.registers.filter((r)=>r.name==k).length)) {
-          valid[k] = true;
-        }
+    const i = reg.findIndex((r) => r.length == 0);
+    if (i >= 0) {
+      let r = reg[i];
+      r[0] = card;
+      this.update_used(registers);
+      this.setState({ registers: registers });
+      ws.send({ cmd: 'program', registers: reg });
+      if (this.state.active && this.state.register === undefined) {
+        this.set_register(i);
       }
-      if (Object.keys(valid).length) {
-        this.setState({active: option, register: undefined, valid: valid});
+    }
+  }
+
+  activate(option) {
+    if (option === 'Recompile') {
+      this.setState({ confirm_recompile: true });
+    }
+    else {
+      this.combine(option);
+    }
+  }
+
+  deactivate(option) {
+    this.setState({ register: undefined, active: undefined, valid: ALL_CARDS });
+  }
+
+  combine(option) {
+    let valid = {};
+    let requirements = RELEVANT_OPTIONS[option];
+    for (let k of Object.keys(requirements)) {
+      var found = false;
+      for (let turn of requirements[k]) {
+        found = found || this.held[turn];
+      }
+      if (found &&
+        (this.held[k] || this.state.registers.filter((r) => r.name == k).length)) {
+        valid[k] = true;
       }
     }
-
-    set_register(i) {
-      var mv = this.state.registers[i].program[0];
-      this.setState({register: i, valid: VALID[mv.name]});
+    if (Object.keys(valid).length) {
+      this.setState({ active: option, register: undefined, valid: valid });
     }
+  }
 
-    clear(r) {
-        const registers = this.state.registers;
-        registers[r].program = [];
-        const reg = registers.map((r)=>r.program);
-        this.update_used(registers);
-        this.setState({registers:registers});
-        ws.send({ cmd:'program', registers:reg });
-    }
+  set_register(i) {
+    var mv = this.state.registers[i].program[0];
+    this.setState({ register: i, valid: VALID[mv.name] });
+  }
 
-    ready() {
-        ws.send({cmd: 'ready'});
-    }
+  clear(r) {
+    const registers = this.state.registers;
+    registers[r].program = [];
+    const reg = registers.map((r) => r.program);
+    this.update_used(registers);
+    this.setState({ registers: registers });
+    ws.send({ cmd: 'program', registers: reg });
+  }
 
-    recompile() {
-      ws.send({cmd: 'recompile'});
-      this.setState({confirm_recompile: false});
-    }
+  ready() {
+    ws.send({ cmd: 'ready' });
+  }
 
-    cancel_recompile() {
-      this.setState({confirm_recompile: false});
-    }
+  recompile() {
+    ws.send({ cmd: 'recompile' });
+    this.setState({ confirm_recompile: false });
+  }
 
-    confirm_recompile() {
-      let imgStyle = {
-        width: '60px',
-        height: '60px',
-        margin: '5px',
-        backgroundColor: 'green',
-        borderRadius: 6,
-        overflow: 'hidden',
-        float: 'left',
-      };
-      return this.state.confirm_recompile ? (
+  cancel_recompile() {
+    this.setState({ confirm_recompile: false });
+  }
+
+  confirm_recompile() {
+    let imgStyle = {
+      width: '60px',
+      height: '60px',
+      margin: '5px',
+      backgroundColor: 'green',
+      borderRadius: 6,
+      overflow: 'hidden',
+      float: 'left',
+    };
+    return this.state.confirm_recompile ? (
       <Modal title="Confirm Recompile" closeText="Cancel" close={this.cancel_recompile}>
         <div style={imgStyle}>
-          <img src="images/recompile.svg" style={{width: '100%'}}/>
+          <img src="images/recompile.svg" style={{ width: '100%' }} />
         </div>
-        <span style={{color: 'black'}}>
-          Are you sure?<br/>
+        <span style={{ color: 'black' }}>
+          Are you sure?<br />
           You will take 1 damage and get new cards.
         </span>
         <Button onClick={this.recompile.bind(this)} bg="green">
-            Yes
+          Yes
         </Button>
       </Modal>)
       : null;
-    }
+  }
 
-    registers() {
-      const self = this;
-      var moves = this.state.registers.map(function(r, i) {
-        if (self.state.valid[r.name]) {
-          let f = self.state.active ? self.set_register : self.clear;
-          return <Register register={r} key={i} onClick={f.bind(self, i)}/>;
-        }
-        else {
-          return <Register register={r} key={i} inactive={true}/>;
-        }
-      });
-      return moves;
-    }
-
-    render() {
-      let self = this;
-      if (this.props.players[gs.id].shutdown) {
-          return <Shutdown/>;
+  registers() {
+    const self = this;
+    var moves = this.state.registers.map(function (r, i) {
+      if (self.state.valid[r.name]) {
+        let f = self.state.active ? self.set_register : self.clear;
+        return <Register register={r} key={i} onClick={f.bind(self, i)} />;
       }
-      const cards = this.state.cards.map(function(c) {
-        if (self.used[c.priority] || !self.state.valid[c.name]) {
-          return <Icon card={c} key={c.priority} inactive/>;
-        }
-        else {
-          let click = self.choose.bind(self, c);
-          return <Icon card={c} key={c.priority} onClick={click}/>;
-        }
-      });
+      else {
+        return <Register register={r} key={i} inactive={true} />;
+      }
+    });
+    return moves;
+  }
 
-      return (
-<Content p={0}>
-  <OptionPanel me={this.props.me} notify={this} active={this.state.active}>
-    <o name='Dual Processor'/>
-    <o name='Crab Legs'/>
-    <o name='Recompile'/>
-  </OptionPanel>
-  <Panel mt={2}>
-    <Panel.Header bg="orange">Registers</Panel.Header>
-    <Content flexDirection="row">{this.registers()}</Content>
-  </Panel>
-  <Panel mt={2}>
-    <Panel.Header bg="cyan">Movement Cards</Panel.Header>
-    <Content flexDirection="row" flexWrap="wrap">{cards}</Content>
-  </Panel>
-  <Button bg={this.props.me.ready?'red':'green'} onClick={this.ready}>
-    {this.props.me.ready?'Not Ready':'Ready'}
-  </Button>
-  {this.confirm_recompile()}
-</Content>
-    )}
+  render() {
+    let self = this;
+    if (this.props.players[gs.id].shutdown) {
+      return <Shutdown />;
+    }
+    const cards = this.state.cards.map(function (c) {
+      if (self.used[c.priority] || !self.state.valid[c.name]) {
+        return <Icon card={c} key={c.priority} inactive />;
+      }
+      else {
+        let click = self.choose.bind(self, c);
+        return <Icon card={c} key={c.priority} onClick={click} />;
+      }
+    });
+
+    return (
+      <Content p={0}>
+        <OptionPanel me={this.props.me} notify={this} active={this.state.active}>
+          <o name='Dual Processor' />
+          <o name='Crab Legs' />
+          <o name='Recompile' />
+        </OptionPanel>
+        <Panel mt={2}>
+          <Panel.Header bg="orange">Registers</Panel.Header>
+          <Content flexDirection="row">{this.registers()}</Content>
+        </Panel>
+        <Panel mt={2}>
+          <Panel.Header bg="cyan">Movement Cards</Panel.Header>
+          <Content flexDirection="row" flexWrap="wrap">{cards}</Content>
+        </Panel>
+        <Button bg={this.props.me.ready ? 'red' : 'green'} onClick={this.ready}>
+          {this.props.me.ready ? 'Not Ready' : 'Ready'}
+        </Button>
+        {this.confirm_recompile()}
+      </Content>
+    )
+  }
 }
 

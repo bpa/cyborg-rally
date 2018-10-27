@@ -6,9 +6,10 @@ use CyborgTest;
 use Scalar::Util 'looks_like_number';
 use List::Util;
 
-use constant EMPTY => { damaged => '', program => [] };
+use constant EMPTY => { damaged => '', locked => '', program => [] };
 use constant LOCK => {
     damaged => 1,
+    locked  => 1,
     program => code(
         sub {
             return ( 0, "No program" ) unless @{ $_[0] };

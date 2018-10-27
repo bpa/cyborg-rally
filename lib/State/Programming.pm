@@ -35,7 +35,7 @@ sub on_enter {
             $self->{flywheel} = delete $flywheel->{card};
         }
 
-        map { $_->{program} = [] unless $_ && $_->{damaged} }
+        map { $_->{program} = [] unless $_ && $_->{locked} }
           @{ $p->{public}{registers} };
         $self->give_cards( $game, $p, $cards );
 
@@ -103,7 +103,7 @@ sub do_program {
             return;
         }
 
-        push @cards, @$r unless $c->{public}{registers}[$i]{damaged};
+        push @cards, @$r unless $c->{public}{registers}[$i]{locked};
     }
 
     if ( too_many_doubles( $msg->{registers}, $c ) ) {
@@ -132,7 +132,7 @@ sub do_program {
 
     for my $i ( 0 .. 4 ) {
         my $r = $c->{private}{registers}[$i];
-        next if $r->{damaged};
+        next if $r->{locked};
 
         if ( defined $msg->{registers}[$i] ) {
             $r->{program} = $msg->{registers}[$i];
@@ -176,7 +176,7 @@ sub too_many_doubles {
     my ( $used, $needed ) = ( 0, 0 );
     my $registers = $player->{public}{registers};
     for my $i ( 0 .. 4 ) {
-        next if $registers->[$i]{damaged};
+        next if $registers->[$i]{locked};
         if ( $program->[$i] ) {
             $used += @{ $program->[$i] };
         }
@@ -234,7 +234,7 @@ sub do_ready {
 sub locked_but_not_matching {
     my ( $i, $cards, $registers ) = @_;
 
-    return unless $registers->[$i]{damaged};
+    return unless $registers->[$i]{locked};
 
     my $locked = $registers->[$i]{program};
 
@@ -254,7 +254,7 @@ sub on_exit {
         my $registers = delete $p->{private}{registers};
 
         for my $r (@$registers) {
-            map { $cards->remove($_) } @{ $r->{program} } if !$r->{damaged};
+            map { $cards->remove($_) } @{ $r->{program} } if !$r->{locked};
         }
         if ( $p->{public}{ready} ) {
             $p->{public}{registers} = $registers;

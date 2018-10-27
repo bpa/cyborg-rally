@@ -133,7 +133,7 @@ subtest 'healing unlocks registers' => sub {
                 player    => $p2->{id},
                 heal      => 1,
                 damage    => 6,
-                registers => [ N, N, N, D, D ]
+                registers => [ N, N, N, N, D ]
             },
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
@@ -144,7 +144,7 @@ subtest 'healing unlocks registers' => sub {
     is( $p1->{public}{damage}, 4 );
     is( $p2->{public}{damage}, 6 );
     cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, N ] );
-    cmp_deeply( $p2->{public}{registers}, [ N, N, N, D, D ] );
+    cmp_deeply( $p2->{public}{registers}, [ N, N, N, N, D ] );
 
     done;
 };
@@ -157,9 +157,11 @@ subtest 'healing fire controlled registers' => sub {
     $rally->drop_packets;
 
     $p1->{public}{damage} = 5;
+    $p2->{public}{damage} = 5;
 
     $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r( 4, 1 ) ];
-    $p1->{public}{registers}[2]{locked} = 1;
+    $p2->{public}{registers} = [ r(0), r(1), r(2), r(3), r( 4, 1 ) ];
+    $p2->{public}{registers}[2]{locked} = 1;
 
     $p1->broadcast( { cmd => 'touch', tile => 'repair' },
         { cmd => 'touch', player => $p1->{id}, tile => 'repair' } );
@@ -167,9 +169,15 @@ subtest 'healing fire controlled registers' => sub {
 
     cmp_deeply(
         $rally->{packets},
-        [   { cmd => 'touch', player => $p2->{id}, tile => 'repair' },
+        bag({ cmd => 'touch', player => $p2->{id}, tile => 'repair' },
             {   cmd       => 'heal',
                 player    => $p1->{id},
+                heal      => 1,
+                damage    => 4,
+                registers => [ N, N, N, N, N ]
+            },
+            {   cmd       => 'heal',
+                player    => $p2->{id},
                 heal      => 0,
                 damage    => 5,
                 registers => [ N, N, N, N, D ]
@@ -177,11 +185,14 @@ subtest 'healing fire controlled registers' => sub {
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
             { cmd => 'state', state => 'Programming' },
-        ]
+        )
     );
 
-    is( $p1->{public}{damage}, 5 );
-    cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, D ] );
+    is( $p1->{public}{damage}, 4 );
+    cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, N ] );
+
+    is( $p2->{public}{damage}, 5 );
+    cmp_deeply( $p2->{public}{registers}, [ N, N, N, N, D ] );
 
     done;
 };

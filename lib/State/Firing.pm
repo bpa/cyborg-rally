@@ -77,7 +77,7 @@ sub do_fire_control {
     }
 
     unless ( exists $msg->{target}
-        && exists $self->{public}{'Fire Control'}{ $msg->{target} } )
+        && $self->{public}{'Fire Control'} eq $msg->{target} )
     {
         $c->err('Invalid target');
         return;
@@ -122,6 +122,8 @@ sub do_fire_control {
         return;
     }
 
+    $c->send( { cmd => 'fire_control' });
+    delete $self->{public}{'Fire Control'};
     my $shot = $self->{shot}{ $c->{id} };
     if ( $shot->{max} == grep { ref($_) eq 'HASH' && $_->{confirmed} }
         values %$shot )
@@ -263,7 +265,7 @@ sub on_rear_laser {
 
 sub on_fire_control {
     my ( $self, $game, $bot, $target, $beam ) = @_;
-    $self->{public}{'Fire Control'}{$target->{id}} = ();
+    $self->{public}{'Fire Control'} = $target->{id};
     $bot->send( { cmd => 'fire_control', target => $target->{id} } );
 }
 

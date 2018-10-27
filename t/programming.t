@@ -4,9 +4,25 @@ use Test::More;
 use Test::Deep;
 use CyborgTest;
 use List::MoreUtils 'firstidx';
+use Storable 'dclone';
 
 use constant FULL => {
     damaged => ignore,
+    locked  => ignore,
+    program => [
+        noclass(
+            {   name     => ignore,
+                priority => ignore,
+                number   => ignore,
+                total    => ignore
+            }
+        )
+    ]
+};
+
+use constant LOCK => {
+    damaged => 1,
+    locked  => 1,
     program => [
         noclass(
             {   name     => ignore,
@@ -20,6 +36,7 @@ use constant FULL => {
 
 use constant EMPTY => {
     damaged => ignore,
+    locked  => ignore,
     program => []
 };
 
@@ -27,6 +44,7 @@ sub reg {
     my ( $damaged, $card ) = @_;
     return {
         damaged => $damaged,
+        locked  => $damaged,
         program => [ noclass($card) ]
     };
 }
@@ -179,20 +197,24 @@ subtest 'locked registers' => sub {
     $rally->{state}->on_exit($rally);
     $p1->{public}{damage}                = 5;
     $p1->{public}{registers}[4]{damaged} = 1;
+    $p1->{public}{registers}[4]{locked}  = 1;
     $p2->{public}{damage}                = 2;
+    $p2->{public}{registers}[2]{locked}  = 1;
     $rally->drop_packets;
-    my $locked = $p1->{public}{registers}[4];
+    my $p1_locked = dclone($p1->{public}{registers}[4]);
+    my $p2_locked = dclone($p2->{public}{registers}[2]);
     $rally->{state}->on_enter($rally);
 
     # Did p1 get set up correctly?
-    cmp_deeply( $p1->{private}{registers}, [ N, N, N, N, $locked ] );
+    cmp_deeply( $p1->{private}{registers}, [ N, N, N, N, $p1_locked ] );
+    cmp_deeply( $p2->{private}{registers}, [ N, N, $p2_locked, N, N ] );
 
     cmp_deeply(
         $p1->{packets},
         [
             {   cmd       => 'programming',
                 cards     => cnt(4),
-                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, noclass( j($locked) ) ]
+                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, noclass( j($p1_locked) ) ]
             }
         ]
     );
@@ -201,17 +223,24 @@ subtest 'locked registers' => sub {
         [
             {   cmd       => 'programming',
                 cards     => cnt(7),
-                registers => [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ]
+                registers => [ EMPTY, EMPTY, noclass( j($p2_locked)), EMPTY, EMPTY ]
             }
         ]
     );
 
     # Register 5 is locked
     program( $rally, $p1, [ 0, 1, 2, [], 3 ], "Invalid program" );
-    program( $rally, $p1, [ [], [], [], [], j( $locked->{program} ) ] );
-    program( $rally, $p1, [ 2,  [], [], [], j( $locked->{program} ) ] );
-    program( $rally, $p1, [ 0, 1, 2, 3, j( $locked->{program} ) ] );
+    program( $rally, $p1, [ [], [], [], [], j( $p1_locked->{program} ) ] );
+    program( $rally, $p1, [ 2,  [], [], [], j( $p1_locked->{program} ) ] );
+    program( $rally, $p1, [ 0, 1, 2, 3, j( $p1_locked->{program} ) ] );
     program( $rally, $p1, [ 0, 1, 2, 3 ] );
+
+    # Register 2 is locked
+    program( $rally, $p2, [ 0, 1, [], 3 ], "Invalid program" );
+    program( $rally, $p2, [ [], [], j( $p2_locked->{program} ) ] );
+    program( $rally, $p2, [ 2,  [], j( $p2_locked->{program} ) ] );
+    program( $rally, $p2, [ 0, 1, j( $p2_locked->{program} ) ] );
+    program( $rally, $p2, [ 0 ] );
 
     done;
 };
@@ -295,11 +324,12 @@ subtest 'time up with locked' => sub {
     $p1->{public}{damage}    = 5;
     $p1->{public}{locked}    = [ 0, 0, 0, 0, 1 ];
     $p1->{public}{registers} = [
-        { damaged => '', program => [] },
-        { damaged => '', program => [] },
-        { damaged => '', program => [] },
-        { damaged => '', program => [] },
+        { damaged => '', locked => '', program => [] },
+        { damaged => '', locked => '', program => [] },
+        { damaged => '', locked => '', program => [] },
+        { damaged => '', locked => '', program => [] },
         {   damaged => 1,
+            locked  => 1,
             program => [$d1]
         }
     ];
@@ -307,13 +337,14 @@ subtest 'time up with locked' => sub {
     # Simulating a player that has had 'Fire Control' used on them
     $p2->{public}{locked} = [ 0, 0, 1, 0, 0 ];
     $p2->{public}{registers} = [
-        { damaged => '', program => [] },
-        { damaged => '', program => [] },
+        { damaged => '', locked => '', program => [] },
+        { damaged => '', locked => '', program => [] },
         {   damaged => 1,
+            locked  => 1,
             program => [$d2]
         },
-        { damaged => '', program => [] },
-        { damaged => '', program => [] }
+        { damaged => '', locked => '', program => [] },
+        { damaged => '', locked => '', program => [] }
     ];
 
     $rally->{state}->on_enter($rally);
@@ -323,8 +354,8 @@ subtest 'time up with locked' => sub {
 
     $rally->{state}->on_exit($rally);
 
-    cmp_deeply( $p1->{public}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
-    cmp_deeply( $p2->{public}{registers}, [ FULL, FULL, FULL, FULL, FULL ] );
+    cmp_deeply( $p1->{public}{registers}, [ FULL, FULL, FULL, FULL, LOCK ] );
+    cmp_deeply( $p2->{public}{registers}, [ FULL, FULL, LOCK, FULL, FULL ] );
     cmp_deeply( $p1->{public}{registers}[4], reg( 1, $d1 ) );
     cmp_deeply( $p2->{public}{registers}[2], reg( 1, $d2 ) );
 
@@ -661,9 +692,10 @@ subtest 'recompile with locked' => sub {
     $rally->{state}->on_exit($rally);
     $p1->{public}{damage}                = 5;
     $p1->{public}{registers}[4]{damaged} = 1;
+    $p1->{public}{registers}[4]{locked}  = 1;
     $p2->{public}{damage}                = 2;
     $rally->drop_packets;
-    my $locked = $p1->{public}{registers}[4];
+    my $locked = dclone($p1->{public}{registers}[4]);
     $rally->{state}->on_enter($rally);
 
     program( $rally, $p1, [0] );
@@ -780,25 +812,29 @@ sub program {
     my $hand = $player->{private}{cards}{cards};
     my ( @program, @expected );
     for my $c (@$cards) {
+        my $register = $player->{public}{registers}[@expected];
         if ( ref($c) eq 'ARRAY' ) {
             push @program, $c;
             push @expected,
               { program => noclass( j($c) ),
-                damaged => $player->{public}{registers}[@expected]{damaged}
+                damaged => $register->{damaged},
+                locked  => $register->{locked},
               };
         }
         elsif ( ref($c) ) {
             push @program, [$c];
             push @expected,
               { program => [ noclass( {%$c} ) ],
-                damaged => $player->{public}{registers}[@expected]{damaged}
+                damaged => $register->{damaged},
+                locked  => $register->{locked},
               };
         }
         else {
             push @program, [ $hand->[$c] ];
             push @expected,
               { program => [ noclass( { %{ $hand->[$c] } } ) ],
-                damaged => $player->{public}{registers}[@expected]{damaged}
+                damaged => $register->{damaged},
+                locked  => $register->{locked},
               };
         }
     }

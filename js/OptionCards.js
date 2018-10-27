@@ -13,7 +13,7 @@ class Option {
 
     if (state.showHelp) {
       return <Icon name={this.name} key={this.name} help
-        onClick={state.openHelp.bind(null, this.name)}/>;
+        onClick={state.openHelp.bind(null, this.name)} />;
     }
 
     return this.render_option(props, state);
@@ -22,15 +22,15 @@ class Option {
   render_option(props, state) {
     if (props.active === this.name) {
       return <Icon name={this.name} key={this.name}
-        onClick={props.notify.deactivate.bind(props.notify, this.name)}/>;
+        onClick={props.notify.deactivate.bind(props.notify, this.name)} />;
     }
 
     if (!(props.active === undefined && this.active())) {
-      return <Icon name={this.name} key={this.name} inactive/>;
+      return <Icon name={this.name} key={this.name} inactive />;
     }
 
     return <Icon name={this.name} key={this.name}
-        onClick={props.notify.activate.bind(props.notify, this.name)}/>;
+      onClick={props.notify.activate.bind(props.notify, this.name)} />;
   }
 }
 
@@ -50,8 +50,8 @@ class ComboOption extends Option {
 
     var reg = gs.private.registers;
     for (var r of reg) {
-      if (r.damaged || r.program.length == 2
-          || (r.program.length == 1 && r.program[0].name > "3")) {
+      if (r.locked || r.program.length == 2
+        || (r.program.length == 1 && r.program[0].name > "3")) {
         for (var p of r.program) {
           held[p.name]--;
         }
@@ -92,48 +92,48 @@ class FiringOption extends Option {
 
     if (props.active === this.name) {
       return <Icon name={this.name} key={this.name} selected
-        onClick={props.notify.deactivate.bind(props.notify, this.name)}/>;
+        onClick={props.notify.deactivate.bind(props.notify, this.name)} />;
     }
 
     return <Icon name={this.name} key={this.name}
-        onClick={props.notify.activate.bind(props.notify, this.name)}/>;
+      onClick={props.notify.activate.bind(props.notify, this.name)} />;
   }
 }
 
 class LaserOption extends Option {
   render(props, state) {
     let options = gs.public.player[gs.id].options;
-    let o = options['Double Barreled Laser'] || {name: 'laser'};
+    let o = options['Double Barreled Laser'] || { name: 'laser' };
 
     if (state.showHelp) {
       return <Icon option={o} key={o.name} help
-        onClick={state.openHelp.bind(null, o.name)}/>;
+        onClick={state.openHelp.bind(null, o.name)} />;
     }
 
     if (props.active === 'laser') {
       return <Icon option={o} key={o.name} selected
-        onClick={props.notify.deactivate.bind(props.notify, 'laser')}/>;
+        onClick={props.notify.deactivate.bind(props.notify, 'laser')} />;
     }
 
     return <Icon option={o} key={o.name}
-        onClick={props.notify.activate.bind(props.notify, 'laser')}/>;
+      onClick={props.notify.activate.bind(props.notify, 'laser')} />;
   }
 }
 
 var OptionCards = {
-  'Abort Switch':      new OneTimeOption('Abort Switch', 'aborted'),
-  'Crab Legs':         new ComboOption('Crab Legs', {1: ['r','l']}),
-  'Dual Processor':    new ComboOption('Dual Processor', {2: ['r','l'], 3: ['r','l','u']}),
-  'Recompile':         new OneTimeOption('Recompile', 'recompiled'),
+  'Abort Switch': new OneTimeOption('Abort Switch', 'aborted'),
+  'Crab Legs': new ComboOption('Crab Legs', { 1: ['r', 'l'] }),
+  'Dual Processor': new ComboOption('Dual Processor', { 2: ['r', 'l'], 3: ['r', 'l', 'u'] }),
+  'Recompile': new OneTimeOption('Recompile', 'recompiled'),
   'Rear-Firing Laser': new FiringOption('Rear-Firing Laser'),
-  'High-Power Laser':  new FiringOption('High-Power Laser'),
-  'Fire Control':      new FiringOption('Fire Control'),
-  'Mini Howitzer':     new FiringOption('Mini Howitzer'),
-  'Pressor Beam':      new FiringOption('Pressor Beam'),
-  'Radio Control':     new FiringOption('Radio Control'),
-  'Scrambler':         new FiringOption('Scrambler'),
-  'Tractor Beam':      new FiringOption('Tractor Beam'),
-  'laser':             new LaserOption(),
+  'High-Power Laser': new FiringOption('High-Power Laser'),
+  'Fire Control': new FiringOption('Fire Control'),
+  'Mini Howitzer': new FiringOption('Mini Howitzer'),
+  'Pressor Beam': new FiringOption('Pressor Beam'),
+  'Radio Control': new FiringOption('Radio Control'),
+  'Scrambler': new FiringOption('Scrambler'),
+  'Tractor Beam': new FiringOption('Tractor Beam'),
+  'laser': new LaserOption(),
 };
 
 export default OptionCards;

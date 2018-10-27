@@ -6,7 +6,7 @@ use parent 'State';
 use List::Util 'shuffle';
 
 # Don't have this be a constant because we need a new copy of each empty program
-sub EMPTY { return { damaged => '', program => [] } }
+sub EMPTY { return { damaged => '', locked => '', program => [] } }
 sub CLEAN { return [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] }
 
 sub on_enter {
