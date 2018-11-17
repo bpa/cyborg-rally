@@ -13,24 +13,26 @@ export default class Dispute extends React.Component {
     if (card === undefined) {
       card = LASER_OPTION;
     }
+    let type = shot.type === 'Ramming Gear' ? 'contact' : 'shot';
+    let action = shot.type === 'Ramming Gear' ? 'ram' : 'shoot';
     let title =
       <Flex>
         <Badge bg="blue">
-          <Option card={card} style={{height: '2em'}}/>
+          <Option card={card} style={{ height: '2em' }} />
         </Badge>
-        <span style={{margin: 'auto'}}>
-          Disputed shot
+        <span style={{ margin: 'auto' }}>
+          Disputed {type}
         </span>
       </Flex>;
     return (
-<Modal title={title} closeText="No" close={this.props.vote.bind(null, false)}>
-  <span style={{paddingTop: '8px', margin: 'auto'}}>
-    Did {player.name} shoot {target.name} with a {shot.type}?
+      <Modal title={title} closeText="No" close={this.props.vote.bind(null, false)}>
+        <span style={{ paddingTop: '8px', margin: 'auto' }}>
+          Did {player.name} {action} {target.name} with a {shot.type}?
   </span>
-  <Button onClick={this.props.vote.bind(null,true)} bg="green">
-    Yes
+        <Button onClick={this.props.vote.bind(null, true)} bg="green">
+          Yes
   </Button>
-</Modal>);
-    }
+      </Modal>);
+  }
 }
 

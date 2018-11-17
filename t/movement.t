@@ -186,4 +186,92 @@ subtest 'recompile damage' => sub {
     done;
 };
 
+subtest 'Ramming Gear happy path' => sub {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+    $rally->give_option( $p1, 'Ramming Gear' );
+    $rally->set_state('EXECUTE');
+    $rally->update;
+    $rally->drop_packets;
+
+    is( ref( $rally->{state} ), 'State::Movement' );
+
+    is( $p2->{public}{damage}, 0 );
+    $p1->game( ram => { target => $p2->{id} } );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'ram', player => $p1->{id} } ] );
+    cmp_deeply( $rally->{state}{public}{shots},
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'Ramming Gear' } ] );
+
+    $p2->broadcast(
+        { cmd => 'confirm', type => 'Ramming Gear', player => $p1->{id} },
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
+        },
+        { cmd => 'ready', player => $p1->{id} }
+    );
+    is( $p2->{public}{damage}, 1 );
+    $p2->broadcast( 'ready', { cmd => 'state', state => 'Firing' } );
+
+    done;
+};
+
+subtest 'Ramming Gear errors' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $rally->give_option( $p1, 'Ramming Gear' );
+    $rally->set_state('EXECUTE');
+    $rally->update;
+    $rally->drop_packets;
+
+    is( ref( $rally->{state} ), 'State::Movement' );
+
+    $p2->player(
+        { cmd => 'ram',   target => $p2->{id} },
+        { cmd => 'error', reason => 'Invalid command' }
+    );
+    $p2->drop_packets;
+
+    $p2->player( { cmd => 'confirm', type => 'Fire Control', player => $p1->{id} },
+        { cmd => 'error', reason => 'Invalid player' } );
+    $p2->drop_packets;
+
+    $p2->player(
+        { cmd => 'confirm', player => $p1->{id} },
+        { cmd => 'error',   reason => 'Invalid player' }
+    );
+    $p2->drop_packets;
+
+    $p1->player( { cmd => 'ram', target => $p1->{id} },
+        { cmd => 'error', reason => "Can't ram yourself" } );
+    $p1->drop_packets;
+
+    $p1->player( { cmd => 'ram', target => $p2->{id} } );
+    cmp_deeply( $p2->{packets}, [ { cmd => 'ram', player => $p1->{id} } ] );
+    cmp_deeply( $rally->{state}{public}{shots},
+        [ { player => $p1->{id}, target => $p2->{id}, type => 'Ramming Gear' } ] );
+
+    $p1->drop_packets;
+    $p1->player( { cmd => 'ram', target => $p3->{id} },
+        { cmd => 'error', reason => 'Ram already pending' } );
+
+    $p2->broadcast(
+        { cmd => 'confirm', type => 'Ramming Gear', player => $p1->{id} },
+        {   cmd       => 'damage',
+            player    => $p2->{id},
+            damage    => 1,
+            registers => ignore
+        },
+        { cmd => 'ready', player => $p1->{id} }
+    );
+    is( $p2->{public}{damage}, 1 );
+    is( $p1->{public}{ready},  1 );
+
+    $p1->player(
+        { cmd => 'ram',   target => $p3->{id} },
+        { cmd => 'error', reason => 'Invalid command' }
+    );
+
+    done;
+};
+
 done_testing;

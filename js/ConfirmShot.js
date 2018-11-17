@@ -5,19 +5,19 @@ import Modal from './Modal';
 import { Option } from './Option';
 
 var damage_weapons = {
-    'laser':             true,
-    'Mini Howitzer':     true,
+    'laser': true,
+    'Mini Howitzer': true,
     'Rear-Firing Laser': true,
 };
 
 let btnStyle = {
-    textAlign:'center',
-    display:'flex',
-    justifyContent:'space-between',
-    alignItems:'center'
+    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
 };
 
-let optStyle = {height: "30px"};
+let optStyle = { height: "30px" };
 
 export default class ConfirmShot extends React.Component {
     constructor(props) {
@@ -27,11 +27,11 @@ export default class ConfirmShot extends React.Component {
     }
 
     ask(opt) {
-        this.setState({discard: opt});
+        this.setState({ discard: opt });
     }
 
     cancel() {
-        this.setState({discard: null});
+        this.setState({ discard: null });
     }
 
     discard(opt) {
@@ -51,13 +51,14 @@ export default class ConfirmShot extends React.Component {
 
         let opts = this.props.player.options;
         const self = this;
-        return Object.keys(opts).map(function(k) {
+        return Object.keys(opts).map(function (k) {
             let o = opts[k];
             return (
-<Button onClick={self.ask.bind(self, o)} key={o.name} style={btnStyle}>
-    <Option card={o} style={optStyle}/>
-    Discard {o.name} to prevent 1 damage?
-</Button>)});
+                <Button onClick={self.ask.bind(self, o)} key={o.name} style={btnStyle}>
+                    <Option card={o} style={optStyle} />
+                    Discard {o.name} to prevent 1 damage?
+                </Button>)
+        });
     }
 
     confirmation() {
@@ -66,9 +67,9 @@ export default class ConfirmShot extends React.Component {
             return null;
         }
         return (
-            <Modal title={"Discard "+o.name+"?"} closeText="Cancel"
+            <Modal title={"Discard " + o.name + "?"} closeText="Cancel"
                 close={this.cancel}>
-                <Option card={o} style={optStyle}/>
+                <Option card={o} style={optStyle} />
                 Are you sure you want to discard {o.name}?
                 <Button onClick={this.discard.bind(this, o)} style={btnStyle}>
                     Discard
@@ -77,29 +78,31 @@ export default class ConfirmShot extends React.Component {
     }
 
     render() {
-      let style = {height:"2em"};
-      let player = gs.public.player[this.props.shot.player];
-      let card = player['options'][this.props.shot.type];
-      if (card === undefined) {
-        card = LASER_OPTION;
-      }
-      let title =
-        <Flex>
-          <Badge bg="blue">
-            <Option card={card} style={style}/>
-          </Badge>
-          <span style={{margin: 'auto'}}>You have been shot</span>
-        </Flex>;
-      return (
-<Modal title={title} closeText="Deny" close={this.props.deny} z="100">
-  <span style={{paddingTop: '8px', margin: 'auto'}}>
-    {player.name} fired a {this.props.shot.type}
-  </span>
-  <Button onClick={this.props.confirm} bg="green">
-      Confirm
-  </Button>
-  {this.confirmation()}
-</Modal>);
-  }
+        const target_action = this.props.shot.type == 'Ramming Gear' ? 'rammed' : 'shot';
+        const action = this.props.shot.type == 'Ramming Gear' ? 'used' : 'fired';
+        let style = { height: "2em" };
+        let player = gs.public.player[this.props.shot.player];
+        let card = player['options'][this.props.shot.type];
+        if (card === undefined) {
+            card = LASER_OPTION;
+        }
+        let title =
+            <Flex>
+                <Badge bg="blue">
+                    <Option card={card} style={style} />
+                </Badge>
+                <span style={{ margin: 'auto' }}>You have been {target_action}</span>
+            </Flex>;
+        return (
+            <Modal title={title} closeText="Deny" close={this.props.deny} z="100">
+                <span style={{ paddingTop: '8px', margin: 'auto' }}>
+                    {player.name} {action} {this.props.shot.type}
+                </span>
+                <Button onClick={this.props.confirm} bg="green">
+                    Confirm
+                </Button>
+                {this.confirmation()}
+            </Modal>);
+    }
 }
 

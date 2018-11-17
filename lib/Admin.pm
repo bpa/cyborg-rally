@@ -12,6 +12,7 @@ my $json = JSON->new->convert_blessed;
 
 my %command = (
     dec     => \&cmd_decr,
+    del     => \&cmd_delete,
     e       => \&cmd_eval,
     inc     => \&cmd_incr,
     games   => \&cmd_games,
@@ -78,7 +79,8 @@ sub lookup {
     }
 
     $loc =~ s#^/?#/#;
-    $loc =~ s#/(\w+)#{$1}#g;
+    $loc =~ s#\+# #;
+    $loc =~ s#/([^/]+)#{$1}#g;
 
     return ( $base, $loc );
 }

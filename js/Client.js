@@ -2,21 +2,24 @@ import { Provider } from 'rebass'
 import Playing from "./Playing";
 import Lobby from "./Lobby";
 import theme from "./theme";
+//Including this here so its available as a prototype
+//Without it, Movement and Firing don't pick up all the methods
+import './DamageHandler';
 
-if (!Array.prototype.last){
-    Array.prototype.last = function(){
+if (!Array.prototype.last) {
+    Array.prototype.last = function () {
         return this[this.length - 1];
     };
 };
 
-if (!Array.prototype.clone){
-    Array.prototype.clone = function(){
+if (!Array.prototype.clone) {
+    Array.prototype.clone = function () {
         return JSON.parse(JSON.stringify(this));
     };
 };
 
-if (!Array.prototype.remove){
-    Array.prototype.remove = function(cb){
+if (!Array.prototype.remove) {
+    Array.prototype.remove = function (cb) {
         var i = this.findIndex(cb);
         if (i > -1) {
             this.splice(i, 1);
@@ -42,7 +45,7 @@ function deliver(msg, obj) {
 function on_message(m) {
     let msg = JSON.parse(m.data);
     console.info(msg);
-    var q = [this], i=0, ii=1;
+    var q = [this], i = 0, ii = 1;
     while (i < ii) {
         var o = q[i++];
         if (Array.isArray(o)) {
@@ -64,8 +67,9 @@ class Client extends React.Component {
         super();
         ws.on_message = on_message.bind(this);
         ws.init();
-        window.onerror =  function(messageOrEvent, source, lineno, colno, error) {
-            ws.send({cmd: 'error',
+        window.onerror = function (messageOrEvent, source, lineno, colno, error) {
+            ws.send({
+                cmd: 'error',
                 message: error.message,
                 stack: error.stack
             });
@@ -78,32 +82,32 @@ class Client extends React.Component {
 
     setView(view) {
         this.stack.push(view);
-        this.setState({view: view});
+        this.setState({ view: view });
     }
 
     back() {
         this.stack.pop();
-        this.setState({view: this.stack[this.stack.length-1]});
+        this.setState({ view: this.stack[this.stack.length - 1] });
     }
 
     render() {
         const View = this.state.view;
         return (
-      <Provider theme={theme}>
-        <View setView={this.setView} back={this.back} ref={(e)=>this.view=e}/>
-      </Provider>);
+            <Provider theme={theme}>
+                <View setView={this.setView} back={this.back} ref={(e) => this.view = e} />
+            </Provider>);
     }
 
     on_welcome(msg) {
-        if ( window.localStorage.token !== undefined ) {
-              ws.send({
-                  cmd: 'login',
-                  name: window.localStorage.name,
-                  token: window.localStorage.token,
-              });
+        if (window.localStorage.token !== undefined) {
+            ws.send({
+                cmd: 'login',
+                name: window.localStorage.name,
+                token: window.localStorage.token,
+            });
         }
         else {
-              ws.send({ cmd: 'login', name: window.localStorage.name });
+            ws.send({ cmd: 'login', name: window.localStorage.name });
         }
     }
 
@@ -115,8 +119,8 @@ class Client extends React.Component {
         delete msg.cmd;
         msg.timediff = new Date().getTime() - msg.now;
         Object.assign(gs, msg);
-        this.setState({view: msg.game === 'Rally' ? Playing : Lobby});
+        this.setState({ view: msg.game === 'Rally' ? Playing : Lobby });
     }
 }
 
-ReactDOM.render(<Client/>, document.getElementById('root'));
+ReactDOM.render(<Client />, document.getElementById('root'));

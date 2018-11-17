@@ -132,7 +132,7 @@ sub do_fire_control {
     }
 }
 
-sub resolve_beam {
+sub resolve_bots {
     my ( $self, $game, $c, $msg ) = @_;
 
     my $bot_id = $msg->{player};
@@ -220,7 +220,7 @@ sub on_hit {
     my ( $self, $game, $player, $target, $beam ) = @_;
     FIRE_TYPE->{ $beam->{type} }( $self, $game, $player, $target, $beam );
     $beam->{confirmed} = 1;
-    $self->remove($beam);
+    $self->remove_pending($player, $beam);
     my $shot = $self->{shot}{ $player->{id} };
     if ($shot->{max} == grep {
                  ref($_) eq 'HASH'
@@ -234,7 +234,14 @@ sub on_hit {
 }
 
 sub remove {
-    my ( $self, $beam ) = @_;
+    my ( $self, $bot, $beam ) = @_;
+    delete $self->{shot}{ $bot->{id} }{ $beam->{target} };
+    $self->{shot}{ $bot->{id} }{used}--;
+    $self->remove_pending($bot, $beam);
+}
+
+sub remove_pending {
+    my ( $self, $bot, $beam ) = @_;
     splice(
         @{ $self->{public}{shots} },
         firstidx {

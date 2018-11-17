@@ -7,7 +7,7 @@ sub do_confirm {
     my ( $self, $game, $c, $msg ) = @_;
 
     $msg->{target} = $c->{id};
-    my ( $bot, $beam ) = $self->resolve_beam( $game, $c, $msg );
+    my ( $bot, $beam ) = $self->resolve_bots( $game, $c, $msg );
     return unless $bot;
 
     $self->on_hit( $game, $bot, $c, $beam );
@@ -17,11 +17,9 @@ sub do_deny {
     my ( $self, $game, $c, $msg ) = @_;
 
     $msg->{target} = $c->{id};
-    my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
+    my ( $bot, $beam ) = $self->resolve_bots( $game, $c, $msg );
     if ($bot) {
-        delete $self->{shot}{ $bot->{id} }{ $msg->{target} };
-        $self->{shot}{ $bot->{id} }{used}--;
-        $self->remove($beam);
+        $self->remove($bot, $beam);
         $bot->send( { cmd => 'deny', player => $c->{id}, type => $beam->{type} } );
     }
 }
@@ -61,7 +59,7 @@ sub do_vote {
         return;
     }
 
-    my ( $bot, $beam, $dir ) = $self->resolve_beam( $game, $c, $msg );
+    my ( $bot, $beam ) = $self->resolve_bots( $game, $c, $msg );
     return unless $bot;
 
     if ( exists $beam->{voted}{ $c->{id} } ) {
@@ -92,9 +90,7 @@ sub do_vote {
         }
         else {
             $beam->{invalid} = 1;
-            delete $self->{shot}{ $bot->{id} }{ $msg->{target} };
-            $self->{shot}{ $bot->{id} }{used}--;
-            $self->remove($beam);
+            $self->remove($bot, $beam);
         }
     }
     else {

@@ -5,6 +5,10 @@ class Option {
     this.name = name;
   }
 
+  active() {
+    return true;
+  }
+
   render(props, state) {
     let me = gs.public.player[gs.id];
     if (me.options === undefined || me.options[this.name] === undefined) {
@@ -21,11 +25,11 @@ class Option {
 
   render_option(props, state) {
     if (props.active === this.name) {
-      return <Icon name={this.name} key={this.name}
+      return <Icon name={this.name} key={this.name} selected
         onClick={props.notify.deactivate.bind(props.notify, this.name)} />;
     }
 
-    if (!(props.active === undefined && this.active())) {
+    if (!this.active()) {
       return <Icon name={this.name} key={this.name} inactive />;
     }
 
@@ -131,6 +135,7 @@ var OptionCards = {
   'Mini Howitzer': new FiringOption('Mini Howitzer'),
   'Pressor Beam': new FiringOption('Pressor Beam'),
   'Radio Control': new FiringOption('Radio Control'),
+  'Ramming Gear': new Option('Ramming Gear'),
   'Scrambler': new FiringOption('Scrambler'),
   'Tractor Beam': new FiringOption('Tractor Beam'),
   'laser': new LaserOption(),
