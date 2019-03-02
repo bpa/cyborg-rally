@@ -4,20 +4,26 @@ use strict;
 use warnings;
 use parent 'State';
 
+use constant OPTS => {
+    'Conditional Program'   => { cards => 1 },
+    'Flywheel'              => { cards => 1 },
+    'Gyroscopic Stabilizer' => { cards => 0, tap => 1 },
+};
+
 sub on_enter {
     my ( $self, $game ) = @_;
     $self->{choices} = {};
     for my $p ( values %{ $game->{player} } ) {
         $p->{public}{ready} = 1;
-        my $stabilizer = $p->{public}{options}{'Gyroscopic Stabilizer'};
-        my $flywheel   = $p->{public}{options}{'Flywheel'};
-        if ( defined $stabilizer ) {
-            $self->{choices}{stabilizer} = ();
-            $p->{public}{ready}          = '';
+        while ( my ( $name, $opt ) = each %{ OPTS() } ) {
+            my $option = $p->{public}{options}{$name};
+            if ( defined $option && $p->{private}{cards}->count >= $opt->{cards} ) {
+                $self->{choices}{$name} = ();
+                $p->{public}{ready} = '';
+            }
         }
-        if ( defined $flywheel && $p->{private}{cards}->count > 0 ) {
-            $self->{choices}{flywheel} = ();
-            $p->{public}{ready}        = '';
+
+        if ( !$p->{public}{ready} ) {
             $p->send( { cmd => 'remaining', cards => $p->{private}{cards} } );
         }
     }
@@ -27,49 +33,59 @@ sub on_enter {
     }
 }
 
-sub do_stabilizer {
+sub do_configure {
     my ( $self, $game, $c, $msg ) = @_;
-    my $stabilizer = $c->{public}{options}{'Gyroscopic Stabilizer'};
-    if ( !defined $stabilizer ) {
+
+    my $name = $msg->{option};
+    if ( !defined $name ) {
+        $c->err('Missing Option');
+        return;
+    }
+
+    my $option = $c->{public}{options}{$name};
+    my $config = OPTS->{$name};
+    if ( !( defined $option && defined $config ) ) {
         $c->err('Invalid Option');
         return;
     }
 
-    if ( $msg->{activate} ) {
-        $stabilizer->{tapped} = 1;
-    }
-    else {
-        delete $stabilizer->{tapped};
-    }
-    delete $self->{choices}{'stabilizer'};
-    $game->broadcast_options($c);
+    if ( $config->{cards} ) {
+        if ( !defined $msg->{card} ) {
+            $c->err('Missing card');
+            return;
+        }
 
-    if ( !%{ $self->{choices} } ) {
-        $game->set_state('EXECUTE');
-    }
-}
+        my $card = $c->{private}{cards}->getMatch( $msg->{card} );
+        unless ( defined $card ) {
+            $c->err("Invalid card");
+            return;
+        }
 
-sub do_flywheel {
-    my ( $self, $game, $c, $msg ) = @_;
-    my $flywheel = $c->{public}{options}{'Flywheel'};
-    if ( !defined $flywheel ) {
-        $c->err('Invalid Option');
-        return;
-    }
+        for my $opt ( keys( %{ OPTS() } ) ) {
+            my $o = $c->{public}{options}{$opt};
+            if (   defined $o
+                && defined $o->{card}
+                && $o->{card}{priority} == $card->{priority} )
+            {
+                delete $o->{card};
+                $self->{choices}{$opt} = ();
+            }
+        }
 
-    if ( !defined $msg->{card} ) {
-        $c->err('Missing card');
-        return;
-    }
-
-    my $card = $c->{private}{cards}->getMatch( $msg->{card} );
-    unless ( defined $card ) {
-        $c->err("Invalid card");
-        return;
+        $c->{public}{options}{$name}{card} = $card;
     }
 
-    $c->{public}{options}{Flywheel}{card} = $card;
-    delete $self->{choices}{flywheel};
+    if ( $config->{tap} ) {
+        if ( $msg->{activate} ) {
+            $option->{tapped} = 1;
+        }
+        else {
+            delete $option->{tapped};
+        }
+    }
+
+    delete $self->{choices}{$name};
+    $c->send( { cmd => 'options', options => $c->{public}{options} } );
 
     if ( !%{ $self->{choices} } ) {
         $game->set_state('EXECUTE');
