@@ -110,7 +110,10 @@ subtest 'Limited reconfigure' => sub {
 
     $p1->player(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
-        { cmd => 'options', options => noclass( $p1->{public}{options} ) }
+        {   cmd     => 'options',
+            player  => $p1->{id},
+            options => noclass( $p1->{public}{options} )
+        }
     );
     ok( $p1->{public}{options}{'Gyroscopic Stabilizer'}{tapped},
         'Gyroscopic Stabilizer is tapped' );
@@ -118,7 +121,10 @@ subtest 'Limited reconfigure' => sub {
 
     $p1->player(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => '' },
-        { cmd => 'options', options => noclass( $p1->{public}{options} ) }
+        {   cmd     => 'options',
+            player  => $p1->{id},
+            options => noclass( $p1->{public}{options} )
+        }
     );
     ok( !defined $p1->{public}{options}{'Gyroscopic Stabilizer'}{tapped},
         'Gyroscopic Stabilizer is not tapped' );

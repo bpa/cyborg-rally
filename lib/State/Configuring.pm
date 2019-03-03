@@ -85,7 +85,9 @@ sub do_configure {
     }
 
     delete $self->{choices}{$name};
-    $c->send( { cmd => 'options', options => $c->{public}{options} } );
+    $c->send(
+        { cmd => 'options', player => $c->{id}, options => $c->{public}{options} }
+    );
 
     if ( !%{ $self->{choices} } ) {
         $game->set_state('EXECUTE');

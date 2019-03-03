@@ -5,11 +5,23 @@ import OptionModal from './OptionModal';
 import { Circle, Panel } from 'rebass';
 import Waiting from './Waiting';
 
+var stabilizer = 'Gyroscopic Stabilizer';
+
 export default class Configuring extends React.Component {
   constructor(props) {
     super(props);
     this.closeHelp = this.closeHelp.bind(this);
-    this.state = { cards: gs.private.cards, options: gs.public.player[gs.id].options };
+    var options = gs.public.player[gs.id].options;
+    this.state = { cards: gs.private.cards, options: options };
+    gs.state = gs.state || {};
+    gs.state[gs.id] = (options[stabilizer] && options[stabilizer].tapped) ? 1 : 0;
+    console.log(options[stabilizer], gs.state);
+  }
+
+  componentWillReceiveProps() {
+    var options = gs.public.player[gs.id].options;
+    gs.state[gs.id] = (options[stabilizer] && options[stabilizer].tapped) ? 1 : 0;
+    this.setState({ options: gs.public.player[gs.id].options });
   }
 
   openHelp(option) {
@@ -21,11 +33,17 @@ export default class Configuring extends React.Component {
   }
 
   stabilize(activate) {
-    ws.send({ cmd: 'configure', option: 'stabilizer', activate: activate });
+    ws.send({ cmd: 'configure', option: 'Gyroscopic Stabilizer', activate: activate });
   }
 
   configure(option, card) {
     ws.send({ cmd: 'configure', option: option, card: card });
+  }
+
+  on_options(msg) {
+    var options = gs.public.player[gs.id].options;
+    gs.state[gs.id] = (options[stabilizer] && options[stabilizer].tapped) ? 1 : 0;
+    this.setState({ options: gs.public.player[gs.id].options });
   }
 
   on_remaining(msg) {
@@ -49,13 +67,13 @@ export default class Configuring extends React.Component {
         <Panel mt={2} key="stabilizer">
           <Panel.Header bg="cyan">
             Gyroscopic Stabilizer
-          <span style={{ position: 'absolute', right: '' }}>
+            <span style={{ position: 'absolute', right: '' }}>
               <Circle onClick={this.openHelp.bind(this, 'Gyroscopic Stabilizer')}>?</Circle>
             </span>
           </Panel.Header>
           <TileSet onClick={this.stabilize.bind(this)} key="stabilizer">
-            <Tile id={true} bg="green">Activate</Tile>
-            <Tile id={false} bg="red">Allow board to rotate me</Tile>
+            <Tile id={1} bg="green">Activate</Tile>
+            <Tile id={0} bg="red">Allow board to rotate me</Tile>
           </TileSet>
         </Panel>
       );
