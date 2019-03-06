@@ -9,6 +9,7 @@
 |Firing|FIRE|[Firing](#Firing)|
 |gears|BOARD[1-3]?|[Board](#Board)|
 |Lasers|LASER|[Lasers](#Lasers)|
+|ConditionalProgramming|COND|[ConditionalProgramming](#Conditional)|
 |Movement|MOVE|[Movement](#Movement)|
 |PowerDown|POWER|[PowerDown](#PowerDown)|
 |Programming|PROGRAM|[Programming](#Programming)|
@@ -90,6 +91,15 @@ Board lasers fire
 
 #### Transitions
 [FIRE](#Firing) triggered after all players are ready
+
+## <a name="ConditionalProgramming"></a> Conditional Programming
+Wait a number of seconds for a player holding `Conditional Program` to choose whether or not to replace a register.
+
+#### Transitions
+[MOVE](#Movement) triggered when:
+ * No player holds `Conditional Program` option
+ * Player holding option chooses whether or not to activate
+ * Timeout occurs
 
 ## <a name="Movement"></a> Movement
 Waiting for players to move.
