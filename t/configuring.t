@@ -45,9 +45,10 @@ subtest 'Activate Gyroscopic Stabilizer' => sub {
 
     $p1->broadcast(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
-        { cmd => 'state', state => 'Executing' },
-        { cmd => 'state', state => 'Movement' },
-        { cmd => 'move',  order => ignore },
+        { cmd => 'state',     state  => 'Executing' },
+        { cmd => 'state',     state  => 'ConditionalProgramming' },
+        { cmd => 'state',     state  => 'Movement' },
+        { cmd => 'move',      order  => ignore },
     );
 
     ok( $p1->{public}{options}{'Gyroscopic Stabilizer'}{tapped},
@@ -69,9 +70,10 @@ subtest 'Inactive Gyroscopic Stabilizer' => sub {
 
     $p1->broadcast(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer' },
-        { cmd => 'state', state => 'Executing' },
-        { cmd => 'state', state => 'Movement' },
-        { cmd => 'move',  order => ignore },
+        { cmd => 'state',     state  => 'Executing' },
+        { cmd => 'state',     state  => 'ConditionalProgramming' },
+        { cmd => 'state',     state  => 'Movement' },
+        { cmd => 'move',      order  => ignore },
     );
 
     ok( !defined $p1->{public}{options}{'Gyroscopic Stabilizer'}{tapped},
@@ -136,6 +138,7 @@ subtest 'Limited reconfigure' => sub {
             card   => $p2->{private}{cards}{cards}[0]
         },
         { cmd => 'state', state => 'Executing' },
+        { cmd => 'state', state => 'ConditionalProgramming' },
         { cmd => 'state', state => 'Movement' },
         { cmd => 'move',  order => ignore },
     );
@@ -172,6 +175,7 @@ subtest 'Flywheel' => sub {
     $p1->broadcast(
         { cmd => 'configure', option => 'Flywheel', card => $held },
         { cmd => 'state',     state  => 'Executing' },
+        { cmd => 'state',     state  => 'ConditionalProgramming' },
         { cmd => 'state',     state  => 'Movement' },
         { cmd => 'move',      order  => ignore },
     );
@@ -200,10 +204,10 @@ subtest 'Reconfigure cards' => sub {
             card   => $cards->[0],
         }
     );
-    cmp_deeply($options->{Flywheel}{card}, $cards->[0]);
-    cmp_deeply($options->{'Conditional Program'}{card}, undef);
-    ok(!exists $rally->{state}{choices}{Flywheel});
-    ok(exists $rally->{state}{choices}{'Conditional Program'});
+    cmp_deeply( $options->{Flywheel}{card},              $cards->[0] );
+    cmp_deeply( $options->{'Conditional Program'}{card}, undef );
+    ok( !exists $rally->{state}{choices}{Flywheel} );
+    ok( exists $rally->{state}{choices}{'Conditional Program'} );
 
     $p1->drop_packets;
     $p1->game(
@@ -212,10 +216,10 @@ subtest 'Reconfigure cards' => sub {
             card   => $cards->[1],
         }
     );
-    cmp_deeply($options->{Flywheel}{card}, $cards->[1]);
-    cmp_deeply($options->{'Conditional Program'}{card}, undef);
-    ok(!exists $rally->{state}{choices}{Flywheel});
-    ok(exists $rally->{state}{choices}{'Conditional Program'});
+    cmp_deeply( $options->{Flywheel}{card},              $cards->[1] );
+    cmp_deeply( $options->{'Conditional Program'}{card}, undef );
+    ok( !exists $rally->{state}{choices}{Flywheel} );
+    ok( exists $rally->{state}{choices}{'Conditional Program'} );
 
     $p1->game(
         {   cmd    => 'configure',
@@ -223,10 +227,10 @@ subtest 'Reconfigure cards' => sub {
             card   => $cards->[1],
         }
     );
-    cmp_deeply($options->{Flywheel}{card}, undef);
-    cmp_deeply($options->{'Conditional Program'}{card}, $cards->[1]);
-    ok(exists $rally->{state}{choices}{Flywheel});
-    ok(!exists $rally->{state}{choices}{'Conditional Program'});
+    cmp_deeply( $options->{Flywheel}{card},              undef );
+    cmp_deeply( $options->{'Conditional Program'}{card}, $cards->[1] );
+    ok( exists $rally->{state}{choices}{Flywheel} );
+    ok( !exists $rally->{state}{choices}{'Conditional Program'} );
 
     done;
 };

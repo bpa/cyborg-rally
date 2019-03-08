@@ -6,6 +6,7 @@ use parent 'Game';
 use State::Announcing;
 use State::Board;
 use State::Configuring;
+use State::ConditionalProgramming;
 use State::Executing;
 use State::Firing;
 use State::Lasers;
@@ -39,6 +40,7 @@ sub BUILD {
         CONFIGURE => State::Configuring->new,
         ANNOUNCE  => State::Announcing->new,
         EXECUTE   => State::Executing->new,
+        COND_PROG => State::ConditionalProgramming->new,
         MOVE      => State::Movement->new,
         LASER     => State::Lasers->new,
         FIRE      => State::Firing->new,
