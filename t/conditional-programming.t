@@ -12,6 +12,8 @@ subtest 'Conditional Program errors' => sub {
 
     $p2->player( { cmd => 'conditional_program' },
         { cmd => 'error', reason => 'Invalid command' } );
+
+    done;
 };
 
 subtest 'Conditional Program no replace' => sub {
@@ -24,6 +26,8 @@ subtest 'Conditional Program no replace' => sub {
     );
 
     cmp_deeply( $p1->{public}{registers}[0]{program}[0], $current );
+
+    done;
 };
 
 subtest 'Conditional Program replacement' => sub {

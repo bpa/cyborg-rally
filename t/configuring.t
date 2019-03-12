@@ -248,4 +248,18 @@ subtest 'Flywheel but no extra cards' => sub {
     done;
 };
 
+subtest 'Dead and shutdown' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
+    $p1->{public}{dead} = 1;
+    $p2->{public}{shutdown} = 1;
+    $rally->give_option( $p1, 'Conditional Program' );
+    $rally->give_option( $p2, 'Gyroscopic Stabilizer' );
+    $rally->drop_packets;
+    $rally->set_state('CONFIGURE');
+    $rally->update;
+    is( ref( $rally->{state} ), 'State::Movement' );
+
+    done;
+};
+
 done_testing;

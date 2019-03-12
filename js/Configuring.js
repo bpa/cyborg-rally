@@ -15,7 +15,6 @@ export default class Configuring extends React.Component {
     this.state = { cards: gs.private.cards, options: options };
     gs.state = gs.state || {};
     gs.state[gs.id] = (options[stabilizer] && options[stabilizer].tapped) ? 1 : 0;
-    console.log(options[stabilizer], gs.state);
   }
 
   componentWillReceiveProps() {

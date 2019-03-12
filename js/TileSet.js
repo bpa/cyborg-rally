@@ -5,7 +5,6 @@ export function Tile(props) {
     return null;
   }
   let state = gs.state || {};
-  console.log(state, gs.id, props.id, state[gs.id] === props.id, props);
   let Btn = state[gs.id] === props.id ? Button : ButtonOutline;
   return (
     <Btn style={{ width: "100%", height: "0px", padding: "0", paddingBottom: "100%" }}>

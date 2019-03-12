@@ -16,6 +16,7 @@ sub on_enter {
     for my $p ( values %{ $game->{player} } ) {
         $p->{public}{ready} = 1;
         while ( my ( $name, $opt ) = each %{ OPTS() } ) {
+            next if $p->{public}{dead} || $p->{public}{shutdown};
             my $option = $p->{public}{options}{$name};
             if ( defined $option && $p->{private}{cards}->count >= $opt->{cards} ) {
                 $self->{choices}{$name} = ();
