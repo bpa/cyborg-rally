@@ -81,7 +81,7 @@ sub check_for_done {
         $game->set_state('REVIVE');
     }
     else {
-        $game->set_state('MOVE');
+        $game->set_state('COND_PROG');
     }
 }
 

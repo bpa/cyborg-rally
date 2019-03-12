@@ -7,8 +7,8 @@ export function Tile(props) {
   let state = gs.state || {};
   let Btn = state[gs.id] === props.id ? Button : ButtonOutline;
   return (
-    <Btn style={{width:"100%", height:"0px", padding:"0",paddingBottom:"100%"}}>
-      <div style={{paddingTop:"45%"}}>{props.children}</div>
+    <Btn style={{ width: "100%", height: "0px", padding: "0", paddingBottom: "100%" }}>
+      <div style={{ paddingTop: "45%" }}>{props.children}</div>
     </Btn>
   )
 }
@@ -19,8 +19,8 @@ function rows(props) {
   var cb = props.onClick;
   var buttons = props.children;
 
-  for (var i=0; i<buttons.length; i+=cols) {
-    var pair = buttons.slice(i, i+cols).map(function(b) {
+  for (var i = 0; i < buttons.length; i += cols) {
+    var pair = buttons.slice(i, i + cols).map(function (b) {
       return (
         <td width="50%" key={b.props.id} onClick={cb.bind(null, b.props.id)}>
           {b}
@@ -38,7 +38,7 @@ function rows(props) {
 
 export function TileSet(props) {
   return (
-    <table style={{border:0}} width="100%">
+    <table style={{ border: 0 }} width="100%">
       <tbody>{rows(props)}</tbody>
     </table>
   );

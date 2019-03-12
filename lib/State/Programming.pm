@@ -35,6 +35,11 @@ sub on_enter {
             $self->{flywheel} = delete $flywheel->{card};
         }
 
+        my $cnd_program = $p->{public}{options}{'Conditional Program'};
+        if ( defined $cnd_program ) {
+            delete $cnd_program->{card};
+        }
+
         map { $_->{program} = [] unless $_ && $_->{locked} }
           @{ $p->{public}{registers} };
         $self->give_cards( $game, $p, $cards );

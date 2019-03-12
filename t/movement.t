@@ -52,6 +52,7 @@ subtest 'reveal current registers' => sub {
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'ConditionalProgramming' },
             { cmd => 'state', state => 'Movement' },
             {   cmd   => 'move',
                 order => [
@@ -116,6 +117,7 @@ subtest 'player died' => sub {
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'ConditionalProgramming' },
             { cmd => 'state', state => 'Movement' },
             {   cmd   => 'move',
                 order => [
@@ -144,6 +146,7 @@ subtest 'shutdown' => sub {
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'ConditionalProgramming' },
             { cmd => 'state', state => 'Movement' },
             {   cmd   => 'move',
                 order => [
@@ -166,6 +169,7 @@ subtest 'recompile damage' => sub {
     cmp_deeply(
         $rally->{packets},
         [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'ConditionalProgramming' },
             { cmd => 'state', state => 'Movement' },
             { cmd => 'move',  order => ignore },
             {   cmd       => 'damage',

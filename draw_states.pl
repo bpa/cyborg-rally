@@ -55,6 +55,11 @@ my %state = (
     in preparation for
     movement.
   ',
+  CondProgram => '
+    Allow player to decide
+    whether or not to
+    replace register
+  ',
   Movement => 'Players move around',
   '&lt;various&gt;' => '
     Whichever board
@@ -231,7 +236,7 @@ format FOOTER =
 my $filename = "images/states.svg";
 open(SVG, ">", $filename) || die "Can't open $filename for writing: $!\n";
 
-write_header(5,4);
+write_header(6,4);
 write_state(0, 0, 'Waiting', 'r');
 write_state(1, 0, 'Setup', 'r');
 write_state(2, 0, 'ChoosingOption', 'd');
@@ -239,14 +244,15 @@ write_state(0, 1, 'Revive', 'r');
 write_state(1, 1, 'PowerDown', 'r');
 write_state(2, 1, 'Programming', 'r');
 write_state(3, 1, 'Announcing', 'r');
-write_state(4, 1, 'Configuring', 'd');
-write_state(4, 2, 'Executing', 'd');
+write_state(4, 1, 'Configuring', 'r');
+write_state(5, 1, 'Executing', 'r2dl');
+write_state(5, 3, 'CondProgram', 'l');
+write_state(4, 3, 'Movement', 'l');
 write_state(0, 2, 'GotOption', 'u');
-write_state(0, 3, 'Touching', 'u', 'd4ru');
+write_state(0, 3, 'Touching', 'u', 'd5ru');
 write_state(1, 3, 'Firing', 'l');
 write_state(2, 3, 'Lasers', 'l');
 write_state(3, 3, '&lt;various&gt;', 'l');
-write_state(4, 3, 'Movement', 'l');
 write_arrows;
 write_footer;
 
