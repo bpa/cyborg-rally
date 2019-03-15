@@ -21,12 +21,7 @@ use constant LOCK => {
 };
 
 subtest 'normal damage' => sub {
-    my ( $rally, $p1, $p2 ) = Game( {} );
-
-    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
-
-    $p1->drop_packets;
-    $rally->{state} = bless( {}, 'DamageState' );
+    my ( $rally, $p1, $p2 ) = setup();
 
     $rally->{state}->damage( $rally, $p1, 4 );
     cmp_deeply(
@@ -80,12 +75,8 @@ subtest 'normal damage' => sub {
 };
 
 subtest 'over damage' => sub {
-    my ( $rally, $p1, $p2 ) = Game( {} );
+    my ( $rally, $p1, $p2 ) = setup();
 
-    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
-
-    $rally->{state} = bless( {}, 'DamageState' );
-    $p1->drop_packets;
     $rally->{state}->damage( $rally, $p1, 8 );
     cmp_deeply(
         $rally->{packets},
@@ -114,8 +105,8 @@ subtest 'over damage' => sub {
 };
 
 subtest 'lock registers when shutdown' => sub {
-    my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->{state} = bless( {}, 'DamageState' );
+    my ( $rally, $p1, $p2 ) = setup();
+
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, EMPTY ] );
     $rally->{state}->damage( $rally, $p1, 5 );
     cmp_deeply( $p1->{public}{registers}, [ EMPTY, EMPTY, EMPTY, EMPTY, LOCK ] );
@@ -125,10 +116,8 @@ subtest 'lock registers when shutdown' => sub {
 };
 
 subtest 'option for damage' => sub {
-    my ( $rally, $p1, $p2 ) = Game( {} );
-    $rally->drop_packets;
-    $rally->{state} = bless( {}, 'DamageState' );
-    $rally->give_option( $p1, 'Brakes' );
+    my ( $rally, $p1, $p2 ) = setup('Brakes');
+
     $p1->{public}{ready} = 1;
     $p2->{public}{ready} = 1;
     is( $rally->ready, 1 );
@@ -338,6 +327,87 @@ subtest 'damage locked register' => sub {
     cmp_deeply( $p1->{public}{registers}, [ N, N, N, N, D ]);
 
     done;
+};
+
+subtest 'Normal damage with no shield' => sub {
+    my ( $rally, $p1 ) = setup();
+
+    $p1->{public}{shutdown} = '';
+    $rally->{state}->damage( $rally, $p1, 1 );
+    is( $p1->{public}{damage}, 1 );
+
+    done;
+};
+
+subtest 'Power-Down Shield' => sub {
+    my %cases = (
+        0 => { dmg => 0, pending => 0 },
+        1 => { dmg => 0, pending => 0 },
+        2 => { dmg => 0, pending => 1 },
+        3 => { dmg => 1, pending => 1 },
+    );
+    while ( my ( $give, $test ) = each %cases ) {
+        my ( $rally, $p1 ) = setup('Power-Down Shield');
+
+        $p1->{public}{shutdown} = 1;
+        $rally->{state}{public}{pending_damage}{ $p1->{id} } = 0;
+
+        $rally->{state}->damage( $rally, $p1, $give );
+        my $name = "Hit for $give produces";
+        is( $p1->{public}{damage}, $test->{dmg}, "$name $test->{dmg} damage" );
+        is( $rally->{state}{public}{pending_damage}{ $p1->{id} },
+            $test->{pending}, "$name $test->{pending} pending" );
+    }
+
+    done;
+};
+
+subtest "Power-Down Shield + Ablative Coat" => sub {
+    my %cases = (
+        1 => { dmg => 0, uses => 3, pending => 0 },
+        2 => { dmg => 0, uses => 2, pending => 0 },
+        3 => { dmg => 0, uses => 1, pending => 0 },
+        4 => { dmg => 0, uses => 0, pending => 0 },
+        5 => { dmg => 0, uses => 0, pending => 1 },
+        6 => { dmg => 1, uses => 0, pending => 1 },
+        7 => { dmg => 2, uses => 0, pending => 1 },
+    );
+
+    while ( my ( $give, $test ) = each %cases ) {
+        my ( $rally, $p1 ) = setup( 'Power-Down Shield', 'Ablative Coat' );
+        $p1->{public}{shutdown} = 1;
+        $rally->{state}{public}{pending_damage}{ $p1->{id} } = 0;
+
+        $rally->{state}->damage( $rally, $p1, $give );
+        my $ablative_coat = $p1->{public}{options}{'Ablative Coat'};
+        unless ( defined $ablative_coat ) {
+            $ablative_coat = { uses => 0, text => '', name => 'Ablative Coat' };
+        }
+
+        my $name = "Hit for $give produces";
+        is( $p1->{public}{damage}, $test->{dmg}, "$name $test->{dmg} damage" );
+        is( $rally->{state}{public}{pending_damage}{$p1->{id}}, $test->{pending}, "$name $test->{uses} uses of Ablative Coat");
+        cmp_deeply( $ablative_coat,
+            noclass( { uses => $test->{uses}, text => ignore, name => ignore } ),
+            "$name $test->{pending} pending");
+    }
+
+    done;
+};
+
+sub setup {
+    my ( $rally, $p1, $p2 ) = Game( {} );
+
+    $p1->{public}{registers} = [ r(0), r(1), r(2), r(3), r(4) ];
+
+    for my $option (@_) {
+        $rally->give_option($p1, $option);
+    }
+
+    $rally->{state} = bless( {}, 'DamageState' );
+    $p1->drop_packets;
+
+    return $rally, $p1, $p2;
 };
 
 done_testing;

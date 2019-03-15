@@ -33,6 +33,7 @@ subtest 'normal' => sub {
     $p[3]->broadcast(
         { cmd => 'touch', tile   => 'flag' },
         { cmd => 'touch', player => $p[3]->{id}, tile => 'flag' },
+        { cmd => 'state', state  => 'ConditionalProgramming' },
         { cmd => 'state', state  => 'Movement' },
         { cmd => 'move',  order  => ignore },
     );
@@ -247,6 +248,7 @@ subtest "Death" => sub {
     $p3->broadcast(
         { cmd => 'touch', tile   => 'floor' },
         { cmd => 'touch', player => $p3->{id}, tile => 'floor' },
+        { cmd => 'state', state  => 'ConditionalProgramming' },
         { cmd => 'state', state  => 'Movement' },
         { cmd => 'move',  order  => ignore },
     );
@@ -278,6 +280,7 @@ subtest "Infinite lives" => sub {
     $p3->broadcast(
         { cmd => 'touch', tile   => 'floor' },
         { cmd => 'touch', player => $p3->{id}, tile => 'floor' },
+        { cmd => 'state', state  => 'ConditionalProgramming' },
         { cmd => 'state', state  => 'Movement' },
         { cmd => 'move',  order  => ignore },
     );
