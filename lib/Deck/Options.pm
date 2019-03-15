@@ -38,7 +38,7 @@ Gyroscopic Stabilizer:0:Before players reveal the cards in their first registers
 High-Power Laser:0:Your robot's main laser can shoot through one wall or robot to get to a target robot.  If you shoot through a robot, that robot also receives full damage.  You may use this Option with Fire Control and/or Double-Barreled Laser.
 Mechanical Arm:0:Your robot can touch a flag or repair site from 1 space away (diagonally or orthogonally), as long as there isn't a wall between it and the flag or repair site.
 Mini Howitzer:5:Whenever you could fire your main laser at a robot, you may fire the Mini Howitzer instead.  This pushes the target robot 1 space away from your robot, and the target robot receives 1 Damage token.  (Robots can't be pushed through walls.)  You may use this Option five times.  Put a Damage token on this card each time you use it and discard this card and the tokens when you put the fifth one on.
-Power-Down Shield:0:As long as your robot is powered down, each register phase you can prevent up to 1 Damage to it from each of the four directions.
+Power-Down Shield:0:As long as your robot is powered down, the shield will prevent 1 Damage from all attacks.
 Pressor Beam:0:Whenever you could fire your main laser at a robot, you may instead fire the Pressor Beam.  This moves the target robot 1 space away from your robot.
 Radio Control:0:Whenever you could fire your main laser at a robot, you may instead fire the Radio Control beam.  It causes the target robot to execute your robot's program for the rest of the turn.  In the cases of card priority, the target robot moves immediately after your robot.
 Ramming Gear:0:Whenever your robot pushes or bumps into another robot, that robot receives 1 Damage token.

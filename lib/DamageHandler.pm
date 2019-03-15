@@ -8,14 +8,21 @@ use List::Util 'min';
 sub damage {
     my ( $self, $game, $target, $damage ) = @_;
     $damage = int($damage);
-    return unless $damage;
-    return if $target->{public}{dead};
+    return unless $damage > 0;
 
-    my $shield = $target->{public}{options}{'Ablative Coat'};
+    my $public = $target->{public};
+    return if $public->{dead};
+
+    if ( $public->{shutdown} && exists $public->{options}{'Power-Down Shield'} ) {
+        $damage -= 1;
+        return unless $damage > 0;
+    }
+
+    my $shield = $public->{options}{'Ablative Coat'};
     if ( defined $shield ) {
         if ( $damage >= $shield->{uses} ) {
             $damage -= $shield->{uses};
-            delete $target->{public}{options}{'Ablative Coat'};
+            delete $public->{options}{'Ablative Coat'};
         }
         else {
             $shield->{uses} -= $damage;
@@ -25,17 +32,17 @@ sub damage {
         $game->broadcast(
             {   cmd     => 'options',
                 player  => $target->{id},
-                options => $target->{public}{options}
+                options => $public->{options},
             }
         );
     }
 
     return unless $damage;
-    my $options = keys %{ $target->{public}{options} };
+    my $options = keys %{ $public->{options} };
     my $avoidable = min( $options, $damage );
 
     my $apply_now = $damage - $avoidable;
-    $self->apply_damage( $game, $target, $damage ) if $apply_now;
+    $self->apply_damage( $game, $target, $apply_now ) if $apply_now > 0;
 
     if ($avoidable) {
         $self->{public}{pending_damage}{ $target->{id} } += $avoidable;
@@ -62,7 +69,7 @@ sub apply_damage {
             for my $i ( 5 - $locked .. 4 ) {
                 my $r = $target->{public}{registers}[$i];
                 $r->{damaged} = 1;
-                $r->{locked} = 1;
+                $r->{locked}  = 1;
                 if ( !@{ $r->{program} } ) {
                     my $card = dclone $game->{movement}->deal;
                     $card->{priority} += $i;
