@@ -17,9 +17,14 @@ sub on_enter {
     delete $game->{public}{option}{'Recompile'}{tapped};
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
+        if ( $p->{public}{shutdown} ) {
+            $p->{public}{damage}     = 0;
+            $total++;
+            $ready++;
+        }
+
         if ( $p->{public}{dead} || $p->{public}{shutdown} ) {
             $p->{public}{ready}      = 1;
-            $p->{public}{damage}     = 0 if $p->{public}{shutdown};
             $p->{private}{registers} = State::Setup::CLEAN;
             $p->send( { cmd => 'programming' } );
             next;
