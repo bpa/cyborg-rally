@@ -27,7 +27,8 @@ subtest 'powered down decision' => sub {
     $p3->broadcast(
         { cmd => 'shutdown', activate => 1 },
         { cmd => 'shutdown', activate => 1, player => $p3->{id} },
-        { cmd => 'state',    state    => 'Programming' }
+        { cmd => 'state',    state    => 'Programming' },
+        { cmd => 'timer',    start    => ignore, duration => ignore },
     );
 
     is( ref( $rally->{state} ), 'State::Programming' );
