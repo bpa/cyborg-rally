@@ -1,34 +1,35 @@
-import { ws } from './Util';
-import React, { Component } from 'react';
-import { Button } from './UI';
+import { useMessages, ws } from './Util';
+import React from 'react';
+import { Box, Button, Content } from './UI';
 
-export default class Lasers extends Component {
-    laser(count) {
-        ws.send({ cmd: 'laser', n: count });
-    }
+function laser(n) {
+    ws.send({ cmd: 'laser', n: n });
+}
 
-    btn(dmg) {
-        return (
-            <Button py={4} style={{ flex: "1 1 100px" }} key={dmg}
-                color="red" onClick={this.laser.bind(this, dmg)}>
-                {dmg} laser
-      </Button>);
-    }
+function btn(dmg) {
+    return (
+        <Button style={{ flex: "1 1 auto" }}
+            background="red" onClick={laser.bind(null, dmg)}>
+            {dmg} laser
+        </Button>
+    );
+}
 
-    render() {
-        return (
-            <div>
-                <Button width={1} p={3} style={{ marginBottom: '12px' }}
-                    color="green" onClick={this.laser.bind(this, 0)}>
-                    No Damage
-    </Button>
-                <div style={{ display: 'flex', marginBottom: '12px' }}>
-                    {this.btn(1)}
-                    {this.btn(2)}
-                    {this.btn(3)}
-                    {this.btn(4)}
-                </div>
-            </div>
-        )
-    }
+export default function Lasers(props) {
+    useMessages({
+        error: (msg) => alert(JSON.stringify(msg))
+    });
+    return (
+        <Content>
+            <Button background="green" onClick={laser.bind(null, 0)}>
+                No Damage
+            </Button>
+            <Box direction="row">
+                {btn(1)}
+                {btn(2)}
+                {btn(3)}
+                {btn(4)}
+            </Box>
+        </Content>
+    )
 }

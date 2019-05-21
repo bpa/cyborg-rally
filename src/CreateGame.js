@@ -33,8 +33,7 @@ export default class CreateGame extends RegisteredComponent {
     return (
       <Button style={{ textAlign: 'left' }}
         onClick={this.set.bind(this, props.id, !checked)}>
-        <CheckBox checked={checked} readOnly />
-        {props.children}
+        <CheckBox checked={checked} readOnly label={props.children} />
       </Button>
     );
   }

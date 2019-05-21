@@ -1,4 +1,3 @@
-import { GameContext } from './Util';
 import React from 'react';
 import Icon from './Icon';
 
@@ -11,31 +10,31 @@ class Option {
     return true;
   }
 
-  render(props, state, me) {
-    if (me.options === undefined || me.options[this.name] === undefined) {
+  render(props, showHelp, openHelp, context) {
+    if (context.me.options === undefined || context.me.options[this.name] === undefined) {
       return null;
     }
 
-    if (state.showHelp) {
+    if (showHelp) {
       return <Icon name={this.name} key={this.name} className="help"
-        onClick={state.openHelp.bind(null, this.name)} />;
+        onClick={openHelp.bind(null, this.name)} />;
     }
 
-    return this.render_option(props, state);
+    return this.render_option(props, showHelp, openHelp, context);
   }
 
-  render_option(props, state) {
+  render_option(props, showHelp, openHelp, context) {
     if (props.active === this.name) {
       return <Icon name={this.name} key={this.name} className="selected"
-        onClick={props.notify.deactivate.bind(props.notify, this.name)} />;
+        onClick={() => props.setActive(null)} />;
     }
 
-    if (!this.active()) {
+    if (!this.active(props, showHelp, openHelp, context)) {
       return <Icon name={this.name} key={this.name} className="inactive" />;
     }
 
     return <Icon name={this.name} key={this.name}
-      onClick={props.notify.activate.bind(props.notify, this.name)} />;
+      onClick={() => props.setActive(this.name)} />;
   }
 }
 
@@ -45,15 +44,15 @@ class ComboOption extends Option {
     this.data = data;
   }
 
-  active() {
+  active(props, showHelp, openHelp, context) {
     var held = {};
 
-    const cards = GameContext.private.cards || []
+    const cards = context.private.cards || []
     for (var c of cards) {
       held[c.name] = (held[c.name] || 0) + 1;
     }
 
-    var reg = GameContext.private.registers;
+    var reg = context.private.registers;
     for (var r of reg) {
       if (r.locked || r.program.length === 2
         || (r.program.length === 1 && r.program[0].name > "3")) {
@@ -84,44 +83,44 @@ class OneTimeOption extends Option {
     this.flag = flag;
   }
 
-  active() {
-    return !GameContext.public.player[GameContext.id].options[this.name].tapped;
+  active(props, showHelp, openHelp, context) {
+    return !context.me.options[this.name].tapped;
   }
 }
 
 class FiringOption extends Option {
-  render_option(props) {
-    if (GameContext.public.player[GameContext.id].options[this.name] === undefined) {
+  render_option(props, showHelp, openHelp, context) {
+    if (context.me.options[this.name] === undefined) {
       return null;
     }
 
     if (props.active === this.name) {
       return <Icon name={this.name} key={this.name} selected
-        onClick={props.notify.deactivate.bind(props.notify, this.name)} />;
+        onClick={() => props.setActive(null)} />;
     }
 
     return <Icon name={this.name} key={this.name}
-      onClick={props.notify.activate.bind(props.notify, this.name)} />;
+      onClick={() => props.setActive(this.name)} />;
   }
 }
 
 class LaserOption extends Option {
-  render(props, state) {
-    let options = GameContext.public.player[GameContext.id].options;
+  render(props, showHelp, openHelp, context) {
+    let options = context.me.options;
     let o = options['Double Barreled Laser'] || { name: 'laser' };
 
-    if (state.showHelp) {
+    if (showHelp) {
       return <Icon option={o} key={o.name} help
-        onClick={state.openHelp.bind(null, o.name)} />;
+        onClick={openHelp.bind(null, o.name)} />;
     }
 
     if (props.active === 'laser') {
       return <Icon option={o} key={o.name} selected
-        onClick={props.notify.deactivate.bind(props.notify, 'laser')} />;
+        onClick={() => props.setActive(null)} />;
     }
 
     return <Icon option={o} key={o.name}
-      onClick={props.notify.activate.bind(props.notify, 'laser')} />;
+      onClick={() => props.setActive('laser')} />;
   }
 }
 

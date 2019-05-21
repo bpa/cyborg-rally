@@ -3,12 +3,9 @@ import { ws, GameContext } from './Util';
 import React from 'react';
 import Lobby from "./Lobby";
 import Playing from "./Playing";
-import theme from "./theme";
 import RegisteredComponent from './RegisteredComponent';
+import theme from "./theme";
 import { Grommet } from 'grommet';
-//Including this here so its available as a prototype
-//Without it, Movement and Firing don't pick up all the methods
-import './DamageHandler';
 
 /*eslint no-extend-native: ["error", { "exceptions": ["Array"] }]*/
 
@@ -96,11 +93,11 @@ export default class Client extends RegisteredComponent {
         msg.timediff = new Date().getTime() - msg.now;
         this.setState({
             view: msg.game === 'Rally' ? Playing : Lobby,
-            context: extendObservable(msg, {
+            context: extendObservable({
                 get me() {
                     return this.public.player[this.id];
                 }
-            }),
+            }, msg),
         });
     }
 }

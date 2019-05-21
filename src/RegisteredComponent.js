@@ -8,7 +8,7 @@ export default class RegisteredComponent extends Component {
         for (var prop of names) {
             let property = this[prop];
             if (prop.startsWith("on_") && typeof property === "function") {
-                ws.subscribe(this, prop, property.bind(this));
+                ws.subscribe(this, prop.substr(3), property.bind(this));
             }
         }
     };
@@ -19,7 +19,7 @@ export default class RegisteredComponent extends Component {
         for (var prop of names) {
             let property = this[prop];
             if (prop.startsWith("on_") && typeof property === "function") {
-                ws.unsubscribe(this, prop);
+                ws.unsubscribe(this, prop.substr(3));
             }
         }
     }

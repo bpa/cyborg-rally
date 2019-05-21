@@ -1,15 +1,17 @@
 import { GameContext } from './Util';
-import React from 'react';
+import React, { useContext } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Box } from './UI';
 import Register from './Register';
 import Vitality from "./Vitality";
 import Options from "./Options";
 import Watermark from "./Watermark";
 
-export default function Player(props) {
+export default observer(props => {
+  let context = useContext(GameContext);
   const p = props.player;
   let watermark = null;
-  if (props.register && GameContext.id === props.register.player) {
+  if (props.register && context.id === props.register.player) {
     const r = props.register.program[0].name;
     if (p.options.Brakes && r === '1') {
       watermark = <Watermark active={true} img='images/brakes.svg' text="Brakes" />
@@ -31,4 +33,4 @@ export default function Player(props) {
       <Vitality player={p} />
     </Box >
   )
-}
+});

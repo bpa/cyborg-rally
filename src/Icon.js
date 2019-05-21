@@ -1,5 +1,5 @@
 import { GameContext, getFile } from './Util';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 const IconElement = styled.span`
@@ -47,6 +47,8 @@ const IconElement = styled.span`
 `;
 
 export default function Icon(props) {
+    let context = useContext(GameContext);
+
     const { card, src, option, name, ...rest } = props;
     if (rest.onClick) {
         rest.className = (rest.className || "") + " button";
@@ -65,7 +67,7 @@ export default function Icon(props) {
     }
 
     var imgSrc = src
-        || (name && getFile(GameContext.public.player[GameContext.id].options[name]))
+        || (name && getFile(context.me.options[name]))
         || (option && getFile(option));
 
     return imgSrc &&
