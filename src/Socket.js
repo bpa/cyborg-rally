@@ -26,7 +26,7 @@ export default class Socket {
     on_message(m) {
         let msg = JSON.parse(m.data);
         console.info(msg);
-        let callbacks = subscriptions.get('on_' + msg.cmd);
+        let callbacks = subscriptions.get(msg.cmd);
         if (callbacks) {
             callbacks.forEach((f) => f(msg));
         }

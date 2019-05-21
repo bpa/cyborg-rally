@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Socket from "./Socket";
 
 const SPACE = new RegExp(' ', 'g');
@@ -14,3 +14,19 @@ export function getFile(option) {
   }
   return file + ".svg";
 }
+
+export function useMessages(obj) {
+  let [callbacks] = useState(obj);
+  useEffect(() => {
+    Object.keys(callbacks).forEach(prop => ws.subscribe(callbacks, prop, callbacks[prop]));
+
+    return () => Object.keys(callbacks).forEach(prop => ws.unsubscribe(callbacks, prop));
+  }, [callbacks]);
+}
+
+export function remove(arr, cb) {
+  var i = arr.findIndex(cb);
+  if (i > -1) {
+      arr.splice(i, 1);
+  }
+};

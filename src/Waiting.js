@@ -1,32 +1,27 @@
 import { GameContext } from './Util';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
+import { observer } from 'mobx-react-lite';
 import Ready from './Ready';
 import Players from './Players';
 import { Content } from './UI';
 import Watermark from './Watermark';
 
-export default class Waiting extends Component {
-  static contextType = GameContext;
+export default observer(() => {
+  let context = useContext(GameContext);
+  let state = context.public.state;
+  let options = context.me.options || {};
+  let stabilizer = options['Gyroscopic Stabilizer'];
+  let usingGyro = (state.includes('conveyor') || state === "gears")
+    && stabilizer !== undefined && stabilizer.tapped;
 
-  gyroscopic_stabilizer() {
-    let state = this.context.public.state;
-    let options = this.context.me.options || {};
-    let stabilizer = options['Gyroscopic Stabilizer'];
-    if ((state.includes('conveyor') || state === "gears") &&
-      stabilizer !== undefined && stabilizer.tapped) {
-      return <Watermark active={true} img='images/gyroscopic-stabilizer.svg' text="Gyroscopic Stabilizer" />
-    }
-    return null;
-  }
-
-  render() {
-    return (
-      <Content>
-        <Ready />
-        <hr />
-        <Players />
-        {this.gyroscopic_stabilizer()}
-      </Content>
-    )
-  }
-}
+  return (
+    <Content>
+      <Ready />
+      <hr />
+      <Players />
+      <Watermark active={usingGyro}
+        img='images/gyroscopic-stabilizer.svg'
+        text="Gyroscopic Stabilizer" />
+    </Content>
+  );
+});

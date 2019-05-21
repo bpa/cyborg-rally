@@ -13,6 +13,10 @@ const imgStyle = {
 };
 
 export default function OptionModal(props) {
+  if (!props.card) {
+    return null;
+  }
+  
   let file = getFile(props.card);
   return (
     <Modal title={props.card.name} closeText="Done" close={props.done}>

@@ -1,63 +1,52 @@
 import { GameContext, LASER_OPTION } from './Util';
-import React, { Component } from 'react';
+import React, { useContext, useState } from 'react';
 import OptionCards from './OptionCards';
 import OptionModal from './OptionModal';
 import { Panel } from './UI';
 
-export default class OptionPanel extends Component {
-  static contextType = GameContext;
+export default function OptionPanel(props) {
+  let context = useContext(GameContext);
+  let [show, setShow] = useState(undefined);
+  let [showHelp, setShowHelp] = useState(false);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      showHelp: false,
-      openHelp: this.openHelp.bind(this),
-    };
-    this.closeHelp = this.closeHelp.bind(this);
+  function openHelp(option) {
+    setShow(option);
+    setShowHelp(false);
   }
 
-  openHelp(option) {
-    this.setState({ show: option, showHelp: false });
+  function closeHelp() {
+    setShow(undefined);
+    setShowHelp(false);
   }
 
-  closeHelp() {
-    this.setState({ show: undefined });
+  function toggleHelp() {
+    setShowHelp(help => !help);
   }
 
-  toggleHelp() {
-    let show = !this.state.showHelp;
-    this.setState({ showHelp: show });
+  let held = [];
+  let children = props.children;
+  if (!Array.isArray(children)) {
+    children = [children];
   }
-
-  render() {
-    let held = [];
-    let props = this.props;
-    let children = props.children;
-    if (!Array.isArray(children)) {
-      children = [children];
+  for (var o of children) {
+    let element = OptionCards[o.props.name].render(props, showHelp, openHelp, context);
+    if (element !== null) {
+      held.push(element);
     }
-    for (var o of children) {
-      let element = OptionCards[o.props.name].render(props, this.state, this.context.me);
-      if (element !== null) {
-        held.push(element);
-      }
-    }
-
-    if (held.length < (props.min || 1)) {
-      return null;
-    }
-
-    let card = this.state.show === 'laser'
-      ? LASER_OPTION
-      : GameContext.public.player[GameContext.id].options[this.state.show];
-
-    let modal = card && <OptionModal card={card} done={this.closeHelp} />;
-
-    return (
-      <Panel background="neutral-3" title="Option Cards" onHelp={this.toggleHelp.bind(this)}>
-        {held}
-        {modal}
-      </Panel>
-    );
   }
+
+  if (held.length < (props.min || 1)) {
+    return null;
+  }
+
+  let card = show === 'laser'
+    ? LASER_OPTION
+    : context.me.options[show];
+
+  return (
+    <Panel background="neutral-3" title="Option Cards" onHelp={toggleHelp} direction="row">
+      {held}
+      <OptionModal card={card} done={closeHelp} />
+    </Panel>
+  );
 }

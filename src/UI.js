@@ -12,6 +12,10 @@ export function Shutdown(props) {
     </div>);
 }
 
+export function Dead() {
+  return <div style={{ fontSize: 120, textAlign: 'center' }}>(x_x)</div>
+}
+
 export const Badge = styled.span`
   border-radius: 1em;
   color: white;
@@ -26,39 +30,59 @@ export const Badge = styled.span`
   vertical-align: baseline;
 `;
 
-export const Button = styled.span`
+export const Button = styled.a`
   padding: 8px;
   outline: none;
-  
-  text-align: center;
-  color: hsla(0,0%,20%,1);
-  text-shadow: hsla(0,0%,40%,.5) 0 -1px 0, hsla(0,0%,100%,.6) 0 2px 1px;
-  
-  background-color: ${props => props.background || 'hsl(0,0%,90%)'};
-  box-shadow: inset hsla(0,0%,15%,  1) 0  0px 0px 4px, /* border */
-    inset hsla(0,0%,15%, .8) 0 -1px 5px 4px, /* soft SD */
-    inset hsla(0,0%,0%, .25) 0 -1px 0px 7px, /* bottom SD */
-    inset hsla(0,0%,100%,.7) 0  2px 1px 7px, /* top HL */
-    
-    hsla(0,0%, 0%,.15) 0 -5px 6px 4px, /* outer SD */
-    hsla(0,0%,100%,.5) 0  5px 6px 4px; /* outer HL */ 
-  
-  transition: color .2s;
-  border-radius: .5em;
-  background-image: 
 
-&:active {
-  color: hsl(210, 100%, 40%);
-  text-shadow: hsla(210,100%,20%,.3) 0 -1px 0, hsl(210,100%,85%) 0 2px 1px, hsla(200,100%,80%,1) 0 0 5px, hsla(210,100%,50%,.6) 0 0 20px;
-  box-shadow: 
-    inset hsla(210,100%,30%,  1) 0  0px 0px 4px, /* border */
-    inset hsla(210,100%,15%, .4) 0 -1px 5px 4px, /* soft SD */
-    inset hsla(210,100%,20%,.25) 0 -1px 0px 7px, /* bottom SD */
-    inset hsla(210,100%,100%,.7) 0  2px 1px 7px, /* top HL */
-    
-    hsla(210,100%,75%, .8) 0  0px 3px 2px, /* outer SD */
-    hsla(210,50%,40%, .25) 0 -5px 6px 4px, /* outer SD */
-    hsla(210,80%,95%,   1) 0  5px 6px 4px; /* outer HL */
+  ${props => props.quit ? `
+    --primary: red;
+    --secondary: purple;
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='red', endColorstr='purple',GradientType=0);
+    color:white
+    text-shadow:0px 1px 0px var(--secondary);
+  ` : `
+    --primary: #ededed;
+    --secondary: #bab1ba;
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#bab1ba',GradientType=0);
+    color:#3a8a9e;
+    text-shadow:0px 1px 0px #e1e2ed;
+  `
+  }
+
+  text-align: center;
+  -moz-box-shadow: 3px 4px 0px 0px #899599;
+  -webkit-box-shadow: 3px 4px 0px 0px #899599;
+  box-shadow: 3px 4px 0px 0px #899599;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, var(--primary)), color-stop(1, var(--secondary)));
+  background:-moz-linear-gradient(top, var(--primary) 5%, var(--secondary) 100%);
+  background:-webkit-linear-gradient(top, var(--primary) 5%, var(--secondary) 100%);
+  background:-o-linear-gradient(top, var(--primary) 5%, var(--secondary) 100%);
+  background:-ms-linear-gradient(top, var(--primary) 5%, var(--secondary) 100%);
+  background:linear-gradient(to bottom, var(--primary) 5%, var(--secondary) 100%);
+  -moz-border-radius:15px;
+  -webkit-border-radius:15px;
+  border-radius:15px;
+  border:1px solid #d6bcd6;
+  display:inline-block;
+  cursor:pointer;
+  font-family:Arial;
+  font-size:17px;
+  padding:7px 25px;
+  text-decoration:none;
+
+  &:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, var(--secondary)), color-stop(1, var(--primary)));
+    background:-moz-linear-gradient(top, var(--secondary) 5%, var(--primary) 100%);
+    background:-webkit-linear-gradient(top, var(--secondary) 5%, var(--primary) 100%);
+    background:-o-linear-gradient(top, var(--secondary) 5%, var(--primary) 100%);
+    background:-ms-linear-gradient(top, var(--secondary) 5%, var(--primary) 100%);
+    background:linear-gradient(to bottom, var(--secondary) 5%, var(--primary) 100%);
+  }
+
+  &:active {
+    position:relative;
+    top:1px;
+  }
 }`;
 
 export function Dot(props) {
