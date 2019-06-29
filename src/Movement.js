@@ -4,8 +4,8 @@ import ConfirmOption from './ConfirmOption';
 import OptionPanel from './OptionPanel';
 import Ready from './Ready';
 import Player from './Player';
+import Damage, { Targets } from './Damage';
 import { Shutdown, Content } from './UI';
-import Damage from './Damage';
 
 export default function Movement(props) {
   let context = useContext(GameContext);
@@ -53,7 +53,8 @@ export default function Movement(props) {
       </OptionPanel>
       <Ready />
       <hr />
-      {active === 'Ramming Gear' ? players()
+      {active === 'Ramming Gear'
+        ? < Targets active={active} onClick={ram.bind(null, active)} />
         : order.map((o) =>
           <Player player={players[o.player]} key={o.player} register={o} />)
       }

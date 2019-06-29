@@ -20,7 +20,6 @@ function Sight() {
 }
 
 export function Targets(props) {
-    console.log(props);
     let context = useContext(GameContext);
     var player = context.public.player;
     const keys = Object.keys(player)
@@ -32,7 +31,7 @@ export function Targets(props) {
                 return <Player player={p} key={id} />
             } else {
                 return (
-                    <Button key={id} bg='black' color="red" onClick={() => { console.log("pew, pew"); props.onClick(p) }}>
+                    <Button key={id} bg='black' color="red" onClick={() => props.onClick(id)}>
                         <div><Sight /> {p.name} <Sight></Sight></div>
                     </Button>)
             }
@@ -54,91 +53,100 @@ export function Targets(props) {
 
 export default function Damage() {
     var context = useContext(GameContext);
-    var [pendingShots, setPendingShots] = useState([]);
+    var [pendingShots, setPendingShots] = useState(() => {
+        let shots = [];
+        if (context.state && context.state.shots) {
+            for (var shot of context.state.shots) {
+                if (shot.target === context.id) {
+                    /*eslint no-loop-func: "off"*/
+                    shots.push({ player: shot.player, type: shot.type });
+                }
+            }
+        }
+        return shots;
+    });
+
     var [denied, setDenied] = useState([]);
-    var [disputed, setDisputed] = useState([]);
+    var [disputed, setDisputed] = useState(() => {
+        let disputed = [];
+        if (context.state && context.state.shots) {
+            for (var shot of context.state.shots) {
+                if (shot.dispute) {
+                    if (shot.voted[context.id] === undefined) {
+                        disputed.push(shot);
+                    }
+                }
+            }
+        }
+        return disputed;
+    });
 
     useMessages({
-        fire: (msg) => setPendingShots(p => p.push(msg)),
+        fire: (msg) => {
+            pendingShots.push(msg);
+            setPendingShots(pendingShots);
+        },
         confirm: (msg) => setPendingShots(pend => remove(pend, p => p.player === msg.player)),
         deny: (msg) => {
             if (Object.keys(context.public.player).length > 2) {
-                setDenied(d => d.push({ player: msg.player, type: msg.type }));
+                denied.push({ player: msg.player, type: msg.type });
+                setDenied(denied);
             }
         },
         dispute: (msg) => setDisputed(disputed => disputed.push(msg)),
         resolution: (msg) => setDisputed(disputed => remove(disputed, s => s.target === msg.target && s.player === msg.player)),
-        ram: msg => dmg.setPendingShots(pending => pending.push({ player: msg.player, type: 'Ramming Gear' })),
+        ram: msg => setPendingShots(pending => pending.push({ player: msg.player, type: 'Ramming Gear' })),
     });
 
-    if (context.state) {
-        for (var shot of context.state.shots) {
-            if (shot.dispute) {
-                if (shot.voted[context.id] === undefined) {
-                    disputed.push(shot);
-                }
-            }
-            else if (shot.target === context.id) {
-                /*eslint no-loop-func: "off"*/
-                setPendingShots(p => p.push({ player: shot.player, type: shot.type }));
-            }
-        }
+    function confirm(shot) {
+        ws.send({ cmd: 'confirm', type: shot.type, player: shot.player });
+        remove(pendingShots, (p) => p.player === shot.player);
+        setPendingShots(pendingShots);
     }
 
-    let dmg = {
-        pendingShots: pendingShots,
-        setPendingShots: setPendingShots,
-        denied: denied,
-        setDenied: setDenied,
-        disputed: disputed,
-        setDisputed: setDisputed,
-        confirm: (shot) => {
-            ws.send({ cmd: 'confirm', type: shot.type, player: shot.player });
-            setPendingShots(pending => remove(pending, (p) => p.player === shot.player));
-        },
+    function deny(shot) {
+        ws.send({ cmd: 'deny', type: shot.type, player: shot.player });
+        remove(pendingShots, (p) => p.player === shot.player);
+        setPendingShots(pendingShots);
+    }
 
-        deny: (shot) => {
-            ws.send({ cmd: 'deny', type: shot.type, player: shot.player });
-            setPendingShots(pending => remove(pending, (p) => p.player === shot.player));
-        },
+    function fire(type, p) {
+        ws.send({ cmd: 'fire', type: type, target: p });
+    }
 
-        fire: (type, p) => ws.send({ cmd: 'fire', type: type, target: p }),
+    function acceptDeny(d) {
+        setDenied(denied => remove(denied, deny => deny.target === d.target));
+    }
 
-        acceptDeny: (d) => {
-            console.log(d);
-            setDenied(denied => remove(denied, deny => deny.target === d.target));
-        },
+    function escalate(d) {
+        ws.send({ cmd: 'dispute', type: d.type, target: d.player });
+        setDenied(denied => remove(denied, deny => deny.target === d.target));
+    }
 
-        escalate: (d) => {
-            ws.send({ cmd: 'dispute', type: d.type, target: d.player });
-            setDenied(denied, remove(denied, deny => deny.target === d.target));
-        },
-
-        vote: (d, v) => {
-            ws.send({
-                cmd: 'vote',
-                type: d.type,
-                player: d.player,
-                target: d.target,
-                hit: v,
-            });
-            remove(disputed, (s) => s.target === d.target && s.player === d.player);
-        },
-    };
+    function vote(d, v) {
+        ws.send({
+            cmd: 'vote',
+            type: d.type,
+            player: d.player,
+            target: d.target,
+            hit: v,
+        });
+        remove(disputed, (s) => s.target === d.target && s.player === d.player);
+    }
 
     return (
         <>
             {denied.map((d) => (
                 <Deny type={d.type} target={d.player} key={d.player}
-                    close={dmg.acceptDeny.bind(null, d)}
-                    escalate={dmg.escalate.bind(null, d)} />))}
-            {context.pending_shots && context.pending_shots.map((s) => (
+                    close={acceptDeny.bind(null, d)}
+                    escalate={escalate.bind(null, d)} />))}
+            {pendingShots.map((s) => (
                 <ConfirmShot player={context.me} shot={s} key={s.player}
-                    confirm={dmg.confirm.bind(null, s)}
-                    deny={dmg.deny.bind(null, s)} />
+                    confirm={confirm.bind(null, s)}
+                    deny={deny.bind(null, s)} />
             ))}
-            {context.disputed && context.disputed.map((d) => (
-                <Dispute shot={d} key={d.player} vote={dmg.vote.bind(this, d)} />
+            {disputed && disputed.map((d) => (
+                <Dispute shot={d} key={d.player} vote={vote.bind(this, d)} />
             ))}
         </>
     )

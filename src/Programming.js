@@ -1,5 +1,5 @@
 import { ws, GameContext, useMessages } from './Util';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import Icon from './Icon';
 import Modal from './Modal';
@@ -27,40 +27,44 @@ const ALL_CARDS = {
 
 export default observer(props => {
   let context = useContext(GameContext);
-  var held, used = {};
 
-  if (!context.private) {
-    context.private = {};
-  }
-  var reg = context.private.registers;
-  if (!reg) {
-    reg = [];
-    for (var i = 0; i < 5; i++) {
-      reg.push({ locked: 0, program: [] });
+  let [active, setActive] = useState(false);
+  let [registers, setRegisters] = useState(() => {
+    var reg = context.private.registers;
+    if (reg) {
+      return reg;
+    } else {
+      reg = [];
+      for (var i = 0; i < 5; i++) {
+        reg.push({ locked: 0, program: [] });
+      }
+      return reg;
     }
-    context.private.registers = reg;
-  }
+  });
 
-  let [active, setActive] = useState(null);
+  let [valid, setValid] = useState(ALL_CARDS);
+
+  let [held, setHeld] = useState({});
+  let [used, setUsed] = useState({});
+
   let [cards, setCards] = useState(() => {
     let cards = context.private.cards ? context.private.cards.slice() : [];
     return cards.sort((a, b) => b.priority - a.priority);
   });
   let [confirmRecompile, setConfirmRecompile] = useState(false);
   let [register, setRegister] = useState(undefined);
-  let [registers, setRegisters] = useState(reg.clone());
-  let [valid, setValid] = useState(ALL_CARDS);
 
+  useEffect(() => program.update_used(registers), []);
   let program = {
     update_used: (registers) => {
-      used = {};
-      held = {};
+      let upd_used = {};
+      let upd_held = {};
 
       for (let c of Object.keys(ALL_CARDS)) {
-        held[c] = 0;
+        upd_held[c] = 0;
       }
       for (let c of cards) {
-        held[c.name]++;
+        upd_held[c.name]++;
       }
       for (let r of registers) {
         if (!r.program) {
@@ -70,10 +74,12 @@ export default observer(props => {
           r.name = r.program.map((p) => p.name).join('');
         }
         for (let c of r.program) {
-          used[c.priority] = true;
-          held[c.name]--;
+          upd_used[c.priority] = true;
+          upd_held[c.name]--;
         }
       }
+      setUsed(upd_used);
+      setHeld(upd_held);
     },
 
     choose: (card) => {
@@ -163,18 +169,20 @@ export default observer(props => {
 
   useMessages({
     programming: (msg) => {
-      var held = [];
+      console.log('programming');
+      var heldCards = [];
       if (msg.cards) {
-        held = msg.cards.sort((a, b) => b.priority - a.priority);
+        heldCards = msg.cards.sort((a, b) => b.priority - a.priority);
       }
-      context.private.cards = held;
+      context.private.cards = heldCards;
       context.state = { recompiled: msg.recompiled };
-      used = {};
-      setCards(held);
+      setUsed({});
+      setCards(heldCards);
       setRegisters(msg.registers);
     },
 
     program: (msg) => {
+      console.log('program');
       context.private.registers = msg.registers;
       program.update_used(msg.registers);
       setRegisters(msg.registers.clone());
@@ -195,6 +203,7 @@ export default observer(props => {
     overflow: 'hidden',
     float: 'left',
   };
+
   let recompile = confirmRecompile ? (
     <Modal title="Confirm Recompile" closeText="Cancel" close={program.cancel_recompile}>
       <div style={imgStyle}>
@@ -213,7 +222,7 @@ export default observer(props => {
   var registerObjs = registers.map(function (r, i) {
     if (valid[r.name]) {
       let f = active ? program.set_register : program.clear;
-      return <Register register={r} key={"register" + i} onClick={f.bind(null, i)} />;
+      return <Register register={r} key={"register" + i} onClick={f.bind(false, i)} />;
     }
     else {
       return <Register register={r} key={"register" + i} inactive={true} />;
@@ -229,7 +238,7 @@ export default observer(props => {
       return <Icon card={c} key={c.priority} className="inactive" />;
     }
     else {
-      let click = program.choose.bind(null, c);
+      let click = program.choose.bind(false, c);
       return <Icon card={c} key={c.priority} onClick={click} />;
     }
   });
@@ -254,4 +263,3 @@ export default observer(props => {
     </Content >
   );
 });
-

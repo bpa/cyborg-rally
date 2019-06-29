@@ -13,7 +13,10 @@ export default observer(props => {
     let [help, setHelp] = useState(null);
 
     if (!context.me.options[cond_str]) {
-        return <Player player={context.public.player.slice().find(p => p.options[cond_str])} />
+        let player = Object.keys(context.public.player)
+            .map(id => context.public.player[id])
+            .filter(p => p.options[cond_str]);
+        return <Player player={player[0]} />
     }
 
     let reprogram = (replace) => {

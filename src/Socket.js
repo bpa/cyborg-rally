@@ -1,4 +1,7 @@
-let subscriptions = new Map();
+import ReactDOM from 'react-dom';
+import { action } from "mobx";
+
+export var subscriptions = new Map();
 
 export default class Socket {
     constructor() {
@@ -6,11 +9,11 @@ export default class Socket {
     }
 
     init() {
-        this.ws = new WebSocket('ws://192.168.2.9:3000/websocket');
-        // this.ws = new WebSocket('ws://127.0.0.1:3000/websocket');
+        // this.ws = new WebSocket('ws://192.168.2.9:3000/websocket');
+        this.ws = new WebSocket('ws://127.0.0.1:3000/websocket');
         // this.ws = new WebSocket('ws://' + window.location.host + '/websocket');
         this.ws.onmessage = this.on_message;
-        this.ws.onclose = () => setTimeout(this.init.bind(this), 1000);
+        // this.ws.onclose = () => setTimeout(this.init.bind(this), 1000);
     }
 
     close() {
@@ -28,7 +31,12 @@ export default class Socket {
         console.info(msg);
         let callbacks = subscriptions.get(msg.cmd);
         if (callbacks) {
-            callbacks.forEach((f) => f(msg));
+            ReactDOM.unstable_batchedUpdates(() => {
+                let functions = Array.from(callbacks.values());
+                functions.forEach((f) => {
+                    action(msg.cmd, f)(msg);
+                });
+            });
         }
     }
 

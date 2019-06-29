@@ -89,7 +89,7 @@ export default observer(() => {
     return (
         <div>
             <Frame background="brand">
-                <Box pad="medium" align="center" direction="row">
+                <Box pad="medium" justify="between" align="start" direction="row">
                     <div>
                         <div>{context.public.state.replace('_', ' ')}</div>
                         {progress}

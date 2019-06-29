@@ -28,6 +28,7 @@
       "not op_mini all"
    ],
    "devDependencies": {
+      "deepmerge": "^3.2.0",
       "enzyme": "^3.9.0",
       "enzyme-adapter-react-16": "^1.12.1",
       "jest": "^24.7.1",

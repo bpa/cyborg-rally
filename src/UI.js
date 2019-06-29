@@ -86,12 +86,11 @@ export const Button = styled.a`
 }`;
 
 export function Dot(props) {
-  return (<span>X</span>
-
-  );
-  // <svg viewBox="0 0 12 12" width="12" height="12">
-  //   <circle cx="6" cy="6" r="6" fill={props.bg}></circle>
-  // </svg>
+  return (
+    <svg viewBox="0 0 12 12" width="12" height="12">
+      <circle cx="6" cy="6" r="6" fill={props.bg}></circle>
+    </svg>
+  )
 }
 
 export function Registers(props) {

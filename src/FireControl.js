@@ -1,65 +1,66 @@
-import { ws, GameContext } from './Util';
-import React, { Component } from 'react';
+import { ws, GameContext, useMessages } from './Util';
+import React, { useContext, useReducer, useState } from 'react';
 import Icon from './Icon';
 import Modal from './Modal';
 import { Badge, Button, Panel } from './UI';
 import OptionModal from './OptionModal';
 
-export default class FireControl extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showHelp: false,
+function updateHelp(old, action) {
+    if (action === 'show') {
+        return { help: true };
+    }
+    else if (action === 'hide') {
+        return { help: false };
+    }
+    else if (action === 'toggle') {
+        return { help: !!old.help };
+    }
+    return { show: action };
+}
+
+export default function FireControl(props) {
+    let context = useContext(GameContext);
+    let [help, setHelp] = useReducer(updateHelp, {});
+    let [card, setCard] = useState(false);
+    let [fireControl, setFireControl] = useState(() => {
+        if (context.state && context.me.options['Fire Control']) {
+            return context.state['Fire Control'];
         }
-    }
+    });
 
-    select(card, type) {
-        this.setState({ card: card, type: type });
-    }
+    useMessages({
+        fire_control: (msg) => {
+            setFireControl(msg.target);
+        }
+    });
 
-    fire() {
+    function fire() {
+        let type = Number.isInteger(card) ? 'register' : 'option';
         ws.send({
             cmd: 'fire_control',
-            target: this.props.target,
-            [this.state.type]: this.state.card,
+            target: props.target,
+            [type]: card,
         })
     }
 
-    fire_laser() {
-
-    }
-
-    closeHelp() {
-        this.setState({ show: undefined });
-    }
-
-    openHelp(option) {
-        this.setState({ show: option, showHelp: false });
-    }
-
-    toggleHelp() {
-        let show = !this.state.showHelp;
-        this.setState({ showHelp: show });
-    }
-
-    options() {
-        let player = GameContext.public.player[this.props.target];
+    function options() {
+        let player = context.public.player[props.target];
         const options = player.options;
         const keys = Object.keys(options).sort();
         if (keys.length === 0) {
             return null;
         }
         const icons = keys.map((o, i) => {
-            if (this.state.showHelp) {
+            if (help.show) {
                 return <Icon option={options[o]} key={i} help
-                    onClick={this.openHelp.bind(this, o)} />;
+                    onClick={() => setHelp(o)} />;
             }
-            if (this.state.card === o) {
+            if (card === o) {
                 return <Icon option={options[o]} key={i} selected
-                    onClick={this.select.bind(this)} />;
+                    onClick={() => setCard(false)} />;
             }
             return <Icon option={options[o]} key={i}
-                onClick={this.select.bind(this, o, 'option')} />;
+                onClick={() => setCard(o)} />;
         });
 
         return (
@@ -67,64 +68,62 @@ export default class FireControl extends Component {
                 <div>
                     Options
                     <span style={{ position: 'absolute', right: '' }}>
-                        <Badge onClick={this.toggleHelp.bind(this)}>?</Badge>
+                        <Badge onClick={() => setHelp('toggle')}>?</Badge>
                     </span>
                 </div>
             }>
                 {icons}
-                <Button bg={this.state.type === 'option' ? 'blue' : 'gray'}
-                    onClick={this.fire.bind(this)} >
+                <Button
+                    onClick={() => fire()} >
                     Discard Option
                 </Button >
             </Panel >
         );
     }
 
-    register(r, i) {
+    function register(r, i) {
         var name = r.program.reduce((a, b) => a + b.name, '');
         if (r.locked) {
             return <Icon locked card={{ name: name }} key={i} />
         }
 
-        if (i === this.state.card) {
+        if (i === card) {
             return <Icon selected key={i}
-                onClick={this.select.bind(this)}
+                onClick={() => setCard(false)}
                 card={{ name: name }} />
         }
 
         return (
             <Icon key={i}
-                onClick={this.select.bind(this, i, 'register')}
+                onClick={() => setCard(i)}
                 card={{ name: name }} />
         )
     }
 
-    render() {
-        if (!this.props.target) {
-            return null;
-        }
-
-        let player = GameContext.public.player[this.props.target];
-
-        const cards = player.registers.map(this.register.bind(this));
-        let card = player.options[this.state.show];
-
-        let modal = card !== undefined
-            ? <OptionModal card={card} done={this.closeHelp.bind(this)} />
-            : null;
-
-        return (
-            <Modal title="Fire Control" closeText="Nevermind, use main laser" close={this.props.onSelect}>
-                <Panel color="accent-2" title="Registrse">
-                    {cards}
-                    <Button bg={this.state.type === 'register' ? 'blue' : 'gray'}
-                        onClick={this.fire.bind(this)}>
-                        Lock Register
-                    </Button>
-                </Panel>
-                {this.options()}
-                {modal}
-            </Modal>
-        );
+    if (!props.target) {
+        return null;
     }
+
+    let player = context.public.player[props.target];
+
+    const cards = player.registers.map(register.bind(this));
+    let cardHelp = player.options[help.show];
+
+    let modal = cardHelp !== undefined
+        ? <OptionModal card={cardHelp} done={() => setHelp('close')} />
+        : null;
+
+    return (
+        <Modal title="Fire Control" closeText="Nevermind, use main laser" close={props.onSelect}>
+            <Panel color="accent-2" title="Registrse">
+                {cards}
+                <Button
+                    onClick={() => fire()}>
+                    Lock Register
+                    </Button>
+            </Panel>
+            {options()}
+            {modal}
+        </Modal>
+    );
 }
