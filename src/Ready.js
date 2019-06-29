@@ -5,10 +5,9 @@ import { Button } from './UI';
 
 export default observer(props => {
     let context = useContext(GameContext);
-
     if (!context.me.ready) {
         return (
-            <Button onClick={() => {console.log("hi");ws.send({ cmd: 'ready' })}}
+            <Button onClick={() => ws.send({ cmd: 'ready' })}
                 background="radial-gradient(circle, orange 40%, red)">
                 {props.readyText || 'Ready'}
             </Button>

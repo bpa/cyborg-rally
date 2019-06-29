@@ -1,5 +1,5 @@
 import { ws, GameContext, LASER_OPTION } from './Util';
-import React, { Component } from 'react';
+import React, { useContext, useState } from 'react';
 import { Badge, Button } from './UI';
 import Modal from './Modal';
 import { Option } from './Option';
@@ -19,23 +19,12 @@ let btnStyle = {
 
 let optStyle = { height: "30px" };
 
-export default class ConfirmShot extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-        this.cancel = this.cancel.bind(this);
-    }
+export default function ConfirmShot(props) {
+    let context = useContext(GameContext);
+    let [choice, setChoice] = useState(false);
 
-    ask(opt) {
-        this.setState({ discard: opt });
-    }
-
-    cancel() {
-        this.setState({ discard: null });
-    }
-
-    discard(opt) {
-        const shot = this.props.shot;
+    function discard(opt) {
+        const shot = props.shot;
         ws.send({
             cmd: 'discard',
             type: shot.type,
@@ -44,65 +33,61 @@ export default class ConfirmShot extends Component {
         });
     }
 
-    discardable() {
-        if (!damage_weapons[this.props.shot.type]) {
+    function discardable() {
+        if (!damage_weapons[props.shot.type]) {
             return null;
         }
 
-        let opts = this.props.player.options;
-        const self = this;
+        let opts = props.player.options;
         return Object.keys(opts).map(function (k) {
             let o = opts[k];
             return (
-                <Button onClick={self.ask.bind(self, o)} key={o.name} style={btnStyle}>
+                <Button onClick={setChoice(o)} key={o.name} style={btnStyle}>
                     <Option card={o} style={optStyle} />
                     Discard {o.name} to prevent 1 damage?
                 </Button>)
         });
     }
 
-    confirmation() {
-        const o = this.state.discard;
-        if (!o) {
+    function confirmation() {
+        if (!choice) {
             return null;
         }
         return (
-            <Modal title={"Discard " + o.name + "?"} closeText="Cancel"
-                close={this.cancel}>
-                <Option card={o} style={optStyle} />
-                Are you sure you want to discard {o.name}?
-                <Button onClick={this.discard.bind(this, o)} style={btnStyle}>
+            <Modal title={"Discard " + choice.name + "?"} closeText="Cancel"
+                close={() => setChoice(false)}>
+                <Option card={choice} style={optStyle} />
+                Are you sure you want to discard {choice.name}?
+                <Button onClick={() => discard(choice)} style={btnStyle}>
                     Discard
                 </Button>
             </Modal>);
     }
 
-    render() {
-        const target_action = this.props.shot.type === 'Ramming Gear' ? 'rammed' : 'shot';
-        const action = this.props.shot.type === 'Ramming Gear' ? 'used' : 'fired';
-        let style = { height: "2em" };
-        let player = GameContext.public.player[this.props.shot.player];
-        let card = player['options'][this.props.shot.type];
-        if (card === undefined) {
-            card = LASER_OPTION;
-        }
-        let title =
-            <div>
-                <Badge bg="blue">
-                    <Option card={card} style={style} />
-                </Badge>
-                <span style={{ margin: 'auto' }}>You have been {target_action}</span>
-            </div>;
-        return (
-            <Modal title={title} closeText="Deny" close={this.props.deny} z="100">
-                <span style={{ paddingTop: '8px', margin: 'auto' }}>
-                    {player.name} {action} {this.props.shot.type}
-                </span>
-                <Button onClick={this.props.confirm} bg="green">
-                    Confirm
-                </Button>
-                {this.confirmation()}
-            </Modal>);
+    const target_action = props.shot.type === 'Ramming Gear' ? 'rammed' : 'shot';
+    const action = props.shot.type === 'Ramming Gear' ? 'used' : 'fired';
+    let style = { height: "2em" };
+    let player = context.public.player[props.shot.player];
+    let card = player['options'][props.shot.type];
+    if (card === undefined) {
+        card = LASER_OPTION;
     }
+    let title =
+        <div>
+            <Badge bg="blue">
+                <Option card={card} style={style} />
+            </Badge>
+            <span style={{ margin: 'auto' }}>You have been {target_action}</span>
+        </div>;
+    return (
+        <Modal title={title} closeText="Deny" close={props.deny} z="100">
+            <span style={{ paddingTop: '8px', margin: 'auto' }}>
+                {player.name} {action} {props.shot.type}
+            </span>
+            <Button onClick={props.confirm} bg="green">
+                Confirm
+                </Button>
+            {confirmation()}
+        </Modal>);
 }
 

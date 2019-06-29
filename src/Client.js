@@ -90,6 +90,9 @@ export default class Client extends RegisteredComponent {
 
     on_joined(msg) {
         delete msg.cmd;
+        if (!msg.private) {
+            msg.private = {};
+        }
         msg.timediff = new Date().getTime() - msg.now;
         this.setState({
             view: msg.game === 'Rally' ? Playing : Lobby,

@@ -1,82 +1,75 @@
-import { GameContext } from './Util';
-import React, { Component } from 'react';
+import { GameContext, useMessages } from './Util';
+import React, { useContext, useEffect, useState } from 'react';
 import { Meter } from './UI';
+import { observer } from 'mobx-react-lite';
 
-export default class Timer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
+export default observer((props) => {
+    let context = useContext(GameContext)
+    let [color, setColor] = useState('white');
+    let [timer, setTimer] = useState(undefined);
+    let [percent, setPercent] = useState(0);
+
+    function start() {
+        if (timer === undefined && context.public.timer) {
+            update();
+            setTimer(setInterval(update, 100));
+        }
     }
 
-    componentDidMount() {
-        var timer = this.props.timer;
+    function stop() {
         if (timer) {
-            this.timediff = this.props.timediff;
-            this.duration = timer.duration;
-            this.expires = timer.start + timer.duration - GameContext.timediff;
-            if (this.expires > new Date().getTime()) {
-                this.start();
-            }
+            clearInterval(timer);
         }
+        setTimer(undefined);
+        setPercent(0);
+        delete context.public.timer;
     }
 
-    stop_timer() {
-        if (this.interval) {
-            clearInterval(this.interval);
-            delete this.interval;
-            this.setState({ value: 0 });
+    useEffect(() => {
+        start();
+        return () => {
+            if (timer) clearInterval(timer);
         }
-    }
+    }, []);
 
-    componentWillUnmount() {
-        this.stop_timer();
-    }
-
-    on_state(msg) {
-        this.stop_timer();
-    }
-
-    start() {
-        this.update();
-        if (!this.interval) {
-            this.interval = setInterval(this.update.bind(this), 100);
+    useMessages({
+        state: stop,
+        timer: (msg) => {
+            context.public.timer = msg;
+            start();
         }
-    }
+    });
 
-    update() {
-        var now = new Date().getTime();
-        var remaining = this.expires - now;
-        var color
-            = remaining < 5000 ? "red"
-                : remaining < 10000 ? "orange"
-                    : "white";
+    function update() {
+        let now = new Date().getTime();
+        let t = context.public.timer;
+        if (!t) {
+            return;
+        }
+        let target = t.start + t.duration - context.timediff;
+        let remaining = target - now;
         if (remaining > 0) {
-            this.setState({
-                value: 1 - remaining / this.duration,
-                secondsRemaining: Math.ceil(remaining / 1000),
-                color: color
-            });
-        }
-        else {
-            clearInterval(this.interval);
-            delete this.interval;
-            this.setState({ value: 0, secondsRemaining: 0 });
+            let per = (t.duration - remaining) / t.duration * 100;
+            setPercent(per);
+            setColor(per > 75 ? "red"
+                : per > 60 ? "orange"
+                    : "white");
+        } else {
+            stop();
         }
     }
 
-    on_timer(msg) {
-        var now = new Date().getTime();
-        var timediff = now - msg.start;
-        this.duration = msg.duration;
-        this.expires = msg.start + msg.duration - timediff;
-        this.start();
+    if (percent === 0) {
+        return <div />
     }
 
-    render() {
-        return this.interval
-            ? (<Meter type="circle" values={[this.state]}>
-                {this.state.secondsRemaining}
-            </Meter>)
-            : <div style={{ width: 32, marginLeft: 16 }} />;
-    }
-}
+    return (
+        <Meter type="circle" thickness="large"
+            style={{ width: '2.5em', height: '2.5em' }}
+            margin={{ vertical: '.5em' }}
+            values={[{
+                value: percent,
+                color: color,
+            }]} />
+    );
+});

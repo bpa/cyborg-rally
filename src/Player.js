@@ -10,6 +10,9 @@ import Watermark from "./Watermark";
 export default observer(props => {
   let context = useContext(GameContext);
   const p = props.player;
+  if (!p) {
+    return null;
+  }
   let watermark = null;
   if (props.register && context.id === props.register.player) {
     const r = props.register.program[0].name;
