@@ -1,4 +1,3 @@
-import ReactDOM from 'react-dom';
 import { GameContext, ws } from './Util';
 import { subscriptions } from './Socket';
 import React from 'react';
@@ -35,7 +34,7 @@ export function mounted(children, props) {
          {children}
       </GameContext.Provider>);
    component.message = message.bind(component);
-   return [context, component];
+   return [component, context];
 }
 
 function game() {

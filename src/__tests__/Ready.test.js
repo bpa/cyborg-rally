@@ -5,7 +5,7 @@ import { mounted } from '../setupTests';
 import { ws } from '../Util';
 
 test('waiting', () => {
-    let [context, component] = mounted(<Ready />, { public: { state: 'Waiting' } });
+    let [component, context] = mounted(<Ready />, { public: { state: 'Waiting' } });
     const ready = component.children();
     expect(ready.text()).toEqual('Ready');
     ready.simulate('click');
@@ -21,7 +21,7 @@ test('waiting', () => {
 });
 
 test('not waiting', () => {
-    let [context, component] = mounted(<Ready />, {
+    let [component, context] = mounted(<Ready />, {
         public: {
             state: 'Programming', player: {
                 'player1': { ready: 1 }

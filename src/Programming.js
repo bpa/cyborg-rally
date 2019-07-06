@@ -169,7 +169,6 @@ export default observer(props => {
 
   useMessages({
     programming: (msg) => {
-      console.log('programming');
       var heldCards = [];
       if (msg.cards) {
         heldCards = msg.cards.sort((a, b) => b.priority - a.priority);
@@ -182,7 +181,6 @@ export default observer(props => {
     },
 
     program: (msg) => {
-      console.log('program');
       context.private.registers = msg.registers;
       program.update_used(msg.registers);
       setRegisters(msg.registers.clone());

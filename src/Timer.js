@@ -4,64 +4,61 @@ import { Meter } from './UI';
 import { observer } from 'mobx-react-lite';
 
 export default observer((props) => {
-    let context = useContext(GameContext)
-    let [color, setColor] = useState('white');
-    let [timer, setTimer] = useState(undefined);
-    let [percent, setPercent] = useState(0);
+    let context = useContext(GameContext);
 
-    function start() {
-        if (timer === undefined && context.public.timer) {
-            update();
-            setTimer(setInterval(update, 100));
+    let [remaining, setRemaining] = useState(() => {
+        let t = context.public.timer;
+        if (t) {
+            t.target = t.start + t.duration - context.timediff;
+            let now = new Date().getTime();
+            return t.target - now;
         }
+        return 0;
+    });
+
+    function updateRemaining() {
+        let now = new Date().getTime();
+        let target = context.public.timer.target;
+        setRemaining(target < now ? 0 : target - now);
     }
 
-    function stop() {
-        if (timer) {
-            clearInterval(timer);
-        }
-        setTimer(undefined);
-        setPercent(0);
+    let [timer, setTimer] = useState(() => context.public.timer ? setInterval(updateRemaining, 100) : undefined);
+
+    useEffect(() => {
+        return () => clearInterval(timer);
+    }, [timer]);
+
+    useMessages({
+        state: () => {
+            delete context.public.timer;
+            setTimer(undefined);
+            setRemaining(0);
+        },
+        timer: msg => {
+            context.public.timer = {
+                start: msg.start,
+                duration: msg.duration,
+                target: msg.start + msg.duration - context.timediff
+            };
+            let now = new Date().getTime();
+            setRemaining(context.public.timer.target - now);
+            setTimer(setInterval(updateRemaining, 100));
+        },
+    });
+
+    let t = context.public.timer;
+    if (t && !remaining) {
         delete context.public.timer;
     }
 
-    useEffect(() => {
-        start();
-        return () => {
-            if (timer) clearInterval(timer);
-        }
-    }, []);
-
-    useMessages({
-        state: stop,
-        timer: (msg) => {
-            context.public.timer = msg;
-            start();
-        }
-    });
-
-    function update() {
-        let now = new Date().getTime();
-        let t = context.public.timer;
-        if (!t) {
-            return;
-        }
-        let target = t.start + t.duration - context.timediff;
-        let remaining = target - now;
-        if (remaining > 0) {
-            let per = (t.duration - remaining) / t.duration * 100;
-            setPercent(per);
-            setColor(per > 75 ? "red"
-                : per > 60 ? "orange"
-                    : "white");
-        } else {
-            stop();
-        }
-    }
-
-    if (percent === 0) {
+    if (!t) {
         return <div />
     }
+
+    let percent = (t.duration - remaining) / t.duration * 100;
+    let color = percent > 75 ? "red"
+        : percent > 60 ? "orange"
+            : "white";
 
     return (
         <Meter type="circle" thickness="large"

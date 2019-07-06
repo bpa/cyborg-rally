@@ -1,4 +1,4 @@
-import { ws, GameContext, remove, useMessages } from './Util';
+import { ws, GameContext, useMessages } from './Util';
 import React from 'react';
 import { useContext, useState } from 'react';
 import ConfirmShot from './ConfirmShot';
