@@ -38,18 +38,6 @@ export function Targets(props) {
         });
     return <>{keys}</>;
 }
-// dmg.activate = o => setActive(o);
-// dmg.deactivate = () => setActive('laser');
-
-// var pending = dmg.pendingShots.map((s) => (
-//     <ConfirmShot player={context.me} shot={s} key={s.player}
-//         confirm={dmg.confirm.bind(null, s)}
-//         deny={dmg.deny.bind(null, s)} />
-// ));
-
-// var disputes = dmg.disputed.map((d) => (
-//     <Dispute shot={d} key={d.player} vote={dmg.vote.bind(null, d)} />
-// ));
 
 export default function Damage() {
     var context = useContext(GameContext);
@@ -104,10 +92,6 @@ export default function Damage() {
     function deny(shot) {
         ws.send({ cmd: 'deny', type: shot.type, player: shot.player });
         setPendingShots(pending => pending.filter(p => p.player !== shot.player));
-    }
-
-    function fire(type, p) {
-        ws.send({ cmd: 'fire', type: type, target: p });
     }
 
     function acceptDeny(d) {
