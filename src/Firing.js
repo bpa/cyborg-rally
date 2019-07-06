@@ -1,4 +1,4 @@
-import { GameContext, useMessages, ws } from './Util';
+import { GameContext, ws } from './Util';
 import React, { useContext, useState } from 'react';
 import Ready from './Ready';
 import OptionPanel from './OptionPanel';

@@ -5,7 +5,7 @@ import { mounted } from '../setupTests';
 import { ws } from '../Util';
 
 test('No shots', () => {
-    let [context, component] = mounted(<Firing />, { public: { state: 'Firing' } });
+    let [component, context] = mounted(<Firing />, { public: { state: 'Firing' } });
 
     let buttons = component.find('a');
     expect(buttons.at(0).text()).toEqual('No one in line of sight');
@@ -19,7 +19,7 @@ test('No shots', () => {
 });
 
 test('Shoot p2', () => {
-    let [context, component] = mounted(<Firing />, { public: { state: 'Firing' } });
+    let [component] = mounted(<Firing />, { public: { state: 'Firing' } });
 
     let buttons = component.find('a');
     expect(buttons).toHaveLength(2);
@@ -31,7 +31,7 @@ test('Shoot p2', () => {
 });
 
 test('Shoot alternate weapon', () => {
-    let [context, component] = mounted(<Firing />, {
+    let [component] = mounted(<Firing />, {
         public: {
             state: 'Firing',
             player: {
