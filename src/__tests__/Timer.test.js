@@ -74,3 +74,27 @@ test('existing timer', () => {
     component.unmount();
     expect(clearInterval).toHaveBeenCalledTimes(1);
 });
+
+test('cancel timer on state change', () => {
+    let [component] = mounted(<Timer />, {
+        public: {
+            timer: {
+                start: new Date().getTime() - 5000,
+                duration: 10000,
+            }
+        }
+    });
+
+    let timer = component.children();
+    expect(setInterval).toHaveBeenCalledTimes(1);
+    expect(timer.name()).toEqual('Meter');
+    component.message({ cmd: 'state', state: 'next' });
+
+    timer = component.children();
+    expect(clearInterval).toHaveBeenCalledTimes(1);
+    expect(setInterval).toHaveBeenCalledTimes(1);
+    expect(timer.name()).toEqual('div');
+
+    component.unmount();
+    expect(clearInterval).toHaveBeenCalledTimes(2);
+});
