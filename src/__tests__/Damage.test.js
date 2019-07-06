@@ -5,6 +5,7 @@ import { ws } from '../Util';
 import ConfirmShot from '../ConfirmShot';
 import { Button } from '../UI';
 import Deny from '../Deny';
+import Dispute from '../Dispute';
 
 test('got shot', () => {
     let [context, component] = mounted(<Damage />);
@@ -62,6 +63,36 @@ function denyShot() {
     let buttons = denied.find(Button);
 
     return [buttons, component];
+}
+
+test('vote yes', () => disputedShot(true, true));
+test('vote no', () => disputedShot(true, false));
+test('reloaded vote yes', () => disputedShot(false, true));
+test('reloaded vote no', () => disputedShot(false, false));
+
+function disputedShot(useMessage, vote) {
+    let shot = { player: 'player2', target: 'player3', type: 'laser' };
+    let initialContext = { public: { player: { player3: player('Player 3') } } };
+    if (!useMessage) {
+        shot.dispute = 1;
+        shot.voted = { player2: 1, player3: 0 };
+        initialContext.state = { shots: [shot] };
+    }
+    let [context, component] = mounted(<Damage />, initialContext);
+    expect(component.find(Dispute).exists()).toBe(!useMessage);
+
+    if (useMessage) {
+        shot.cmd = 'dispute';
+        component.message(shot);
+    }
+
+    let dispute = component.find(Dispute);
+    expect(dispute.exists()).toBe(true);
+    let buttons = dispute.find(Button);
+
+    buttons.at(vote ? 0 : 1).simulate('click');
+    expect(component.find(Dispute).exists()).toBe(false);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'vote', type: 'laser', target: 'player3', player: 'player2', hit: vote });
 }
 
 function shot(type) {
