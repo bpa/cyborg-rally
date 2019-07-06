@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import { GameContext, ws } from './Util';
 import { subscriptions } from './Socket';
 import React from 'react';
@@ -9,13 +10,14 @@ let deepmerge = require('deepmerge');
 
 Enzyme.configure({ adapter: new Adapter() });
 
-export function message(msg) {
+function message(msg) {
    act(() => {
-      let callbacks = subscriptions.get(msg.cmd);
+      let callbacks = Array.from(subscriptions.get(msg.cmd).values());
       if (callbacks) {
          callbacks.forEach((f) => f(msg));
       }
    });
+   this.update();
 }
 
 export function mounted(children, props) {
@@ -25,10 +27,15 @@ export function mounted(children, props) {
       }
    }, deepmerge(game(), props || {}));
 
-   return [context, mount(
+   subscriptions.clear();
+   ws.send = jest.fn();
+
+   let component = mount(
       <GameContext.Provider value={context}>
          {children}
-      </GameContext.Provider>)];
+      </GameContext.Provider>);
+   component.message = message.bind(component);
+   return [context, component];
 }
 
 function game() {

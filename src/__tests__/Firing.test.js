@@ -4,10 +4,6 @@ import Firing from '../Firing';
 import { mounted } from '../setupTests';
 import { ws } from '../Util';
 
-beforeEach(() => {
-    ws.send = jest.fn();
-});
-
 test('No shots', () => {
     let [context, component] = mounted(<Firing />, { public: { state: 'Firing' } });
 
