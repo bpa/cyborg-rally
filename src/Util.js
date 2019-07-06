@@ -24,10 +24,3 @@ export function useMessages(callbacks) {
     }
   }, [callbacks]);
 }
-
-export function remove(arr, cb) {
-  var i = arr.findIndex(cb);
-  if (i > -1) {
-    arr.splice(i, 1);
-  }
-};

@@ -4,10 +4,6 @@ import Ready from '../Ready.js';
 import { mounted } from '../setupTests';
 import { ws } from '../Util';
 
-beforeEach(() => {
-    ws.send = jest.fn();
-});
-
 test('waiting', () => {
     let [context, component] = mounted(<Ready />, { public: { state: 'Waiting' } });
     const ready = component.children();

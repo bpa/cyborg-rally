@@ -57,7 +57,7 @@ export default function Damage() {
         let shots = [];
         if (context.state && context.state.shots) {
             for (var shot of context.state.shots) {
-                if (shot.target === context.id) {
+                if (shot.target === context.id && !shot.dispute) {
                     /*eslint no-loop-func: "off"*/
                     shots.push({ player: shot.player, type: shot.type });
                 }
@@ -83,31 +83,27 @@ export default function Damage() {
 
     useMessages({
         fire: (msg) => {
-            pendingShots.push(msg);
-            setPendingShots(pendingShots);
+            setPendingShots(p => p.concat(msg));
         },
-        confirm: (msg) => setPendingShots(pend => remove(pend, p => p.player === msg.player)),
+        confirm: (msg) => setPendingShots(pend => pend.filter(p => p.player !== msg.player)),
         deny: (msg) => {
             if (Object.keys(context.public.player).length > 2) {
-                denied.push({ player: msg.player, type: msg.type });
-                setDenied(denied);
+                setDenied(d => d.concat({ player: msg.player, type: msg.type }));
             }
         },
-        dispute: (msg) => setDisputed(disputed => disputed.push(msg)),
-        resolution: (msg) => setDisputed(disputed => remove(disputed, s => s.target === msg.target && s.player === msg.player)),
-        ram: msg => setPendingShots(pending => pending.push({ player: msg.player, type: 'Ramming Gear' })),
+        dispute: (msg) => setDisputed(disputed => disputed.concat(msg)),
+        resolution: (msg) => setDisputed(disputed => disputed.filter(s => s.target !== msg.target && s.player !== msg.player)),
+        ram: msg => setPendingShots(p => p.concat({ player: msg.player, type: 'Ramming Gear' })),
     });
 
     function confirm(shot) {
         ws.send({ cmd: 'confirm', type: shot.type, player: shot.player });
-        remove(pendingShots, (p) => p.player === shot.player);
-        setPendingShots(pendingShots);
+        setPendingShots(pending => pending.filter(p => p.player !== shot.player));
     }
 
     function deny(shot) {
         ws.send({ cmd: 'deny', type: shot.type, player: shot.player });
-        remove(pendingShots, (p) => p.player === shot.player);
-        setPendingShots(pendingShots);
+        setPendingShots(pending => pending.filter(p => p.player !== shot.player));
     }
 
     function fire(type, p) {
@@ -115,12 +111,12 @@ export default function Damage() {
     }
 
     function acceptDeny(d) {
-        setDenied(denied => remove(denied, deny => deny.target === d.target));
+        setDenied(denied => denied.filter(deny => deny.target !== d.target));
     }
 
     function escalate(d) {
         ws.send({ cmd: 'dispute', type: d.type, target: d.player });
-        setDenied(denied => remove(denied, deny => deny.target === d.target));
+        setDenied(denied => denied.filter(deny => deny.target !== d.target));
     }
 
     function vote(d, v) {
@@ -131,7 +127,7 @@ export default function Damage() {
             target: d.target,
             hit: v,
         });
-        remove(disputed, (s) => s.target === d.target && s.player === d.player);
+        setDisputed(disputed => disputed.filter(s => s.target !== d.target && s.player !== d.player));
     }
 
     return (
@@ -141,7 +137,7 @@ export default function Damage() {
                     close={acceptDeny.bind(null, d)}
                     escalate={escalate.bind(null, d)} />))}
             {pendingShots.map((s) => (
-                <ConfirmShot player={context.me} shot={s} key={s.player}
+                <ConfirmShot shot={s} key={s.player}
                     confirm={confirm.bind(null, s)}
                     deny={deny.bind(null, s)} />
             ))}

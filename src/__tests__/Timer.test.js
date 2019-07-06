@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mounted, message } from '../setupTests';
+import { mounted } from '../setupTests';
 import Timer from '../Timer';
 
 beforeEach(() => jest.useFakeTimers());
@@ -11,10 +11,10 @@ test('timer', () => {
     expect(component.children().name()).toEqual('div');
 
     let now = new Date().getTime();
-    message({ cmd: 'timer', start: now, duration: 10000 });
+    component.message({ cmd: 'timer', start: now, duration: 10000 });
     expect(setInterval).toHaveBeenCalledTimes(1);
 
-    component.update();
+    // component.update();
     timer = component.children();
     expect(timer.name()).toEqual('Meter');
     let values = timer.prop('values')[0];
@@ -22,7 +22,7 @@ test('timer', () => {
     expect(values.color).toBe('white');
 
     now = new Date().getTime() - 6100;
-    message({ cmd: 'timer', start: now, duration: 9000 });
+    component.message({ cmd: 'timer', start: now, duration: 9000 });
     expect(setInterval).toHaveBeenCalledTimes(1);
     act(() => jest.runOnlyPendingTimers());
     component.update();
@@ -34,7 +34,7 @@ test('timer', () => {
     expect(values.color).toBe('orange');
 
     now = new Date().getTime() - 7600;
-    message({ cmd: 'timer', start: now, duration: 9000 });
+    component.message({ cmd: 'timer', start: now, duration: 9000 });
     expect(setInterval).toHaveBeenCalledTimes(1);
     act(() => jest.runOnlyPendingTimers());
     component.update();
