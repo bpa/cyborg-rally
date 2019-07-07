@@ -7,10 +7,10 @@ import Player from './Player';
 import Damage, { Targets } from './Damage';
 import { Shutdown, Content } from './UI';
 
-export default function Movement(props) {
+export default function Movement() {
   let context = useContext(GameContext);
   let [active, setActive] = useState(false);
-  let [confirm, setConfirm] = useState(null);
+  let [confirm, setConfirm] = useState(undefined);
   let [order, setOrder] = useState(context.state.order || []);
 
   useMessages({
@@ -47,7 +47,7 @@ export default function Movement(props) {
 
   return (
     <Content>
-      <OptionPanel active={active} setActive={setActive}>
+      <OptionPanel active={active} setActive={activate}>
         <o name='Abort Switch' />
         <o name='Ramming Gear' />
       </OptionPanel>

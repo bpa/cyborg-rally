@@ -74,7 +74,7 @@ export default class PendingDamage extends Component {
   }
 
   render() {
-    if (!(this.context.pending_damage && this.context.pending_damage[this.context.id])) {
+    if (!(this.context.state.pending_damage && this.context.state.pending_damage[this.context.id])) {
       return null;
     }
     if (this.state.selected === undefined) {
