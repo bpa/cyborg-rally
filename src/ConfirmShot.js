@@ -86,7 +86,7 @@ export default function ConfirmShot(props) {
             </span>
             <Button onClick={props.confirm} bg="green">
                 Confirm
-                </Button>
+            </Button>
             {confirmation()}
         </Modal>);
 }

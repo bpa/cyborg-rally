@@ -115,12 +115,12 @@ export default function FireControl(props) {
 
     return (
         <Modal title="Fire Control" closeText="Nevermind, use main laser" close={props.onSelect}>
-            <Panel color="accent-2" title="Registrse">
+            <Panel color="accent-2" title="Registers">
                 {cards}
                 <Button
                     onClick={() => fire()}>
                     Lock Register
-                    </Button>
+                </Button>
             </Panel>
             {options()}
             {modal}

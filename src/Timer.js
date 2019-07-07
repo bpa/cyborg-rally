@@ -48,6 +48,7 @@ export default observer((props) => {
 
     let t = context.public.timer;
     if (t && !remaining) {
+        setTimer(undefined);
         delete context.public.timer;
     }
 

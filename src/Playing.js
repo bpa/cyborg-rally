@@ -75,7 +75,8 @@ export default observer(() => {
                     context.public.register++;
             }
         },
-        pending_damage: (msg) => context.pending_damage = msg.damage,
+        pending_damage: (msg) => context.state.pending_damage = msg.damage,
+        damage: msg => player(msg).damage = msg.damage,
     });
 
     let quit = () => ws.send({ cmd: 'quit' });

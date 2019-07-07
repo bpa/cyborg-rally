@@ -1,20 +1,20 @@
-import { ws, GameContext, useMessages } from './Util';
-import React, { useContext, useState } from 'react';
+import { ws, GameContext } from './Util';
+import React, { useContext } from 'react';
 import { Tile, TileSet } from './TileSet';
 import Watermark from './Watermark';
 
 export default function Touching(props) {
   let context = useContext(GameContext);
-  let [tiles, setTiles] = useState(context.state, {});
+  // let [tiles, setTiles] = useState(context.state, {});
 
-  useMessages({
-    touch: (msg) => {
-      setTiles(tiles => {
-        tiles[msg.player] = msg.tile;
-        return tiles;
-      });
-    }
-  });
+  // useMessages({
+  //   touch: (msg) => {
+  //     setTiles(tiles => {
+  //       tiles[msg.player] = msg.tile;
+  //       return tiles;
+  //     });
+  //   }
+  // });
 
   function touch(tile) {
     ws.send({ cmd: 'touch', tile: tile });
@@ -22,7 +22,7 @@ export default function Touching(props) {
 
   const hide = context.me.shutdown;
   return (
-    <div>
+    <>
       <TileSet onClick={touch}>
         <Tile id="floor">None</Tile>
         <Tile id='repair' hide={hide}>Repair</Tile>
@@ -33,6 +33,6 @@ export default function Touching(props) {
       </TileSet>
       <Watermark active={context.me.options['Mechanical Arm']}
         img='images/mechanical-arm.svg' text="Mechanical Arm" />
-    </div >
+    </>
   );
 }
