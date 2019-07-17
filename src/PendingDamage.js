@@ -55,7 +55,7 @@ export default observer(() => {
       </Modal>);
   }
 
-  if (!(context.state.pending_damage && context.state.pending_damage[context.id])) {
+  if (!(context.state && context.state.pending_damage && context.state.pending_damage[context.id])) {
     return null;
   }
   if (selected === undefined) {

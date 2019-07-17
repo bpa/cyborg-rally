@@ -57,7 +57,6 @@ function game() {
       "game": "Rally",
       "id": "player1",
       "private": {},
-      "state": {},
       "now": new Date().getTime(),
       "public": {
          "register": 0,

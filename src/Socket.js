@@ -9,8 +9,8 @@ export default class Socket {
     }
 
     init() {
-        // this.ws = new WebSocket('ws://192.168.2.9:3000/websocket');
-        this.ws = new WebSocket('ws://127.0.0.1:3000/websocket');
+        this.ws = new WebSocket('ws://192.168.2.5:3000/websocket');
+        // this.ws = new WebSocket('ws://127.0.0.1:3000/websocket');
         // this.ws = new WebSocket('ws://' + window.location.host + '/websocket');
         this.ws.onmessage = this.on_message;
         // this.ws.onclose = () => setTimeout(this.init.bind(this), 1000);

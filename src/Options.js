@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Option } from './Option';
 
 export default function Options(props) {
   let opts = props.player.options;
   if (!opts) {
-    console.warn("Returning null");
     return null;
   }
   opts = Object.values(opts).sort((a, b) => a.name < b.name);
