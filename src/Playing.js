@@ -75,7 +75,11 @@ export default observer(() => {
                     context.public.register++;
             }
         },
-        pending_damage: (msg) => context.state.pending_damage = msg.damage,
+        pending_damage: (msg) => {
+            let pending = context.state.pending_damage || {};
+            pending[context.id] = msg.damage;
+            context.state.pending_damage = pending;
+        },
         damage: msg => player(msg).damage = msg.damage,
     });
 
