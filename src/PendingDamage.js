@@ -1,89 +1,68 @@
 import { ws, GameContext, getFile } from './Util';
-import React, { Component } from 'react';
+import React, { useContext, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Button, Panel } from './UI';
 import Modal from './Modal';
 
-export default class PendingDamage extends Component {
-  static contextType = GameContext;
+export default observer(() => {
+  let context = useContext(GameContext);
+  let [selected, setSelected] = useState(undefined);
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-    this.damageRobot = this.damageRobot.bind(this);
-    this.reset = this.reset.bind(this);
-    this.discard = this.discard.bind(this);
+  function discard() {
+    ws.send({ cmd: 'damage', target: selected });
+    setSelected(undefined);
   }
 
-  select(option) {
-    this.setState({ selected: option });
-  }
-
-  damageRobot() {
-    this.setState({ selected: 'robot' });
-  }
-
-  discard() {
-    ws.send({ cmd: 'damage', target: this.state.selected });
-    this.reset();
-  }
-
-  reset() {
-    this.setState({ selected: undefined });
-  }
-
-  choice(options, option) {
+  function choice(options, option) {
     let src = getFile(options[option]);
     return (
-      <div key={option} onClick={this.select.bind(this, option)}
+      <Button key={option} onClick={() => setSelected(option)}
         style={{
           height: '48px', width: '48px',
           padding: '8px', margin: '8px 4px 0px 4px',
           border: '2px solid green', borderRadius: '8px',
         }}>
         <img src={src} style={{ height: '100%' }} alt={option} />
-      </div>
+      </Button>
     );
   }
 
-  render_discard() {
-    let options = this.context.me.options;
+  function render_discard() {
+    let options = context.me.options;
     let keys = Object.keys(options || {});
-    let available = keys.map(this.choice.bind(this, options));
+    let available = keys.map(choice.bind(null, options));
     return (
-      <Modal title="Damage Pending" closeText="Have Robot Take Damage" close={this.damageRobot}>
+      <Modal title="Damage Pending" closeText="Have Robot Take Damage" close={() => setSelected('robot')}>
         <Panel color="accent-2" title="Discard Option">
           {available}
         </Panel>
       </Modal>);
   }
 
-  render_robot() {
+  function render_robot() {
     return (
-      <Modal title="Damage Pending" close={this.reset} closeText="Nevermind">
+      <Modal title="Damage Pending" close={() => setSelected(undefined)} closeText="Nevermind">
         Are you sure you want to damage your robot?
-        <Button onClick={this.discard}>Yes, damage my robot</Button>
+        <Button onClick={discard}>Yes, damage my robot</Button>
       </Modal>);
   }
 
-  render_confirm() {
+  function render_confirm() {
     return (
-      <Modal title="Damage Pending" close={this.reset} closeText="Nevermind">
-        Are you sure you want to discard {this.state.selected}?
-        <Button onClick={this.discard}>Yes, discard option</Button>
+      <Modal title="Damage Pending" close={() => setSelected(undefined)} closeText="Nevermind">
+        Are you sure you want to discard {selected}?
+        <Button onClick={discard}>Yes, discard option</Button>
       </Modal>);
   }
 
-  render() {
-    if (!(this.context.state.pending_damage && this.context.state.pending_damage[this.context.id])) {
-      return null;
-    }
-    if (this.state.selected === undefined) {
-      return this.render_discard();
-    }
-    if (this.state.selected === 'robot') {
-      return this.render_robot();
-    }
-    return this.render_confirm();
+  if (!(context.state.pending_damage && context.state.pending_damage[context.id])) {
+    return null;
   }
-}
-
+  if (selected === undefined) {
+    return render_discard();
+  }
+  if (selected === 'robot') {
+    return render_robot();
+  }
+  return render_confirm();
+});

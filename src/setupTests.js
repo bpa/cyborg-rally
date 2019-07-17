@@ -101,3 +101,21 @@ export function register(c) {
       "locked": ""
    }
 }
+
+export function option(player, option, uses) {
+   return {
+      public: {
+         player: {
+            [player]: {
+               options: {
+                  [option]: {
+                     name: option,
+                     uses: uses || 0,
+                     text: `${option} text`,
+                  }
+               }
+            }
+         }
+      }
+   }
+}
