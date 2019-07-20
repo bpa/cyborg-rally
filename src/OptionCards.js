@@ -52,12 +52,14 @@ class ComboOption extends Option {
       held[c.name] = (held[c.name] || 0) + 1;
     }
 
-    var reg = context.private.registers;
-    for (var r of reg) {
-      if (r.locked || r.program.length === 2
-        || (r.program.length === 1 && r.program[0].name > "3")) {
-        for (var p of r.program) {
-          held[p.name]--;
+    if (context.private) {
+      var reg = context.private.registers;
+      for (var r of reg) {
+        if (r.locked || r.program.length === 2
+          || (r.program.length === 1 && r.program[0].name > "3")) {
+          for (var p of r.program) {
+            held[p.name]--;
+          }
         }
       }
     }

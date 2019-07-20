@@ -3,8 +3,9 @@ import React, { useContext, useState } from 'react';
 import OptionCards from './OptionCards';
 import OptionModal from './OptionModal';
 import { Panel } from './UI';
+import { observer } from 'mobx-react-lite';
 
-export default function OptionPanel(props) {
+export default observer((props) => {
   let context = useContext(GameContext);
   let [show, setShow] = useState(undefined);
   let [showHelp, setShowHelp] = useState(false);
@@ -49,4 +50,4 @@ export default function OptionPanel(props) {
       <OptionModal card={card} done={closeHelp} />
     </Panel>
   );
-}
+});

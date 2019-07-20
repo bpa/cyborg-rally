@@ -40,7 +40,7 @@ export const Badge = styled.span`
   vertical-align: baseline;
 `;
 
-export const Button = styled.a`
+export const Button = styled(({ target, quit, ...props }) => <a {...props} />)`
   padding: 8px;
   margin: 0px 3px 3px 0px;
   outline: none;

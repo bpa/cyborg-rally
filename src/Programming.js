@@ -51,7 +51,6 @@ export default observer(props => {
     let cards = context.private.cards ? context.private.cards.slice() : [];
     return cards.sort((a, b) => b.priority - a.priority);
   });
-  let [confirmRecompile, setConfirmRecompile] = useState(false);
   let [register, setRegister] = useState(undefined);
 
   useEffect(() => program.update_used(registers), []);
@@ -106,10 +105,7 @@ export default observer(props => {
     },
 
     activate: (option) => {
-      if (option === 'Recompile') {
-        setConfirmRecompile(true);
-      }
-      else {
+      if (option !== 'Recompile') {
         program.combine(option);
       }
     },
@@ -159,11 +155,11 @@ export default observer(props => {
 
     recompile: () => {
       ws.send({ cmd: 'recompile' });
-      setConfirmRecompile(false);
+      setActive(undefined);
     },
 
     cancel_recompile: () => {
-      setConfirmRecompile(false);
+      setActive(undefined);
     }
   };
 
@@ -202,7 +198,7 @@ export default observer(props => {
     float: 'left',
   };
 
-  let recompile = confirmRecompile ? (
+  let recompile = active === 'Recompile' ? (
     <Modal title="Confirm Recompile" closeText="Cancel" close={program.cancel_recompile}>
       <div style={imgStyle}>
         <img src="images/recompile.svg" style={{ width: '100%' }} alt="Recompile" />
@@ -211,7 +207,7 @@ export default observer(props => {
         Are you sure?<br />
         You will take 1 damage and get new cards.
         </span>
-      <Button onClick={program.recompile.bind(this)} bg="green">
+      <Button onClick={program.recompile} bg="green">
         Yes
         </Button>
     </Modal>)
