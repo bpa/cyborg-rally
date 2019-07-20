@@ -20,7 +20,7 @@ export default function Lasers(props) {
         error: (msg) => alert(JSON.stringify(msg))
     });
     return (
-        <Content>
+        <Content gap="small">
             <Button background="green" onClick={laser.bind(null, 0)}>
                 No Damage
             </Button>

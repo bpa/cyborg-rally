@@ -6,6 +6,7 @@ import Ready from './Ready';
 import Player from './Player';
 import Damage, { Targets } from './Damage';
 import { Shutdown, Content } from './UI';
+import { Box } from 'grommet';
 
 export default function Movement() {
   let context = useContext(GameContext);
@@ -53,11 +54,13 @@ export default function Movement() {
       </OptionPanel>
       <Ready />
       <hr />
-      {active === 'Ramming Gear'
-        ? < Targets active={active} onClick={ram.bind(null, active)} />
-        : order.map((o) =>
-          <Player player={players[o.player]} key={o.player} register={o} />)
-      }
+      <Box gap="small">
+        {active === 'Ramming Gear'
+          ? < Targets active={active} onClick={ram.bind(null, active)} />
+          : order.map((o) =>
+            <Player player={players[o.player]} key={o.player} register={o} />)
+        }
+      </Box>
 
       <ConfirmOption option={confirm} onConfirm={confirm_ram} onCancel={cancel} />
       <Damage />

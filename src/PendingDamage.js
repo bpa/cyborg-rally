@@ -6,6 +6,13 @@ import Modal from './Modal';
 
 export default observer(() => {
   let context = useContext(GameContext);
+  if (!context.state) {
+    context.state = { pending_damage: {} };
+  }
+  if (!context.state.pending_damage) {
+    context.state.pending_damage = {};
+  }
+
   let [selected, setSelected] = useState(undefined);
 
   function discard() {
@@ -55,7 +62,7 @@ export default observer(() => {
       </Modal>);
   }
 
-  if (!(context.state && context.state.pending_damage && context.state.pending_damage[context.id])) {
+  if (!context.state.pending_damage[context.id]) {
     return null;
   }
   if (selected === undefined) {

@@ -76,9 +76,15 @@ export default observer(() => {
             }
         },
         pending_damage: (msg) => {
-            let pending = context.state.pending_damage || {};
-            pending[context.id] = msg.damage;
-            context.state.pending_damage = pending;
+            if (!context.state) {
+                context.state = {};
+            }
+
+            if (!context.state.pending_damage) {
+                context.state.pending_damage = {};
+            }
+
+            context.state.pending_damage[context.id] = msg.damage;
         },
         damage: msg => player(msg).damage = msg.damage,
     });

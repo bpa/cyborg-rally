@@ -11,15 +11,21 @@ export default observer((props) => {
         if (t) {
             t.target = t.start + t.duration - context.timediff;
             let now = new Date().getTime();
-            return t.target - now;
+            return t.target < now ? 0 : t.target - now;
         }
         return 0;
     });
 
     function updateRemaining() {
         let now = new Date().getTime();
-        let target = context.public.timer.target;
-        setRemaining(target < now ? 0 : target - now);
+        let t = context.public.timer;
+        if (t && t.target > now) {
+            setRemaining(t.target - now);
+        } else {
+            delete context.public.timer;
+            setTimer(undefined);
+            setRemaining(0);
+        }
     }
 
     let [timer, setTimer] = useState(() => context.public.timer ? setInterval(updateRemaining, 100) : undefined);
@@ -46,16 +52,11 @@ export default observer((props) => {
         },
     });
 
-    let t = context.public.timer;
-    if (t && !remaining) {
-        setTimer(undefined);
-        delete context.public.timer;
-    }
-
-    if (!t) {
+    if (!remaining) {
         return <div />
     }
 
+    let t = context.public.timer;
     let percent = (t.duration - remaining) / t.duration * 100;
     let color = percent > 75 ? "red"
         : percent > 60 ? "orange"

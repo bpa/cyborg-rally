@@ -31,7 +31,7 @@ export function Targets(props) {
                 return <Player player={p} key={id} />
             } else {
                 return (
-                    <Button key={id} bg='black' color="red" onClick={() => props.onClick(id)}>
+                    <Button target key={id} onClick={() => props.onClick(id)}>
                         <div><Sight /> {p.name} <Sight></Sight></div>
                     </Button>)
             }
