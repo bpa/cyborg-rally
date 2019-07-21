@@ -75,17 +75,6 @@ export default observer(() => {
                     context.public.register++;
             }
         },
-        pending_damage: (msg) => {
-            if (!context.state) {
-                context.state = {};
-            }
-
-            if (!context.state.pending_damage) {
-                context.state.pending_damage = {};
-            }
-
-            context.state.pending_damage[context.id] = msg.damage;
-        },
         damage: msg => player(msg).damage = msg.damage,
     });
 

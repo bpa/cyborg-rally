@@ -8,7 +8,7 @@ function shutdown(activate) {
   ws.send({ cmd: 'shutdown', activate: activate });
 }
 
-export default observer(props => {
+export default observer(() => {
   let context = useContext(GameContext);
   if (context.me.shutdown) {
     return <Shutdown />

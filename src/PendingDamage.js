@@ -1,19 +1,22 @@
-import { ws, GameContext, getFile } from './Util';
+import { ws, GameContext, getFile, useMessages } from './Util';
 import React, { useContext, useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import { Button, Panel } from './UI';
 import Modal from './Modal';
 
-export default observer(() => {
+export default function PendingDamage() {
   let context = useContext(GameContext);
-  if (!context.state) {
-    context.state = { pending_damage: {} };
-  }
-  if (!context.state.pending_damage) {
-    context.state.pending_damage = {};
-  }
 
   let [selected, setSelected] = useState(undefined);
+  let [pending, setPending] = useState(() => {
+    return (context.state
+      && context.state.pending_damage
+      && context.state.pending_damage[context.id])
+      || 0;
+  });
+
+  useMessages({
+    pending_damage: (msg) => setPending(msg.damage)
+  });
 
   function discard() {
     ws.send({ cmd: 'damage', target: selected });
@@ -62,7 +65,7 @@ export default observer(() => {
       </Modal>);
   }
 
-  if (!context.state.pending_damage[context.id]) {
+  if (!pending) {
     return null;
   }
   if (selected === undefined) {
@@ -72,4 +75,4 @@ export default observer(() => {
     return render_robot();
   }
   return render_confirm();
-});
+}
