@@ -40,6 +40,7 @@ export const Badge = styled.span`
   vertical-align: baseline;
 `;
 
+/* eslint-disable jsx-a11y/anchor-has-content */
 export const Button = styled(({ target, quit, ...props }) => <a {...props} />)`
   padding: 8px;
   margin: 0px 3px 3px 0px;
