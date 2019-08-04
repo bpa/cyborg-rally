@@ -1,6 +1,7 @@
 import { GameContext, ws } from './Util';
 import { subscriptions } from './Socket';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Enzyme, { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import { extendObservable } from 'mobx';
@@ -19,12 +20,17 @@ function message(msg) {
    this.update();
 }
 
-export function mounted(children, props) {
+export function mounted(children, ...extraState) {
+   let data = game();
+   if (extraState.length) {
+      data = deepmerge.all([data, ...extraState]);
+   }
+
    let context = extendObservable({
       get me() {
          return this.public.player[this.id];
       }
-   }, deepmerge(game(), props || {}));
+   }, data);
 
    subscriptions.clear();
    ws.send = jest.fn();
@@ -86,19 +92,39 @@ export function player(name) {
    };
 }
 
-export function register(c) {
+export function c(name, priority) {
    return {
-      "program": [
-         {
-            "number": 4,
-            "priority": 140,
-            "name": "l",
-            "total": 7
-         }
-      ],
-      "damaged": "",
-      "locked": ""
+      number: 4,
+      priority: priority,
+      name: "" + name,
+      total: 7
+   };
+}
+
+export const DAMAGED = 'damaged';
+export const LOCKED = 'locked';
+export const U = 'u';
+export const R = 'r';
+export const L = 'l';
+
+export function r() {
+   let r = {
+      program: [],
+   };
+
+   for (let a of arguments) {
+      if (a === DAMAGED) {
+         r.damaged = true;
+         r.locked = true;
+      }
+      else if (a === LOCKED) {
+         r.locked = true;
+      }
+      else {
+         r.program.push(a);
+      }
    }
+   return r;
 }
 
 export function option(player, option, uses) {
