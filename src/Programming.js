@@ -62,7 +62,7 @@ export default observer(props => {
       }
       valid = {};
       let optionCards = RELEVANT_OPTIONS[active];
-      for (var c in optionCards) {
+      for (c in optionCards) {
         for (var req in optionCards[c]) {
           if (available[req]) {
             valid[c] = true;
@@ -91,7 +91,7 @@ export default observer(props => {
     }
 
     r.program.push(card);
-    let reg = context.private.registers.map(r => r.program.map(c => c.name));
+    let reg = context.private.registers.map(r => r.program);
     ws.send({ cmd: 'program', registers: reg });
   }
 
@@ -99,7 +99,7 @@ export default observer(props => {
     context.private.registers[r].program = [];
     setActive(false);
     setRegister(undefined);
-    const reg = context.private.registers.map((r) => r.program.map(c => c.name));
+    const reg = context.private.registers.map((r) => r.program);
     ws.send({ cmd: 'program', registers: reg });
   }
 
@@ -163,7 +163,7 @@ export default observer(props => {
       f = active ? setRegister : clear;
     }
 
-    return <Register register={r} key={"register" + i} onClick={() => f(i)} className={className} />;
+    return <Register register={r} key={"register" + i} onClick={f ? () => f(i) : undefined} className={className} />;
   });
 
   const movementCards = cards.map(function (c) {
