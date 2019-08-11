@@ -366,7 +366,62 @@ test("Recompile", () => {
     buttons.at(0).simulate('click');
     expect(component.find(Modal)).toHaveLength(0);
     expect(ws.send).toHaveBeenCalledWith({ cmd: 'recompile' });
+
+    component.unmount();
 });
 
-test.todo("Error resets registers");
+test("Error resets registers", () => {
+    let [component] = mounted(<Programming />, normal);
+
+    clickCard(component, 3);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [], [], [], []] });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    component.message({ cmd: 'error', reason: 'Invalid program' });
+    expectDisplay(component,
+        ['inull', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 2, 1, 1, L, R, U]);
+
+    clickCard(component, 3);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [], [], [], []] });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    send(component, [_2B]);
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    clickCard(component, 0);
+    expectDisplay(component,
+        ['2', '3', 'inull', 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, U]);
+
+    component.message({ cmd: 'error', reason: 'Invalid program' });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    component.message({ cmd: 'error', reason: 'Invalid program' });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    component.unmount();
+});
+
 test.todo("Programming with slow responses");
+
+function send(component) {
+    let registers = [];
+    for (var i = 1, ii = arguments.length; i < ii; i++) {
+        registers.push({ damaged: '', locked: '', program: arguments[i] });
+    }
+    for (i = arguments.length - 1; i < 5; i++) {
+        registers.push({ damaged: '', locked: '', program: [] });
+    }
+    component.message({ cmd: 'program', registers: registers });
+}

@@ -1,11 +1,12 @@
 import { ws, GameContext, useMessages } from './Util';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useReducer } from 'react';
 import { observer } from 'mobx-react-lite';
 import Icon from './Icon';
 import Modal from './Modal';
 import OptionPanel from './OptionPanel';
 import Register from './Register';
 import { Button, Content, Panel, Shutdown } from './UI';
+import { toJS } from 'mobx';
 
 const RELEVANT_OPTIONS = {
   'Dual Processor': { 2: { r: true, l: true }, 3: { r: true, l: true, u: true } },
@@ -19,9 +20,43 @@ const ALL_CARDS = {
   '3l': true, '3r': true, '3u': true,
 };
 
+// I'm not super happy with this, but I can't really think of anything better
+// Since I'm breaking rules anyway, I'm doing all sorts of side effects
+function programmer(state, action) {
+  let notify = false;
+  let { stack, context } = state;
+  switch (action.cmd) {
+    case 'error':
+      let registers = state.stack.pop();
+      if (registers) {
+        context.private.registers = registers;
+      }
+      break;
+    case 'clear':
+      stack.push(toJS(context.private.registers));
+      context.private.registers[action.register].program = [];
+      notify = true;
+      break;
+    case 'program':
+      context.private.registers = action.registers;
+      stack.shift();
+      break;
+    default:
+      stack.push(toJS(context.private.registers));
+      action.register.program.push(action.card);
+      notify = true;
+  }
+  if (notify) {
+    let reg = context.private.registers.map(r => r.program);
+    ws.send({ cmd: 'program', registers: reg });
+  }
+  return state;
+}
+
 export default observer(props => {
   let context = useContext(GameContext);
 
+  let [stack, program] = useReducer(programmer, { context: context, stack: [] });
   let [active, setActive] = useState(false);
   let [register, setRegister] = useState(undefined);
   let [cards, setCards] = useState(() => {
@@ -90,17 +125,13 @@ export default observer(props => {
       }
     }
 
-    r.program.push(card);
-    let reg = context.private.registers.map(r => r.program);
-    ws.send({ cmd: 'program', registers: reg });
+    program({ register: r, card: card });
   }
 
   function clear(r) {
-    context.private.registers[r].program = [];
     setActive(false);
     setRegister(undefined);
-    const reg = context.private.registers.map((r) => r.program);
-    ws.send({ cmd: 'program', registers: reg });
+    program({ cmd: 'clear', register: r });
   }
 
   useMessages({
@@ -114,11 +145,8 @@ export default observer(props => {
       context.private.registers = msg.registers;
     },
 
-    program: (msg) => {
-      context.private.registers = msg.registers;
-    },
-
-    // error: (msg) => setRegisters(context.private.registers.clone()),
+    program: (msg) => program(msg),
+    error: (msg) => program(msg),
   });
 
   let imgStyle = {

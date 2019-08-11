@@ -1,7 +1,6 @@
 import { GameContext, ws } from './Util';
 import { subscriptions } from './Socket';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Enzyme, { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import { extendObservable } from 'mobx';
@@ -12,9 +11,10 @@ Enzyme.configure({ adapter: new Adapter() });
 
 function message(msg) {
    act(() => {
-      let callbacks = Array.from(subscriptions.get(msg.cmd).values());
+      let callbacks = subscriptions.get(msg.cmd);
       if (callbacks) {
-         callbacks.forEach((f) => f(msg));
+         let functions = Array.from(callbacks.values());
+         functions.forEach((f) => f(msg));
       }
    });
    this.update();
