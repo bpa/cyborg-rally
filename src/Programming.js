@@ -20,36 +20,77 @@ const ALL_CARDS = {
   '3l': true, '3r': true, '3u': true,
 };
 
+function matches(server, client) {
+  for (var r = 0; r < 5; r++) {
+    let programA = server[r].program, programB = client[r].program;
+    if (programA.length != programB.length) {
+      return false;
+    }
+    for (var i = 0; i < programA.length; i++) {
+      if (programA[i].priority != programB[i].priority) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function stackIndex(registers, stack) {
+  for (var i = stack.length - 1; i >= 0; i--) {
+    if (matches(registers, stack[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 // I'm not super happy with this, but I can't really think of anything better
-// Since I'm breaking rules anyway, I'm doing all sorts of side effects
+// Side effects: ws calls and modifying context
 function programmer(state, action) {
   let notify = false;
   let { stack, context } = state;
   switch (action.cmd) {
     case 'error':
-      let registers = state.stack.pop();
-      if (registers) {
-        context.private.registers = registers;
+      let last = state.stack.pop();
+      if (last) {
+        context.private.registers = last;
       }
       break;
+
     case 'clear':
       stack.push(toJS(context.private.registers));
       context.private.registers[action.register].program = [];
       notify = true;
       break;
+
     case 'program':
+      let registers = action.registers;
+      if (matches(registers, context.private.registers)) {
+        state.stack = [];
+        break;
+      }
+
+      let ind = stackIndex(registers, stack);
+      if (ind !== -1) {
+        state.stack = stack.slice(ind + 1);
+        break;
+      }
+
       context.private.registers = action.registers;
-      stack.shift();
+      state.stack = [];
       break;
+
     default:
       stack.push(toJS(context.private.registers));
       action.register.program.push(action.card);
       notify = true;
   }
+
   if (notify) {
     let reg = context.private.registers.map(r => r.program);
     ws.send({ cmd: 'program', registers: reg });
   }
+
   return state;
 }
 

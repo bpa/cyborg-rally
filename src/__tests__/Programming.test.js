@@ -413,7 +413,89 @@ test("Error resets registers", () => {
     component.unmount();
 });
 
-test.todo("Programming with slow responses");
+test("Response is late", () => {
+    let [component] = mounted(<Programming />, normal);
+
+    clickCard(component, 3);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [], [], [], []] });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    clickCard(component, 0);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [_3A], [], [], []] });
+    expectDisplay(component,
+        ['2', '3', 'inull', 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, U]);
+
+    clickCard(component, 8);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [_3A], [UA], [], []] });
+    expectDisplay(component,
+        ['2', '3', U, 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, 'iu']);
+
+    send(component, [_2B]);
+    expectDisplay(component,
+        ['2', '3', U, 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, 'iu']);
+
+    send(component, [_2B], [_3A]);
+    expectDisplay(component,
+        ['2', '3', U, 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, 'iu']);
+
+    clickCard(component, 7);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [_3A], [UA], [_R], []] });
+    expectDisplay(component,
+        ['2', '3', U, R, 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, 'ir', 'iu']);
+
+    clickCard(component, 1);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [_3A], [UA], [_R], [_3B]] });
+    expectDisplay(component,
+        ['2', '3', U, R, '3'],
+        ['i3', 'i3', 2, 'i2', 1, 1, L, 'ir', 'iu']);
+
+    send(component, [_2B], [_3A], [UA], [_R], [_3B]);
+    expectDisplay(component,
+        ['2', '3', U, R, '3'],
+        ['i3', 'i3', 2, 'i2', 1, 1, L, 'ir', 'iu']);
+
+    component.message({ cmd: 'error', reason: 'Invalid program' });
+    expectDisplay(component,
+        ['2', '3', U, R, '3'],
+        ['i3', 'i3', 2, 'i2', 1, 1, L, 'ir', 'iu']);
+
+    component.unmount();
+});
+
+test("Program doesn't match", () => {
+    let [component] = mounted(<Programming />, normal);
+
+    clickCard(component, 3);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [], [], [], []] });
+    expectDisplay(component,
+        ['2', 'inull', 'inull', 'inull', 'inull'],
+        [3, 3, 2, 'i2', 1, 1, L, R, U]);
+
+    clickCard(component, 0);
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'program', registers: [[_2B], [_3A], [], [], []] });
+    expectDisplay(component,
+        ['2', '3', 'inull', 'inull', 'inull'],
+        ['i3', 3, 2, 'i2', 1, 1, L, R, U]);
+
+    send(component, [_3A]);
+    expectDisplay(component,
+        ['3', 'inull', 'inull', 'inull', 'inull'],
+        ['i3', 3, 2, 2, 1, 1, L, R, U]);
+
+    component.message({ cmd: 'error', reason: 'Invalid program' });
+    expectDisplay(component,
+        ['3', 'inull', 'inull', 'inull', 'inull'],
+        ['i3', 3, 2, 2, 1, 1, L, R, U]);
+
+    component.unmount();
+});
 
 function send(component) {
     let registers = [];
