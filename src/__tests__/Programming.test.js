@@ -507,3 +507,28 @@ function send(component) {
     }
     component.message({ cmd: 'program', registers: registers });
 }
+
+test("Ready is permanent", () => {
+    let [component, context] = mounted(<Programming />, normal);
+
+    act(() => {
+        context.private.registers = [
+            { name: 'l', program: [_L] },
+            { name: 'r', program: [_R] },
+            { name: 'u', program: [UA] },
+            { name: '1', program: [_1A] },
+            { name: '2', program: [_2B] },
+        ]
+    });
+
+    let button = component.find(Button);
+    expect(button.text()).toBe('Ready');
+
+    button.simulate('click');
+    expect(ws.send).toHaveBeenCalledWith({ cmd: 'ready' });
+
+    act(() => { context.me.ready = true; });
+    expect(component.find(Button).text()).toBe('Waiting...');
+
+    component.unmount();
+});

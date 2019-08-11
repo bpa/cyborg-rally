@@ -244,6 +244,10 @@ export default observer(props => {
     }
   });
 
+  let ready = context.me.ready
+    ? <Button>Waiting...</Button>
+    : <Button onClick={() => ws.send({ cmd: 'ready' })}>Ready</Button>;
+
   return (
     <Content>
       <OptionPanel active={active} setActive={(o) => { setActive(o); setRegister(undefined) }}>
@@ -257,9 +261,7 @@ export default observer(props => {
       <Panel background="accent-2" title="Movement Cards" direction="row">
         {movementCards}
       </Panel>
-      <Button bg={context.me.ready ? 'red' : 'green'} onClick={() => ws.send({ cmd: 'ready' })}>
-        {context.me.ready ? 'Not Ready' : 'Ready'}
-      </Button>
+      {ready}
       {recompile}
     </Content >
   );
