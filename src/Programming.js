@@ -23,11 +23,11 @@ const ALL_CARDS = {
 function matches(server, client) {
   for (var r = 0; r < 5; r++) {
     let programA = server[r].program, programB = client[r].program;
-    if (programA.length != programB.length) {
+    if (programA.length !== programB.length) {
       return false;
     }
     for (var i = 0; i < programA.length; i++) {
-      if (programA[i].priority != programB[i].priority) {
+      if (programA[i].priority !== programB[i].priority) {
         return false;
       }
     }
@@ -97,7 +97,7 @@ function programmer(state, action) {
 export default observer(props => {
   let context = useContext(GameContext);
 
-  let [stack, program] = useReducer(programmer, { context: context, stack: [] });
+  let [, program] = useReducer(programmer, { context: context, stack: [] });
   let [active, setActive] = useState(false);
   let [register, setRegister] = useState(undefined);
   let [cards, setCards] = useState(() => {
