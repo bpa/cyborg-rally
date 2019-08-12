@@ -1,24 +1,18 @@
-import { ws, GameContext } from './Util';
+import { ws, GameContext, useMessages } from './Util';
 import React, { useContext } from 'react';
 import { Tile, TileSet } from './TileSet';
 import Watermark from './Watermark';
 
+function touch(tile) {
+  ws.send({ cmd: 'touch', tile: tile });
+}
+
 export default function Touching(props) {
   let context = useContext(GameContext);
-  // let [tiles, setTiles] = useState(context.state, {});
 
-  // useMessages({
-  //   touch: (msg) => {
-  //     setTiles(tiles => {
-  //       tiles[msg.player] = msg.tile;
-  //       return tiles;
-  //     });
-  //   }
-  // });
-
-  function touch(tile) {
-    ws.send({ cmd: 'touch', tile: tile });
-  }
+  useMessages({
+    touch: (msg) => context.state[msg.player] = msg.tile
+  });
 
   const hide = context.me.shutdown;
   return (

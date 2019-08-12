@@ -1,19 +1,22 @@
-import { GameContext } from './Util';
-import React from 'react';
+import React, { useContext } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Button } from './UI';
+import { GameContext } from './Util';
 
-export function Tile(props) {
+export var Tile = observer(props => {
+  let context = useContext(GameContext);
+
   if (props.hide) {
     return null;
   }
-  let state = GameContext.state || {};
-  let Btn = state[GameContext.id] === props.id ? Button : Button;
+
   return (
-    <Btn style={{ width: "100%", height: "0px", padding: "0", paddingBottom: "100%" }}>
+    <Button target={context.state[context.id] === props.id}
+      style={{ width: "100%", height: "0px", padding: "0", paddingBottom: "100%" }}>
       <div style={{ paddingTop: "45%" }}>{props.children}</div>
-    </Btn>
+    </Button>
   )
-}
+});
 
 function rows(props) {
   var rows = [];
@@ -39,6 +42,7 @@ function rows(props) {
 }
 
 export function TileSet(props) {
+
   return (
     <table style={{ border: 0 }} width="100%">
       <tbody>{rows(props)}</tbody>
