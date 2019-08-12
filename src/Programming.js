@@ -245,7 +245,7 @@ export default observer(props => {
   });
 
   let ready = context.me.ready
-    ? <Button>Waiting...</Button>
+    ? <Button target>Waiting...</Button>
     : <Button onClick={() => ws.send({ cmd: 'ready' })}>Ready</Button>;
 
   return (
