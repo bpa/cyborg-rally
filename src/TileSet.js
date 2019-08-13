@@ -18,7 +18,7 @@ export var Tile = observer(props => {
   )
 });
 
-function rows(props) {
+export function TileSet(props) {
   var rows = [];
   var cols = props.cols || 2;
   var cb = props.onClick;
@@ -38,14 +38,10 @@ function rows(props) {
       </tr>
     );
   }
-  return rows;
-}
-
-export function TileSet(props) {
 
   return (
     <table style={{ border: 0 }} width="100%">
-      <tbody>{rows(props)}</tbody>
+      <tbody>{rows}</tbody>
     </table>
   );
 }

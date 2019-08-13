@@ -63,6 +63,7 @@ function game() {
       "game": "Rally",
       "id": "player1",
       "private": {},
+      "state": {},
       "now": new Date().getTime(),
       "public": {
          "register": 0,
@@ -127,7 +128,7 @@ export function r() {
    return r;
 }
 
-export function option(player, option, uses) {
+export function option(player, option, uses, tapped) {
    return {
       public: {
          player: {
@@ -136,6 +137,7 @@ export function option(player, option, uses) {
                   [option]: {
                      name: option,
                      uses: uses || 0,
+                     tapped: tapped || 0,
                      text: `${option} text`,
                   }
                }
