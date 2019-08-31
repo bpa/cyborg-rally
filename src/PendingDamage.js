@@ -2,9 +2,28 @@ import { ws, GameContext, getFile, useMessages } from './Util';
 import React, { useContext, useState } from 'react';
 import { Button, Panel } from './UI';
 import Modal from './Modal';
+import OptionModal from './OptionModal';
+import Icon from './Icon';
 
 export default function PendingDamage() {
   let context = useContext(GameContext);
+
+  let [show, setShow] = useState(undefined);
+  let [showHelp, setShowHelp] = useState(false);
+
+  function openHelp(option) {
+    setShow(option);
+    setShowHelp(false);
+  }
+
+  function closeHelp() {
+    setShow(undefined);
+    setShowHelp(false);
+  }
+
+  function toggleHelp() {
+    setShowHelp(help => !help);
+  }
 
   let [selected, setSelected] = useState(undefined);
   let [pending, setPending] = useState(() => {
@@ -23,29 +42,23 @@ export default function PendingDamage() {
     setSelected(undefined);
   }
 
-  function choice(options, option) {
-    let src = getFile(options[option]);
-    return (
-      <Button key={option} onClick={() => setSelected(option)}
-        style={{
-          height: '48px', width: '48px',
-          padding: '8px', margin: '8px 4px 0px 4px',
-          border: '2px solid green', borderRadius: '8px',
-        }}>
-        <img src={src} style={{ height: '100%' }} alt={option} />
-      </Button>
-    );
+  function choice(option) {
+    var className = showHelp ? "help" : "add-on";
+    var onClick = showHelp ? () => setShow(context.me.options[option]) : () => setSelected(option);
+    return <Icon key={option} name={option} onClick={onClick} className={className} />;
   }
 
   function render_discard() {
     let options = context.me.options;
     let keys = Object.keys(options || {});
-    let available = keys.map(choice.bind(null, options));
+    let available = keys.map(choice);
     return (
-      <Modal title="Damage Pending" closeText="Have Robot Take Damage" close={() => setSelected('robot')}>
-        <Panel color="accent-2" title="Discard Option">
+      <Modal title="Damage Pending" onHelp={toggleHelp}
+        closeText="Have Robot Take Damage" close={() => setSelected('robot')}>
+        <Panel background="accent-2" title="Discard Option" direction="row">
           {available}
         </Panel>
+        <OptionModal card={show} done={closeHelp} />
       </Modal>);
   }
 

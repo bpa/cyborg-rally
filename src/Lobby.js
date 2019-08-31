@@ -47,7 +47,7 @@ export default class Lobby extends RegisteredComponent {
                 <Button color="status-ok" onClick={this.props.setView.bind(null, CreateGame)}>
                     Create Game
                 </Button>
-                <Button color="accent-2" onClick={this.props.setView.bind(null, ChooseName)}>
+                <Button background="accent-2" onClick={this.props.setView.bind(null, ChooseName)}>
                     Name Preferences
                 </Button>
             </Panel>
