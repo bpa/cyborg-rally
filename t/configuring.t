@@ -39,9 +39,8 @@ subtest 'Activate Gyroscopic Stabilizer' => sub {
     ok( !$p1->{public}{ready}, 'Player 1 needs to make a choice' );
     ok( $p2->{public}{ready},  'Player 2 should be ready' );
 
-    $p2->player(
-        { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
-        { cmd => 'error',     reason => 'Invalid Option' } );
+    $p2->player( { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
+        { cmd => 'error', reason => 'Invalid Option' } );
 
     $p1->broadcast(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
@@ -106,9 +105,8 @@ subtest 'Limited reconfigure' => sub {
     );
     $p2->drop_packets;
 
-    $p2->player(
-        { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
-        { cmd => 'error',     reason => 'Invalid Option' } );
+    $p2->player( { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
+        { cmd => 'error', reason => 'Invalid Option' } );
 
     $p1->player(
         { cmd => 'configure', option => 'Gyroscopic Stabilizer', activate => 1 },
@@ -185,6 +183,111 @@ subtest 'Flywheel' => sub {
     done;
 };
 
+subtest 'One card, two possible option card, set card then none' => sub {
+    my ( $rally, $p1, $card, $options ) = setupOneCard();
+
+    $p1->player( { cmd => 'configure', option => 'Flywheel' }, optionMsg($p1) );
+
+    $p1->player( { cmd => 'configure', option => 'Flywheel', card => $card },
+        optionMsg( $p1, $card, undef ) );
+    is( ref( $rally->{state} ), 'State::Configuring' );
+
+    complete(
+        $rally, $p1,
+        { cmd => 'configure', option => 'Conditional Program' },
+        optionMsg( $p1, $card, undef )
+    );
+
+    done;
+};
+
+subtest 'One card, two possible option card, set none then card' => sub {
+    my ( $rally, $p1, $card, $options ) = setupOneCard();
+
+    $p1->player( { cmd => 'configure', option => 'Conditional Program' },
+        optionMsg( $p1, undef, undef ) );
+
+    complete(
+        $rally, $p1,
+        { cmd => 'configure', option => 'Flywheel', card => $card, },
+        optionMsg( $p1, $card, undef )
+    );
+
+    done;
+};
+
+subtest 'One card, two possible option card, set none then none' => sub {
+    my ( $rally, $p1, $card, $options ) = setupOneCard();
+
+    $p1->player( { cmd => 'configure', option => 'Flywheel' }, optionMsg($p1) );
+
+    complete( $rally, $p1, { cmd => 'configure', option => 'Conditional Program' },
+        optionMsg($p1) );
+
+    done;
+};
+
+sub setupOneCard {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my ( $rally, $p1 ) = Game( {} );
+
+    $rally->give_option( $p1, 'Flywheel' );
+    $rally->give_option( $p1, 'Conditional Program' );
+    $p1->{private}{cards}->deal(3);
+    $rally->set_state('CONFIGURE');
+    $rally->update;
+    $rally->drop_packets;
+
+    is( ref( $rally->{state} ), 'State::Configuring' );
+    is( $p1->{private}{cards}->count, 1, 'Have one card for two options' );
+
+    my $card    = $p1->{private}{cards}{cards}[0];
+    my $options = $p1->{public}{options};
+
+    return ( $rally, $p1, $card, $options );
+}
+
+sub optionMsg {
+    my ( $p1, $flywheel, $conditional_programming ) = @_;
+    return {
+        cmd     => 'options',
+        player  => $p1->{id},
+        options => {
+            'Flywheel' => {
+                name => ignore,
+                text => ignore,
+                uses => 0,
+                defined($flywheel) ? ( card => noclass($flywheel) ) : (),
+            },
+            'Conditional Program' => {
+                name => ignore,
+                text => ignore,
+                uses => 0,
+                defined($conditional_programming)
+                ? ( card => noclass($conditional_programming) )
+                : (),
+            },
+        }
+    };
+}
+
+sub complete {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $rally = shift;
+    my $p1    = shift;
+    $p1->player(@_);
+
+    cmp_deeply(
+        $rally->{packets},
+        [   { cmd => 'state', state => 'Executing' },
+            { cmd => 'state', state => 'ConditionalProgramming' },
+            { cmd => 'state', state => 'Movement' },
+            { cmd => 'move',  order => ignore },
+        ]
+    );
+    is( ref( $rally->{state} ), 'State::Movement' );
+}
+
 subtest 'Reconfigure cards' => sub {
     my ( $rally, $p1, $p2 ) = Game( {} );
     $rally->give_option( $p1, 'Flywheel' );
@@ -250,7 +353,7 @@ subtest 'Flywheel but no extra cards' => sub {
 
 subtest 'Dead and shutdown' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( {}, 3 );
-    $p1->{public}{dead} = 1;
+    $p1->{public}{dead}     = 1;
     $p2->{public}{shutdown} = 1;
     $rally->give_option( $p1, 'Conditional Program' );
     $rally->give_option( $p2, 'Gyroscopic Stabilizer' );

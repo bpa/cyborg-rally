@@ -52,28 +52,28 @@ sub do_configure {
 
     if ( $config->{cards} ) {
         if ( !defined $msg->{card} ) {
-            $c->err('Missing card');
-            return;
+            delete $c->{public}{options}{$name}{card};
         }
-
-        my $card = $c->{private}{cards}->getMatch( $msg->{card} );
-        unless ( defined $card ) {
-            $c->err("Invalid card");
-            return;
-        }
-
-        for my $opt ( keys( %{ OPTS() } ) ) {
-            my $o = $c->{public}{options}{$opt};
-            if (   defined $o
-                && defined $o->{card}
-                && $o->{card}{priority} == $card->{priority} )
-            {
-                delete $o->{card};
-                $self->{choices}{$opt} = ();
+        else {
+            my $card = $c->{private}{cards}->getMatch( $msg->{card} );
+            unless ( defined $card ) {
+                $c->err("Invalid card");
+                return;
             }
-        }
 
-        $c->{public}{options}{$name}{card} = $card;
+            for my $opt ( keys( %{ OPTS() } ) ) {
+                my $o = $c->{public}{options}{$opt};
+                if (   defined $o
+                    && defined $o->{card}
+                    && $o->{card}{priority} == $card->{priority} )
+                {
+                    delete $o->{card};
+                    $self->{choices}{$opt} = ();
+                }
+            }
+
+            $c->{public}{options}{$name}{card} = $card;
+        }
     }
 
     if ( $config->{tap} ) {
@@ -86,9 +86,7 @@ sub do_configure {
     }
 
     delete $self->{choices}{$name};
-    $c->send(
-        { cmd => 'options', player => $c->{id}, options => $c->{public}{options} }
-    );
+    $c->send( { cmd => 'options', player => $c->{id}, options => $c->{public}{options} } );
 
     if ( !%{ $self->{choices} } ) {
         $game->set_state('EXECUTE');
