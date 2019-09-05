@@ -15,8 +15,8 @@ export default observer(props => {
     context.state = {};
   }
 
-  context.state[context.id] = (context.me.options[stabilizer] && context.public.option[stabilizer].tapped) ? 1 : 0;
-  let [help, setHelp] = useState(null);
+  context.state[context.id] = (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0;
+  let [help, setHelp] = useState(undefined);
 
   useMessages({
     remaining: (msg) => {
@@ -27,7 +27,7 @@ export default observer(props => {
     },
 
     options: (msg) => {
-      context.state[context.id] = (context.me.options[stabilizer] && context.option[stabilizer].tapped) ? 1 : 0;
+      context.state[context.id] = (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0;
     }
   });
 
@@ -36,7 +36,7 @@ export default observer(props => {
   }
 
   function closeHelp() {
-    setHelp(null);
+    setHelp(undefined);
   }
 
   function stabilize(activate) {
@@ -56,8 +56,8 @@ export default observer(props => {
   if (context.me.options['Gyroscopic Stabilizer']) {
     controls.push(
       <Panel background="accent-1" title="Gyroscopic Stabilizer" key="stabilizer"
-        onHelp={this.openHelp.bind(this, 'Gyroscopic Stabilizer')}>
-        <TileSet onClick={stabilize.bind(this)} key="stabilizer">
+        onHelp={() => openHelp('Gyroscopic Stabilizer')}>
+        <TileSet onClick={stabilize} key="stabilizer">
           <Tile id={1} bg="green">Activate</Tile>
           <Tile id={0} bg="red">Allow board to rotate me</Tile>
         </TileSet>
@@ -68,13 +68,15 @@ export default observer(props => {
   ['Flywheel', 'Conditional Program'].forEach(card => {
     let opt = context.me.options[card];
     if (opt) {
-      const cards = context.private.cards.map((c) =>
-        <Icon card={c} key={c.priority} selected={opt.card && opt.card.priority === c.priority}
-          onClick={configure.bind(null, card, c)} />
+      const cards = context.private.cards.map((c) => {
+        let className = opt.card && opt.card.priority == c.priority ? 'selected' : '';
+        return <Icon card={c} key={c.priority} className={className}
+          onClick={() => configure(card, c)} />;
+      }
       );
 
       controls.push(
-        <Panel background="accent-2" key={card} title={card} onHelp={openHelp.bind(null, card)}>
+        <Panel background="accent-2" key={card} title={card} onHelp={() => openHelp(card)}>
           <Content direction="row" wrap={true}>{cards}</Content>
         </Panel>
       );
