@@ -1,4 +1,4 @@
-import { ws, GameContext, getFile, useMessages } from './Util';
+import { ws, GameContext, useMessages } from './Util';
 import React, { useContext, useState } from 'react';
 import { Button, Panel } from './UI';
 import Modal from './Modal';
@@ -10,11 +10,6 @@ export default function PendingDamage() {
 
   let [show, setShow] = useState(undefined);
   let [showHelp, setShowHelp] = useState(false);
-
-  function openHelp(option) {
-    setShow(option);
-    setShowHelp(false);
-  }
 
   function closeHelp() {
     setShow(undefined);

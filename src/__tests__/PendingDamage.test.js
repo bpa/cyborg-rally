@@ -4,6 +4,7 @@ import Playing from '../Playing';
 import Modal from '../Modal';
 import { Button } from '../UI';
 import { ws } from '../Util';
+import Icon from '../Icon';
 
 let hasDamage = option('player1', 'Brakes');
 hasDamage.state = { pending_damage: { player1: 1 } };
@@ -16,19 +17,17 @@ test('new damage', () => {
     let pending = component.find(Modal);
     expect(pending.exists()).toBe(true);
 
-    let buttons = pending.find(Button);
-    expect(buttons.at(0).find('img').props().src).toBe('images/brakes.svg');
-    expect(buttons.at(1).text()).toMatch(/Have robot take damage/i);
+    expect(pending.find(Icon).find('img').props().src).toBe('images/brakes.svg');
+    expect(pending.find(Button).text()).toMatch(/Have robot take damage/i);
 });
 
 test('existing damage', () => {
     let [component] = mounted(<Playing />, hasDamage);
-    let modal = component.find(Modal);
-    expect(modal.exists()).toBe(true);
+    let pending = component.find(Modal);
+    expect(pending.exists()).toBe(true);
 
-    let buttons = modal.find(Button);
-    expect(buttons.at(0).find('img').props().src).toBe('images/brakes.svg');
-    expect(buttons.at(1).text()).toMatch(/Have robot take damage/i);
+    expect(pending.find(Icon).find('img').props().src).toBe('images/brakes.svg');
+    expect(pending.find(Button).text()).toMatch(/Have robot take damage/i);
 });
 
 test('damage robot', () => {
@@ -38,7 +37,7 @@ test('damage robot', () => {
 
     //Click have robot take damage
     let buttons = modal.find(Button);
-    buttons.at(1).simulate('click');
+    buttons.simulate('click');
 
     modal = component.find(Modal);
     expect(modal.exists()).toBe(true);
@@ -56,7 +55,7 @@ test('damage robot', () => {
     expect(modal.text()).toMatch(/Have robot take damage/i);
 
     //Click have robot take damage
-    modal.find(Button).at(1).simulate('click');
+    modal.find(Button).simulate('click');
     modal = component.find(Modal);
     expect(modal.text()).toMatch(/sure.*damage.*robot/i);
 
@@ -75,14 +74,13 @@ test('discard option', () => {
     expect(modal.exists()).toBe(true);
 
     //Click discard option
-    let buttons = modal.find(Button);
-    buttons.at(0).simulate('click');
+    modal.find(Icon).simulate('click');
 
     modal = component.find(Modal);
     expect(modal.exists()).toBe(true);
     expect(modal.text()).toMatch(/discard.*brakes/i);
 
-    buttons = modal.find(Button);
+    let buttons = modal.find(Button);
     expect(buttons).toHaveLength(2);
     expect(buttons.at(0).text()).toMatch(/yes/i);
     expect(buttons.at(1).text()).toBe('Nevermind');
@@ -94,7 +92,7 @@ test('discard option', () => {
     expect(modal.text()).toMatch(/Have robot take damage/i);
 
     //Click discard option
-    modal.find(Button).at(0).simulate('click');
+    modal.find(Icon).simulate('click');
     modal = component.find(Modal);
     expect(modal.text()).toMatch(/discard.*brakes/i);
 
