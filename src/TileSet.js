@@ -27,7 +27,7 @@ export function TileSet(props) {
   for (var i = 0; i < buttons.length; i += cols) {
     var pair = buttons.slice(i, i + cols).map(function (b) {
       return (
-        <td width="50%" key={b.props.id} onClick={cb.bind(null, b.props.id)}>
+        <td width="50%" key={b.props.id} onClick={() => cb(b.props.id)}>
           {b}
         </td>
       );

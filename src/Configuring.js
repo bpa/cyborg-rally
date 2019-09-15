@@ -1,22 +1,34 @@
 import { ws, GameContext, useMessages } from './Util';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import Icon from './Icon';
-import { Content, Panel, Shutdown } from './UI';
+import { Button, Content, Panel, Shutdown } from './UI';
 import { Tile, TileSet } from './TileSet';
 import OptionModal from './OptionModal';
 import Waiting from './Waiting';
 
 var stabilizer = 'Gyroscopic Stabilizer';
 
+function select(state, action) {
+  for (var k in state) {
+    if (state[k] && state[k].priority === action.value.priority) {
+      delete state[k];
+    }
+  }
+  state[action.key] = action.value;
+  return { ...state };
+}
+
 export default observer(props => {
   let context = useContext(GameContext);
-  if (!context.state) {
-    context.state = {};
+  if (!context.state || context.state[context.id] == undefined) {
+    context.state = {
+      [context.id]: (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0
+    };
   }
 
-  context.state[context.id] = (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0;
   let [help, setHelp] = useState(undefined);
+  let [choices, choose] = useReducer(select, {});
 
   useMessages({
     remaining: (msg) => {
@@ -39,12 +51,15 @@ export default observer(props => {
     setHelp(undefined);
   }
 
-  function stabilize(activate) {
-    ws.send({ cmd: 'configure', option: 'Gyroscopic Stabilizer', activate: activate });
-  }
-
-  function configure(option, card) {
-    ws.send({ cmd: 'configure', option: option, card: card });
+  function configure() {
+    if (context.me.options[stabilizer]) {
+      ws.send({ cmd: 'configure', option: 'Gyroscopic Stabilizer', activate: !!choices.stabilizer });
+    }
+    ['Flywheel', 'Conditional Program'].forEach(opt => {
+      if (context.me.options[opt]) {
+        ws.send({ cmd: 'configure', option: opt, card: choices[opt] });
+      }
+    });
   }
 
   if (context.me.shutdown) {
@@ -57,9 +72,9 @@ export default observer(props => {
     controls.push(
       <Panel background="accent-1" title="Gyroscopic Stabilizer" key="stabilizer"
         onHelp={() => openHelp('Gyroscopic Stabilizer')}>
-        <TileSet onClick={stabilize} key="stabilizer">
-          <Tile id={1} bg="green">Activate</Tile>
-          <Tile id={0} bg="red">Allow board to rotate me</Tile>
+        <TileSet onClick={(v) => context.state[context.id] = v} key="stabilizer">
+          <Tile id={1}>Activate</Tile>
+          <Tile id={0}>Allow board to rotate me</Tile>
         </TileSet>
       </Panel>
     );
@@ -68,12 +83,15 @@ export default observer(props => {
   ['Flywheel', 'Conditional Program'].forEach(card => {
     let opt = context.me.options[card];
     if (opt) {
-      const cards = context.private.cards.map((c) => {
-        let className = opt.card && opt.card.priority == c.priority ? 'selected' : '';
+      let cards = context.private.cards.map((c) => {
+        let className = (choices[card] && choices[card].priority === c.priority) ? 'selected' : '';
         return <Icon card={c} key={c.priority} className={className}
-          onClick={() => configure(card, c)} />;
-      }
-      );
+          onClick={() => choose({ key: card, value: c })} />;
+      });
+
+      let className = choices[card] ? '' : 'selected';
+      cards.push(<Icon key={0} card={{ name: 'null' }} className={className}
+        onClick={() => choose({ key: card })} />)
 
       controls.push(
         <Panel background="accent-2" key={card} title={card} onHelp={() => openHelp(card)}>
@@ -90,6 +108,10 @@ export default observer(props => {
   return (
     <Content>
       {controls}
+      <Button onClick={configure}
+        background="radial-gradient(circle, orange 40%, red)">
+        Ready
+      </Button>
       <OptionModal card={help} done={closeHelp} />
     </Content>
   );
