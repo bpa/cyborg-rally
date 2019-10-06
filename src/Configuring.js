@@ -21,7 +21,7 @@ function select(state, action) {
 
 export default observer(props => {
   let context = useContext(GameContext);
-  if (!context.state || context.state[context.id] == undefined) {
+  if (!context.state || context.state[context.id] === undefined) {
     context.state = {
       [context.id]: (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0
     };

@@ -3,13 +3,14 @@ import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Button, Box, Dead, Frame, Registers } from "./UI";
 import Announcing from "./Announcing";
-import Configuring from "./Configuring";
 import ConditionalProgramming from './ConditionalProgramming';
+import Configuring from "./Configuring";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
 import Movement from "./Movement";
 import PendingDamage from "./PendingDamage";
 import Programming from "./Programming";
+import Setup from './Setup';
 import Timer from "./Timer";
 import Touching from "./Touching";
 import Vitality from "./Vitality";
@@ -17,13 +18,14 @@ import Waiting from "./Waiting";
 
 var STATE = {
     Announcing: Announcing,
+    ConditionalProgramming: ConditionalProgramming,
     Configuring: Configuring,
     Firing: Firing,
     Lasers: Lasers,
-    ConditionalProgramming: ConditionalProgramming,
     Movement: Movement,
     PowerDown: Announcing,
     Programming: Programming,
+    Setup: Setup,
     Touching: Touching,
 };
 

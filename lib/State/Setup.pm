@@ -3,7 +3,8 @@ package State::Setup;
 use strict;
 use warnings;
 use parent 'State';
-use List::Util 'shuffle';
+use List::Util qw/first shuffle/;
+use List::MoreUtils qw/all/;
 
 # Don't have this be a constant because we need a new copy of each empty program
 sub EMPTY { return { damaged => '', locked => '', program => [] } }
@@ -14,8 +15,8 @@ sub on_enter {
     $game->{public}{option} = {};
     $game->{options} = Deck::Options->new;
     $game->{options}->shuffle;
-    for my $o (@{$game->{options}{cards}}) {
-        $game->{public}{option}{$o->{name}} = $o;
+    for my $o ( @{ $game->{options}{cards} } ) {
+        $game->{public}{option}{ $o->{name} } = $o;
     }
     $game->{movement}
       = Deck::Movement->new( scalar( keys %{ $game->{player} } ) + 1 );
@@ -40,9 +41,11 @@ sub on_enter {
         }
     }
 
-    if ( $game->{opts}{options} eq '1of3') {
+    if ( $game->{opts}{options} eq '1of3' ) {
         for my $p ( values %{ $game->{player} } ) {
+            $p->{public}{ready} = 0;
             push @{ $p->{private}{options} }, $game->{options}->deal(3);
+            $p->send( { cmd => 'pick', options => $p->{private}{options} } );
         }
     }
     else {
@@ -70,19 +73,25 @@ sub do_choose {
         return;
     }
 
-    my $card
-      = first { $_->{name} eq $msg->{option} } @{ $c->{private}{options} };
-    if ( !$card ) {
+    my $card = first { $_->{name} eq $msg->{option} } @{ $c->{private}{options} };
+    if ( !defined($card) ) {
         $c->err("Invalid option");
         return;
     }
 
     $c->{public}{options}{ $card->{name} } = $card;
     undef $c->{private}{options};
-    $c->send( { cmd => 'choose', options => $c->{public}{options} } );
+    $game->broadcast(
+        {   cmd     => 'options',
+            player  => $c->{id},
+            options => $c->{public}{options}
+        }
+    );
+    $game->broadcast( { cmd => 'ready', player => $c->{id} } );
+    $c->{public}{ready} = 1;
 
-    if ( !grep { $_->{private}{options} } values %{ $game->{player} } ) {
-        $game->set_state('CHOOSE');
+    if ( all { $_->{public}{ready} } values %{ $game->{player} } ) {
+        $game->set_state('PROGRAM');
     }
 }
 
