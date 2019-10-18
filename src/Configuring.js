@@ -108,8 +108,7 @@ export default observer(props => {
   return (
     <Content>
       {controls}
-      <Button onClick={configure}
-        background="radial-gradient(circle, orange 40%, red)">
+      <Button ready onClick={configure}>
         Ready
       </Button>
       <OptionModal card={help} done={closeHelp} />

@@ -47,7 +47,7 @@ export default observer(() => {
         context.private.options = [];
     }
 
-    let btn = selected ? <Button onClick={choose_option} background="radial-gradient(circle, orange 40%, red)">Select</Button>
+    let btn = selected ? <Button ready onClick={choose_option}>Select</Button>
         : <Button>Choose a card...</Button>;
 
     return (

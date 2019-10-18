@@ -41,7 +41,7 @@ export const Badge = styled.span`
 `;
 
 /* eslint-disable jsx-a11y/anchor-has-content */
-export const Button = styled(({ target, quit, ...props }) => <a {...props} />)`
+export const Button = styled(({ ready, target, quit, ...props }) => <a {...props} />)`
   padding: 8px;
   margin: 0px 3px 3px 0px;
   outline: none;
@@ -59,6 +59,14 @@ export const Button = styled(({ target, quit, ...props }) => <a {...props} />)`
     --secondary: #600000;
     --shadow: #d09999;
     --trim: #b00000;
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='black', endColorstr='red',GradientType=0);
+    color: white;
+    text-shadow:0px 1px 0px black;
+    ` : props.ready ? `
+    --primary: #009933;
+    --secondary: #003333;
+    --shadow: #006600;
+    --trim: #003300;
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='black', endColorstr='red',GradientType=0);
     color: white;
     text-shadow:0px 1px 0px black;

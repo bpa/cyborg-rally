@@ -21,13 +21,14 @@ export var Tile = observer(props => {
 export function TileSet(props) {
   var rows = [];
   var cols = props.cols || 2;
+  var width = Math.round(100 / cols) + "%";
   var cb = props.onClick;
   var buttons = props.children;
 
   for (var i = 0; i < buttons.length; i += cols) {
     var pair = buttons.slice(i, i + cols).map(function (b) {
       return (
-        <td width="50%" key={b.props.id} onClick={() => cb(b.props.id)}>
+        <td width={width} key={b.props.id} onClick={() => cb(b.props.id)}>
           {b}
         </td>
       );
