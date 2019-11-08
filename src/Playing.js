@@ -8,6 +8,7 @@ import Configuring from "./Configuring";
 import Firing from "./Firing"
 import Lasers from "./Lasers";
 import Movement from "./Movement";
+import NewCard from './NewCard';
 import PendingDamage from "./PendingDamage";
 import Programming from "./Programming";
 import Setup from './Setup';
@@ -23,6 +24,7 @@ var STATE = {
     Firing: Firing,
     Lasers: Lasers,
     Movement: Movement,
+    NewCard: NewCard,
     PowerDown: Announcing,
     Programming: Programming,
     Setup: Setup,

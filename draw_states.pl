@@ -95,7 +95,7 @@ my %state = (
     set, have each player
     choose one
   ',
-  GotOption => '
+  NewCard => '
     If any player got an
     option, show everyone
     what it was
@@ -112,7 +112,7 @@ sub write_state {
     my ($x, $y, $s, @state_arrows) = @_;
     $state = $s;
     $top = (HEIGHT + GUTTER) * $y;
-    $left = (WIDTH + GUTTER) * $x;
+    $left = GUTTER + (WIDTH + GUTTER) * $x;
     map { push(@arrows, [$left, $top, $_]) } @state_arrows;
 
     format_name SVG "STATE_HEADER";
@@ -176,7 +176,7 @@ sub write_footer {
 
 format HEADER =
 <svg xmlns="http://www.w3.org/2000/svg" baseProfile="full" width="@*" height="@*" version="1.1">
-(WIDTH + GUTTER) * $columns, (HEIGHT + GUTTER) * $rows
+(WIDTH + GUTTER) * $columns + GUTTER, (HEIGHT + GUTTER) * $rows
   <defs>
     <marker id="from" markerWidth="5" markerHeight="5" refX="3" refY="3">
       <circle cx="3" cy="3" r="2"/>
@@ -233,7 +233,7 @@ format FOOTER =
 </svg>
 .
 
-my $filename = "images/states.svg";
+my $filename = "public/images/states.svg";
 open(SVG, ">", $filename) || die "Can't open $filename for writing: $!\n";
 
 write_header(6,4);
@@ -242,14 +242,14 @@ write_state(1, 0, 'Setup', 'r');
 write_state(2, 0, 'ChoosingOption', 'd');
 write_state(0, 1, 'Revive', 'r');
 write_state(1, 1, 'PowerDown', 'r');
-write_state(2, 1, 'Programming', 'r');
-write_state(3, 1, 'Announcing', 'r');
-write_state(4, 1, 'Configuring', 'r');
-write_state(5, 1, 'Executing', 'r2dl');
+write_state(2, 1, 'NewCard', 'r');
+write_state(3, 1, 'Programming', 'r');
+write_state(4, 1, 'Announcing', 'r');
+write_state(5, 1, 'Configuring', 'd');
+write_state(5, 2, 'Executing', 'd');
 write_state(5, 3, 'CondProgram', 'l');
 write_state(4, 3, 'Movement', 'l');
-write_state(0, 2, 'GotOption', 'u');
-write_state(0, 3, 'Touching', 'u', 'd5ru');
+write_state(0, 3, 'Touching', 'l2ur', 'd5ru');
 write_state(1, 3, 'Firing', 'l');
 write_state(2, 3, 'Lasers', 'l');
 write_state(3, 3, '&lt;various&gt;', 'l');

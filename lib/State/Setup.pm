@@ -49,7 +49,7 @@ sub on_enter {
         }
     }
     else {
-        $game->set_state('PROGRAM');
+        $game->set_state('NEW_CARD');
     }
 }
 
@@ -91,7 +91,7 @@ sub do_choose {
     $c->{public}{ready} = 1;
 
     if ( all { $_->{public}{ready} } values %{ $game->{player} } ) {
-        $game->set_state('PROGRAM');
+        $game->set_state('NEW_CARD');
     }
 }
 

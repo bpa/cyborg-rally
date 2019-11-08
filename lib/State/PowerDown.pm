@@ -31,10 +31,10 @@ sub on_enter {
     }
 
     if ( $game->ready ) {
-        $game->set_state('PROGRAM');
+        $game->set_state('NEW_CARD');
     }
     else {
-        $game->timer( 10, \&Game::set_state, $game, 'PROGRAM' );
+        $game->timer( 10, \&Game::set_state, $game, 'NEW_CARD' );
     }
 }
 
@@ -52,7 +52,7 @@ sub do_shutdown {
         }
     );
 
-    $game->set_state('PROGRAM') if $game->ready;
+    $game->set_state('NEW_CARD') if $game->ready;
 }
 
 1;

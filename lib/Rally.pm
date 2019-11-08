@@ -11,6 +11,7 @@ use State::Executing;
 use State::Firing;
 use State::Lasers;
 use State::Movement;
+use State::NewCard;
 use State::Programming;
 use State::PowerDown;
 use State::Revive;
@@ -36,6 +37,7 @@ sub BUILD {
     $self->{states} = {
         INITIAL   => State::Waiting->new,
         SETUP     => State::Setup->new,
+        NEW_CARD  => State::NewCard->new,
         PROGRAM   => State::Programming->new,
         CONFIGURE => State::Configuring->new,
         ANNOUNCE  => State::Announcing->new,
