@@ -4,6 +4,7 @@ import Icon from './Icon';
 import Modal from './Modal';
 import { Badge, Button, Panel } from './UI';
 import OptionModal from './OptionModal';
+import { Box } from 'grommet';
 
 function updateHelp(old, action) {
     if (action === 'show') {
@@ -13,7 +14,7 @@ function updateHelp(old, action) {
         return { help: false };
     }
     else if (action === 'toggle') {
-        return { help: !!old.help };
+        return { help: !old.help };
     }
     return { show: action };
 }
@@ -38,25 +39,25 @@ export default function FireControl(props) {
         let type = Number.isInteger(card) ? 'register' : 'option';
         ws.send({
             cmd: 'fire_control',
-            target: props.target,
+            target: fireControl,
             [type]: card,
         })
     }
 
     function options() {
-        let player = context.public.player[props.target];
+        let player = context.public.player[fireControl];
         const options = player.options;
         const keys = Object.keys(options).sort();
         if (keys.length === 0) {
             return null;
         }
         const icons = keys.map((o, i) => {
-            if (help.show) {
-                return <Icon option={options[o]} key={i} help
+            if (help.help) {
+                return <Icon option={options[o]} key={i} className="help"
                     onClick={() => setHelp(o)} />;
             }
             if (card === o) {
-                return <Icon option={options[o]} key={i} selected
+                return <Icon option={options[o]} key={i} className="selected"
                     onClick={() => setCard(false)} />;
             }
             return <Icon option={options[o]} key={i}
@@ -84,11 +85,11 @@ export default function FireControl(props) {
     function register(r, i) {
         var name = r.program.reduce((a, b) => a + b.name, '');
         if (r.locked) {
-            return <Icon locked card={{ name: name }} key={i} />
+            return <Icon className="locked" card={{ name: name }} key={i} />
         }
 
         if (i === card) {
-            return <Icon selected key={i}
+            return <Icon className="selected" key={i}
                 onClick={() => setCard(false)}
                 card={{ name: name }} />
         }
@@ -100,11 +101,11 @@ export default function FireControl(props) {
         )
     }
 
-    if (!props.target) {
+    if (!fireControl) {
         return null;
     }
 
-    let player = context.public.player[props.target];
+    let player = context.public.player[fireControl];
 
     const cards = player.registers.map(register.bind(this));
     let cardHelp = player.options[help.show];
@@ -116,7 +117,9 @@ export default function FireControl(props) {
     return (
         <Modal title="Fire Control" closeText="Nevermind, use main laser" close={props.onSelect}>
             <Panel background="accent-2" title="Registers">
-                {cards}
+                <Box direction="row">
+                    {cards}
+                </Box>
                 <Button
                     onClick={() => fire()}>
                     Lock Register

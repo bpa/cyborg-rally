@@ -38,10 +38,7 @@ test('select tile', () => {
     let [component] = mounted(<Touching />);
 
     component.find('td').at(1).simulate('click');
-    expect(ws.send).toHaveBeenCalledWith({ cmd: 'touch', tile: 'repair' });
-
-    component.message({ cmd: 'touch', player: 'player1', tile: 'flag' });
-    assertTiles(component, all, 'flag');
+    assertTiles(component, all, 'repair');
 
     component.unmount();
 });

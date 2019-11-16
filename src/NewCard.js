@@ -8,9 +8,7 @@ import OptionModal from './OptionModal';
 
 function toMap(arr) {
   var map = {};
-  for (const e in arr) {
-    map[e] = 1;
-  }
+  arr.forEach(o => map[o] = 1);
   return map;
 }
 
@@ -19,11 +17,10 @@ const large = { margin: "auto", display: "block", height: "40px" };
 
 export default observer(() => {
   let context = useContext(GameContext);
-  let [newOpts, setNew] = useState(() => toMap(context.state));
   let [option, setOption] = useState(undefined);
 
   useMessages({
-    new_options: (msg) => setNew(toMap(msg.options))
+    new_options: (msg) => context.state = toMap(msg.options)
   });
 
   const players = context.public.player;
@@ -34,14 +31,13 @@ export default observer(() => {
     let existing = [];
     let options = p.options;
     for (var o in options) {
-      if (newOpts[o]) {
+      if (context.state[o]) {
         newOption = o;
       } else {
         existing.push(o);
       }
     }
     existing = Object.values(existing).sort((a, b) => a.name < b.name);
-    let w = Math.floor((existing.length + 1) / 2) * 20;
     return (
       <Box round="small" background={p.ready ? 'green' : 'red'} direction="row" key={'p' + id}>
         <div style={{ flex: "1 1 0", textAlign: "center", lineHeight: "40px" }}>{newOption ? "New:" : null}</div>
@@ -51,10 +47,6 @@ export default observer(() => {
           {existing.map((o) => optionCard(context.public.option[o], small))}
         </div>
       </Box >);
-  }
-
-  function newCard(newOption) {
-    return <><div style={{ lineHeight: "40px", textAlign: "center", float: "left" }}>New: </div>{}</>;
   }
 
   function optionCard(o, style) {

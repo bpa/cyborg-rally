@@ -27,6 +27,7 @@ subtest 'No game options' => sub {
             { cmd => 'join',  id     => $p[1]->{id}, player => { name => '2' } },
             { cmd => 'state', state  => 'Setup' },
             { cmd => 'setup', public => ignore },
+            { cmd => 'state', state  => 'NewCard' },
             { cmd => 'state', state  => 'Programming' },
         ]
     );
@@ -73,7 +74,11 @@ subtest 'Start with 2 damage' => sub {
 subtest 'Start with option' => sub {
     my ( $rally, @p ) = Game( { options => 1 } );
     is( ref( $rally->{state} ),
-        'State::Programming', "Don't wait for input if none is required" );
+        'State::NewCard', "Don't wait for input if none is required" );
+    $rally->set_state('PROGRAM');
+    $rally->update;
+    $rally->drop_packets;
+    
     for my $p (@p) {
         is( $p->{public}{lives},  3 );
         is( $p->{public}{memory}, 9 );

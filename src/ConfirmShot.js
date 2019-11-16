@@ -4,12 +4,6 @@ import { Badge, Button } from './UI';
 import Modal from './Modal';
 import { Option } from './Option';
 
-var damage_weapons = {
-    'laser': true,
-    'Mini Howitzer': true,
-    'Rear-Firing Laser': true,
-};
-
 let btnStyle = {
     textAlign: 'center',
     display: 'flex',
@@ -30,22 +24,6 @@ export default function ConfirmShot(props) {
             type: shot.type,
             player: shot.player,
             option: opt.name
-        });
-    }
-
-    function discardable() {
-        if (!damage_weapons[props.shot.type]) {
-            return null;
-        }
-
-        let opts = props.player.options;
-        return Object.keys(opts).map(function (k) {
-            let o = opts[k];
-            return (
-                <Button onClick={setChoice(o)} key={o.name} style={btnStyle}>
-                    <Option card={o} style={optStyle} />
-                    Discard {o.name} to prevent 1 damage?
-                </Button>)
         });
     }
 

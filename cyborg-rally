@@ -21,7 +21,7 @@ my $game = CyborgRally->new;
 
 get '/' => sub {
     my $c = shift;
-    $c->res->headers->content_type('application/xhtml+xml');
+    $c->res->headers->content_type('text/html');
     $c->reply->static('index.html');
 };
 
@@ -101,6 +101,7 @@ tcp_server '127.0.0.1', 3002, sub {
 };
 
 if (!$INC{'Mojo/Server/Morbo.pm'}) {
+    unshift @{app->static->paths}, app->home->rel_file('build');
     Mojo::Server::Daemon->new( app => app, listen => ['http://*:3000'] )->run;
 }
 else {

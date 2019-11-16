@@ -28,7 +28,7 @@ export default observer(() => {
       : <Button ready onClick={() => touch(context.state[context.id])}>
         Ready
   </Button>;
-  const active = context.state[context.id] && !done;
+
   return (
     <>
       <TileSet onClick={t => done || (context.state[context.id] = t)} cols={3}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import Firing from '../Firing';
-import { mounted } from '../setupTests';
+import { mounted, option } from '../setupTests';
 import { ws } from '../Util';
 
 test('No shots', () => {
@@ -67,4 +67,8 @@ test('Shoot alternate weapon', () => {
     expect(ws.send).toHaveBeenCalledWith({ cmd: 'fire', type: 'laser', target: 'player2' });
 
     component.unmount();
+});
+
+test('Shoot alternate weapon', () => {
+    let [component] = mounted(<Firing />, option("player1", "Fire Control"));
 });

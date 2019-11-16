@@ -18,7 +18,8 @@ subtest 'need at least two players' => sub {
         'ready',
         { cmd => 'state', state => 'Setup' },
         { cmd => 'setup', public => ignore },
-        { cmd => 'state', state => 'Programming' }
+        { cmd => 'state', state => 'NewCard' },
+        { cmd => 'state', state => 'Programming' },
     );
     done;
 };
@@ -38,7 +39,8 @@ subtest 'not ready' => sub {
         'ready',
         { cmd => 'state', state => 'Setup' },
         { cmd => 'setup', public => ignore },
-        { cmd => 'state', state => 'Programming' }
+        { cmd => 'state', state => 'NewCard' },
+        { cmd => 'state', state => 'Programming' },
     );
     done;
 };

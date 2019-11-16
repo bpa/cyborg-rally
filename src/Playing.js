@@ -51,10 +51,7 @@ export default observer(() => {
             p.dead = false;
             p.damage = msg.damage;
         },
-        join: (msg) => {
-            console.log(context);
-            context.public.player[msg.id] = msg.player;
-        },
+        join: (msg) => context.public.player[msg.id] = msg.player,
         quit: (msg) => delete context.public.player[msg.id],
         setup: (msg) => context.public = msg.public,
         state: (msg) => {
@@ -79,7 +76,11 @@ export default observer(() => {
                     context.public.register++;
             }
         },
-        damage: msg => player(msg).damage = msg.damage,
+        damage: msg => {
+            let p = player(msg);
+            p.damage = msg.damage;
+            p.registers = msg.registers;
+        },
     });
 
     let quit = () => ws.send({ cmd: 'quit' });

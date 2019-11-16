@@ -27,6 +27,7 @@ subtest 'powered down decision' => sub {
     $p3->broadcast(
         { cmd => 'shutdown', activate => 1 },
         { cmd => 'shutdown', activate => 1, player => $p3->{id} },
+        { cmd => 'state',    state    => 'NewCard' },
         { cmd => 'state',    state    => 'Programming' },
         { cmd => 'timer',    start    => ignore, duration => ignore },
     );
@@ -67,7 +68,7 @@ subtest 'Emergency Shutdown, two damage' => sub {
     $p2->{public}{damage}  = 2;
     $rally->set_state('POWER');
     $rally->update;
-    is( ref( $rally->{state} ), 'State::Programming' );
+    is( ref( $rally->{state} ), 'State::NewCard' );
     is( $p2->{public}{shutdown}, '', 'No Shutdown' );
 
     done;

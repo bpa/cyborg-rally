@@ -28,12 +28,12 @@ export default observer(props => {
   }
 
   return (
-    <Box round="small" background={p.ready ? 'green' : 'red'} direction="row" justify="evenly">
-      <Register register={props.register} />
+    <Box round="small" background={p.ready ? 'green' : 'red'} direction="row" alignItems="center">
+      <div style={{ flex: "1 1 0" }}><Register register={props.register} /></div>
       {watermark}
-      <Options player={p} />
-      <div style={{ padding: '4px 0px' }}>{p.name}{p.shutdown ? '.zZ' : ''}</div>
-      <Vitality player={p} />
+      <div style={{ flex: "1 1 0" }}><Options player={p} /></div>
+      <div style={{ flex: "2 1 0", textAlign: "center" }}>{p.name}{p.shutdown ? '.zZ' : ''}</div>
+      <div style={{ flex: "2 1 0" }}><Vitality player={p} /></div>
     </Box >
   )
 });

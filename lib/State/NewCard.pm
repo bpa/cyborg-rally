@@ -6,23 +6,23 @@ use parent 'State';
 
 sub on_enter {
     my ( $self, $game ) = @_;
+    my $new = 0;
     $self->{public} = {};
     for my $p ( values %{ $game->{player} } ) {
-        my $new = 0;
+        my $options_from_last_round = $p->{previously_held_options} || {};
         foreach my $o (keys %{$p->{public}{options}}) {
-            if (!defined $p->{shown_options}) {
-                $p->{shown_options}{$o} = ();
+            $p->{public}{ready} = '';
+            if (!exists $options_from_last_round->{$o}) {
                 $self->{public}{$o} = 1;
                 $new++;
             }
         }
-        $p->{public}{ready} = !$new;
     }
 
-    if ( $game->ready ) {
-        $game->set_state("PROGRAM");
-    } else {
+    if ( $new ) {
         $game->broadcast({cmd => "new_options", options => [keys %{$self->{public}}]});
+    } else {
+        $game->set_state("PROGRAM");
     }
 }
 
@@ -36,6 +36,18 @@ sub do_ready {
     }
     else {
         $game->broadcast( { cmd => 'ready', player => $c->{id} } );
+    }
+}
+
+sub on_exit {
+    my ( $self, $game ) = @_;
+
+    for my $p ( values %{ $game->{player} } ) {
+        my %held;
+        foreach my $o (keys %{$p->{public}{options}}) {
+            $held{$o} = ();
+        }
+        $p->{previously_held_options} = \%held;
     }
 }
 

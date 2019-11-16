@@ -15,16 +15,14 @@ subtest 'normal' => sub {
     }
 
     $p[0]->game( touch => { tile => 'conveyor' } );
-    cmp_deeply( $p[0]->{packets},
-        [ { cmd => 'error', reason => 'Invalid tile' } ] );
+    cmp_deeply( $p[0]->{packets}, [ { cmd => 'error', reason => 'Invalid tile' } ] );
     $p[0]->drop_packets;
 
     $p[0]->broadcast( { cmd => 'touch', tile => 'floor' },
         { cmd => 'touch', player => $p[0]->{id}, tile => 'floor' } );
 
     $p[0]->game( touch => { tile => 'upgrade' } );
-    cmp_deeply( $p[0]->{packets},
-        [ { cmd => 'error', reason => 'Already declared' } ] );
+    cmp_deeply( $p[0]->{packets}, [ { cmd => 'error', reason => 'Already declared' } ] );
 
     $p[1]->broadcast( { cmd => 'touch', tile => 'repair' },
         { cmd => 'touch', player => $p[1]->{id}, tile => 'repair' } );
@@ -45,6 +43,7 @@ subtest 'normal' => sub {
     done;
 };
 
+use Data::Dumper;
 subtest 'fifth register phase' => sub {
     my ( $rally, @p ) = Game( {}, 4 );
     $rally->{public}{register} = 4;
@@ -85,9 +84,10 @@ subtest 'fifth register phase' => sub {
                 damage    => 2,
                 registers => [ N, N, N, N, N ]
             },
-            { cmd => 'state', state => 'Revive' },
-            { cmd => 'state', state => 'PowerDown' },
-            { cmd => 'state', state => 'Programming' },
+            { cmd => 'state',       state   => 'Revive' },
+            { cmd => 'state',       state   => 'PowerDown' },
+            { cmd => 'state',       state   => 'NewCard' },
+            { cmd => 'new_options', options => ignore },
         )
     );
 
@@ -138,6 +138,7 @@ subtest 'healing unlocks registers' => sub {
             },
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
+            { cmd => 'state', state => 'NewCard' },
             { cmd => 'state', state => 'Programming' },
         )
     );
@@ -185,6 +186,7 @@ subtest 'healing fire controlled registers' => sub {
             },
             { cmd => 'state', state => 'Revive' },
             { cmd => 'state', state => 'PowerDown' },
+            { cmd => 'state', state => 'NewCard' },
             { cmd => 'state', state => 'Programming' },
         )
     );
@@ -216,10 +218,8 @@ subtest "shutdown players don't trigger" => sub {
         { cmd => 'error', reason => 'Invalid tile' }
     );
 
-    $p1->player(
-        { cmd => 'touch', tile   => 'flag' },
-        { cmd => 'error', reason => 'Invalid tile' }
-    );
+    $p1->player( { cmd => 'touch', tile => 'flag' },
+        { cmd => 'error', reason => 'Invalid tile' } );
 
     $p1->broadcast( { cmd => 'touch', tile => 'floor' },
         { cmd => 'touch', player => $p1->{id}, tile => 'floor' } );
@@ -253,14 +253,14 @@ subtest "Death" => sub {
         { cmd => 'move',  order  => ignore },
     );
 
-    is ($p1->{public}{lives}, 2);
-    is ($p2->{public}{lives}, 2);
-    is ($p3->{public}{lives}, 3);
+    is( $p1->{public}{lives}, 2 );
+    is( $p2->{public}{lives}, 2 );
+    is( $p3->{public}{lives}, 3 );
     done;
 };
 
 subtest "Infinite lives" => sub {
-    my ( $rally, $p1, $p2, $p3 ) = Game( {lives => 'Inf'}, 3 );
+    my ( $rally, $p1, $p2, $p3 ) = Game( { lives => 'Inf' }, 3 );
     $rally->set_state('TOUCH');
     $rally->update;
     $rally->drop_packets;
@@ -285,9 +285,9 @@ subtest "Infinite lives" => sub {
         { cmd => 'move',  order  => ignore },
     );
 
-    is ($p1->{public}{lives}, 1);
-    is ($p2->{public}{lives}, 1);
-    is ($p3->{public}{lives}, 1);
+    is( $p1->{public}{lives}, 1 );
+    is( $p2->{public}{lives}, 1 );
+    is( $p3->{public}{lives}, 1 );
     done;
 };
 

@@ -97,7 +97,7 @@ class FiringOption extends Option {
     }
 
     if (props.active === this.name) {
-      return <Icon name={this.name} key={this.name} selected
+      return <Icon name={this.name} key={this.name} className="selected"
         onClick={() => props.setActive(null)} />;
     }
 
@@ -117,7 +117,7 @@ class LaserOption extends Option {
     }
 
     if (props.active === 'laser') {
-      return <Icon option={o} key={o.name} selected
+      return <Icon option={o} key={o.name} className="selected"
         onClick={() => props.setActive(null)} />;
     }
 
