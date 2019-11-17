@@ -1,7 +1,7 @@
 import { ws, GameContext, useMessages } from './Util';
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Button, Box, Dead, Frame, Registers } from "./UI";
+import { Box, Dead, Frame, Registers } from "./UI";
 import Announcing from "./Announcing";
 import ConditionalProgramming from './ConditionalProgramming';
 import Configuring from "./Configuring";
@@ -16,6 +16,7 @@ import Timer from "./Timer";
 import Touching from "./Touching";
 import Vitality from "./Vitality";
 import Waiting from "./Waiting";
+import { Menu } from 'grommet';
 
 var STATE = {
     Announcing: Announcing,
@@ -94,22 +95,17 @@ export default observer(() => {
     return (
         <div>
             <Frame background="brand">
-                <Box pad="medium" justify="between" align="start" direction="row">
-                    <div>
+                <Box pad="medium" align="start" direction="row">
+                    <Menu style={{ flex: "2 1 0" }} icon="☰" items={[{ label: 'Quit', onClick: quit }]}></Menu>
+                    <div style={{ flex: "7 1 0" }}>
                         <div>{context.public.state.replace('_', ' ')}</div>
                         {progress}
                     </div>
-                    <Timer />
-                    <Vitality player={context.me} />
+                    <div style={{ flex: "3 1 0" }}><Timer /></div>
+                    <Vitality style={{ flex: "4 1 0" }} player={context.me} />
                 </Box>
                 <State />
             </Frame>
-            <hr />
-            <div style={{ display: 'flex' }}>
-                <Button quit onClick={quit} style={{ width: '100%' }}>
-                    Quit
-                </Button>
-            </div>
             <PendingDamage />
         </div>
     );
