@@ -15,7 +15,6 @@ export default function Lobby(props) {
         ws.send({ cmd: 'games' });
         return [];
     });
-    console.log(games);
 
     useMessages({
         games: msg => setGames(msg.games),

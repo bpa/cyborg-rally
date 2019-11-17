@@ -51,6 +51,7 @@ export default observer(() => {
 
   function optionCard(o, style) {
     return (<img src={getFile(o)}
+      key={o.name}
       style={style}
       onClick={() => setOption(o)}
       alt={o.name}
