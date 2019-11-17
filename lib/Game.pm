@@ -14,15 +14,16 @@ my $uuid = Data::UUID->new;
 sub new {
     my ( $pkg, $opts ) = @_;
     my $self = bless {
-        game    => $pkg,
-        map     => {},
-        name    => $opts->{name},
-        opts    => {},
-        player  => {},
-        private => { player => {} },
-        public  => { player => {} },
-        states  => { INITIAL => State->new },
-        state   => State->new,
+        accepting_players => 1,
+        game              => $pkg,
+        map               => {},
+        name              => $opts->{name},
+        opts              => {},
+        player            => {},
+        private           => { player => {} },
+        public            => { player => {} },
+        states            => { INITIAL => State->new },
+        state             => State->new,
       },
       shift;
     $self->BUILD($opts) if $self->can('BUILD');
@@ -72,8 +73,7 @@ sub join {
     );
 
     if ($new_player) {
-        $self->broadcast(
-            { cmd => 'join', id => $c->{id}, player => $c->{public} } );
+        $self->broadcast( { cmd => 'join', id => $c->{id}, player => $c->{public} } );
     }
 }
 
@@ -103,7 +103,7 @@ sub set_state {
 sub ready {
     my $self = shift;
 
-    my $public  = $self->{state}{public}    || {};
+    my $public = $self->{state}{public} || {};
     my $pending = ref($public) eq 'HASH' ? $public->{pending_damage} : {};
 
     return !scalar( keys %$pending )

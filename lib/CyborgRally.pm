@@ -63,8 +63,7 @@ sub do_create_game {
 
 sub do_error {
     my ( $self, $c, $msg ) = @_;
-    print STDERR "Error from ", $c->{public}{name}, "\n",
-                $msg->{message}, "\n";
+    print STDERR "Error from ", $c->{public}{name}, "\n", $msg->{message}, "\n";
 }
 
 sub do_games {
@@ -90,6 +89,11 @@ sub do_join {
     my $g = $self->{game}{ $msg->{name} };
     if ( !$g ) {
         $c->err("Game does not exist");
+        return;
+    }
+
+    if ( !$g->{accepting_players} ) {
+        $c->err("Game is not accepting new players");
         return;
     }
 
@@ -140,9 +144,9 @@ sub do_quit {
     $c->{game}->quit($c);
     $self->{lobby}->join($c);
 
-    if (!keys %{$g->{player}}) {
+    if ( !keys %{ $g->{player} } ) {
         undef $g->{timer};
-        delete $self->{game}{$g->{name}};
+        delete $self->{game}{ $g->{name} };
         $self->{lobby}->broadcast(
             {   cmd  => 'delete_game',
                 name => $g->{name},

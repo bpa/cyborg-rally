@@ -1,57 +1,50 @@
-import { ws } from './Util';
-import React from 'react';
+import { ws, useMessages } from './Util';
+import React, { useState } from 'react';
 import ChooseName from './ChooseName';
 import CreateGame from './CreateGame';
-import Games from './Games';
-import RegisteredComponent from './RegisteredComponent';
 
 import { Panel, Button } from './UI';
+import { Box } from 'grommet';
 
-export default class Lobby extends RegisteredComponent {
-    constructor(props) {
-        super(props);
+function join(game) {
+    ws.send({ cmd: 'join', name: game.name });
+}
+
+export default function Lobby(props) {
+    let [games, setGames] = useState(() => {
         ws.send({ cmd: 'games' });
-        this.state = { games: [] };
-    }
+        return [];
+    });
+    console.log(games);
 
-    join(game) {
-        ws.send({ cmd: 'join', name: game.name });
-    }
+    useMessages({
+        games: msg => setGames(msg.games),
+        create_game: msg => setGames(g => g.concat(msg)),
+        delete_game: msg => setGames(games => games.filter(g => g.name !== msg.name)),
+    });
 
-    game_button(g) {
-        return <Button key={g.name} bg="blue"
-            onClick={this.join.bind(this, g)}>
-            Join {g.name}
-        </Button>
-    }
-
-    on_games(msg) {
-        this.setState({ games: msg.games.map(this.game_button.bind(this)) });
-    }
-
-    on_create_game(msg) {
-        let games = this.state.games;
-        games.push(this.game_button(msg));
-        this.setState({ games: games });
-    }
-
-    on_delete_game(msg) {
-        let games = this.state.games.filter((g) => g.key !== msg.name);
-        this.setState({ games: games });
-    }
-
-    render() {
-        return (
-            <Panel background="neutral-1" title="Lobby">
-                <Games games={this.state.games} />
-                <Button color="status-ok" onClick={this.props.setView.bind(null, CreateGame)}>
-                    Create Game
+    function game_list() {
+        if (games.length) {
+            return games.map(g => (
+                <Button key={g.name}
+                    onClick={() => join(g)}>
+                    Join {g.name}
                 </Button>
-                <Button background="accent-2" onClick={this.props.setView.bind(null, ChooseName)}>
-                    Name Preferences
-                </Button>
-            </Panel>
-        )
+            ));
+        }
+        return <div style={{ margin: 'auto' }}>No games available</div>;
     }
+
+    return (
+        <Panel background="neutral-1" title="Lobby">
+            <Box p={0}>{game_list()}</Box>
+            <Button color="status-ok" onClick={props.setView.bind(null, CreateGame)}>
+                Create Game
+                </Button>
+            <Button background="accent-2" onClick={props.setView.bind(null, ChooseName)}>
+                Name Preferences
+                </Button>
+        </Panel>
+    );
 }
 
