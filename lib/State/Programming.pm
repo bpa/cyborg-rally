@@ -18,7 +18,7 @@ sub on_enter {
     $game->{movement}->reset->shuffle;
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{shutdown} ) {
-            $p->{public}{damage}     = 0;
+            $p->{public}{damage} = 0;
             $total++;
             $ready++;
         }
@@ -45,11 +45,10 @@ sub on_enter {
             delete $cnd_program->{card};
         }
 
-        map { $_->{program} = [] unless $_ && $_->{locked} }
-          @{ $p->{public}{registers} };
+        map { $_->{program} = [] unless $_ && $_->{locked} } @{ $p->{public}{registers} };
         $self->give_cards( $game, $p, $cards );
 
-        if ( $p->{private}{cards}->count < 2 ) {
+        if ( $p->{private}{cards}->count < 2 && !exists $p->{public}{options}{'Recompile'} ) {
             $p->{public}{ready} = 1;
             $game->broadcast( ready => { player => $p->{id} } );
             $ready++;
@@ -177,8 +176,7 @@ sub do_recompile {
     my $cards = $c->{public}{memory} - $c->{public}{damage};
     $cards++ if exists $c->{public}{options}{'Extra Memory'};
     $self->give_cards( $game, $c, $cards );
-    $game->broadcast(
-        { cmd => 'option', player => $c->{id}, option => $recompile } );
+    $game->broadcast( { cmd => 'option', player => $c->{id}, option => $recompile } );
 }
 
 sub too_many_doubles {

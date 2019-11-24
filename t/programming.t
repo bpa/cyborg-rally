@@ -453,7 +453,7 @@ subtest 'player has one card, 1st+30s' => sub {
     cmp_deeply( $rally->{public}{timer}, { start => ignore, duration => 30000 } );
 };
 
-subtest 'shutdown player has one card, 1st+30s' => sub {
+subtest 'shutdown player causes timer to start, 1st+30s' => sub {
     my ( $rally, $p1, $p2, $p3 ) = Game( { timer => '1st+30s' }, 3 );
 
     $p1->{public}{shutdown} = 1;
@@ -463,6 +463,19 @@ subtest 'shutdown player has one card, 1st+30s' => sub {
     is( $p2->{public}{ready}, '' );
     is( $p3->{public}{ready}, '' );
     cmp_deeply( $rally->{public}{timer}, { start => ignore, duration => 30000 } );
+};
+
+subtest 'player has one card and recompile, 1st+30s' => sub {
+    my ( $rally, $p1, $p2, $p3 ) = Game( { timer => '1st+30s' }, 3 );
+
+    dmg( $rally, $p1, 8 );
+    $rally->give_option( $p1, 'Recompile' );
+    $rally->drop_packets;
+    $rally->{state}->on_enter($rally);
+    is( $p1->{public}{ready}, '' );
+    is( $p2->{public}{ready}, '' );
+    is( $p3->{public}{ready}, '' );
+    cmp_deeply( $rally->{public}{timer}, undef );
 };
 
 subtest 'player has one card, standard' => sub {
