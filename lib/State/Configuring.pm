@@ -13,6 +13,8 @@ use constant OPTS => {
 sub on_enter {
     my ( $self, $game ) = @_;
     $self->{choices} = {};
+    my $not_ready                = 0;
+    my $can_auto_assign_flywheel = '';
     for my $p ( values %{ $game->{player} } ) {
         $p->{public}{ready} = 1;
         while ( my ( $name, $opt ) = each %{ OPTS() } ) {
@@ -25,11 +27,18 @@ sub on_enter {
         }
 
         if ( !$p->{public}{ready} ) {
+            $not_ready++;
             $p->send( { cmd => 'remaining', cards => $p->{private}{cards} } );
+            if (   exists $p->{public}{options}{Flywheel}
+                && !exists $p->{public}{options}{'Conditional Program'}
+                && $p->{private}{cards}->count == 1 )
+            {
+                $can_auto_assign_flywheel = 1;
+            }
         }
     }
 
-    if ( $game->ready ) {
+    if ( $not_ready == 0 || ( $not_ready == 1 && $can_auto_assign_flywheel ) ) {
         $game->set_state('EXECUTE');
     }
 }

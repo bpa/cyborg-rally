@@ -216,6 +216,49 @@ subtest 'One card, two possible option card, set none then card' => sub {
     done;
 };
 
+subtest 'Flywheel and one card' => sub {
+    my ( $rally, $p1 ) = Game( {} );
+
+    $rally->give_option( $p1, 'Flywheel' );
+    $p1->{private}{cards}->deal(3);
+    $rally->drop_packets;
+    $rally->set_state('CONFIGURE');
+    $rally->update;
+
+    is( ref( $rally->{state} ), 'State::Movement' );
+
+    done;
+};
+
+subtest 'Flywheel, Gyroscopic Stabilizer and one card' => sub {
+    my ( $rally, $p1 ) = Game( {} );
+
+    $rally->give_option( $p1, 'Flywheel' );
+    $rally->give_option( $p1, 'Gyroscopic Stabilizer' );
+    $p1->{private}{cards}->deal(3);
+    $rally->drop_packets;
+    $rally->set_state('CONFIGURE');
+    $rally->update;
+
+    is( ref( $rally->{state} ), 'State::Movement' );
+
+    done;
+};
+
+subtest 'Conditional Program and one card' => sub {
+    my ( $rally, $p1 ) = Game( {} );
+
+    $rally->give_option( $p1, 'Conditional Program' );
+    $p1->{private}{cards}->deal(3);
+    $rally->drop_packets;
+    $rally->set_state('CONFIGURE');
+    $rally->update;
+
+    is( ref( $rally->{state} ), 'State::Configuring' );
+
+    done;
+};
+
 subtest 'One card, two possible option card, set none then none' => sub {
     my ( $rally, $p1, $card, $options ) = setupOneCard();
 
