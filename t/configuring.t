@@ -240,7 +240,7 @@ subtest 'Flywheel, Gyroscopic Stabilizer and one card' => sub {
     $rally->set_state('CONFIGURE');
     $rally->update;
 
-    is( ref( $rally->{state} ), 'State::Movement' );
+    is( ref( $rally->{state} ), 'State::Configuring' );
 
     done;
 };

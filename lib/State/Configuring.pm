@@ -16,13 +16,15 @@ sub on_enter {
     my $not_ready                = 0;
     my $can_auto_assign_flywheel = '';
     for my $p ( values %{ $game->{player} } ) {
+        my $held = 0;
         $p->{public}{ready} = 1;
+        next if $p->{public}{dead} || $p->{public}{shutdown};
         while ( my ( $name, $opt ) = each %{ OPTS() } ) {
-            next if $p->{public}{dead} || $p->{public}{shutdown};
             my $option = $p->{public}{options}{$name};
             if ( defined $option && $p->{private}{cards}->count >= $opt->{cards} ) {
                 $self->{choices}{$name} = ();
                 $p->{public}{ready} = '';
+                $held++;
             }
         }
 
@@ -30,8 +32,8 @@ sub on_enter {
             $not_ready++;
             $p->send( { cmd => 'remaining', cards => $p->{private}{cards} } );
             if (   exists $p->{public}{options}{Flywheel}
-                && !exists $p->{public}{options}{'Conditional Program'}
-                && $p->{private}{cards}->count == 1 )
+                && $p->{private}{cards}->count == 1
+                && $held == 1 )
             {
                 $can_auto_assign_flywheel = 1;
             }
