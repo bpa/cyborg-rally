@@ -11,7 +11,7 @@ var stabilizer = 'Gyroscopic Stabilizer';
 
 function select(state, action) {
   for (var k in state) {
-    if (state[k] && state[k].priority === action.value.priority) {
+    if (action.value && state[k] && state[k].priority === action.value.priority) {
       delete state[k];
     }
   }
@@ -21,14 +21,21 @@ function select(state, action) {
 
 export default observer(props => {
   let context = useContext(GameContext);
-  if (!context.state || context.state[context.id] === undefined) {
-    context.state = {
-      [context.id]: (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0
-    };
-  }
-
   let [help, setHelp] = useState(undefined);
-  let [choices, choose] = useReducer(select, {});
+  let [choices, choose] = useReducer(select, {}, () => {
+    let state = {};
+    if (context.me.options[stabilizer].tapped) {
+      context.state[context.id] = 1;
+    }
+
+    ['Flywheel', 'Conditional Program'].forEach(opt => {
+      if (context.me.options[opt]) {
+        state[opt] = context.me.options[opt].card;
+      }
+    });
+
+    return state;
+  });
 
   useMessages({
     remaining: (msg) => {
@@ -37,10 +44,6 @@ export default observer(props => {
         context.private.cards = cards;
       }
     },
-
-    options: (msg) => {
-      context.state[context.id] = (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) ? 1 : 0;
-    }
   });
 
   function openHelp(option) {
@@ -52,14 +55,19 @@ export default observer(props => {
   }
 
   function configure() {
+    let command = { cmd: 'configure' };
+
     if (context.me.options[stabilizer]) {
-      ws.send({ cmd: 'configure', option: 'Gyroscopic Stabilizer', activate: !!choices.stabilizer });
+      command['Gyroscopic Stabilizer'] = !!context.state[context.id];
     }
+
     ['Flywheel', 'Conditional Program'].forEach(opt => {
       if (context.me.options[opt]) {
-        ws.send({ cmd: 'configure', option: opt, card: choices[opt] });
+        command[opt] = choices[opt] || 'null';
       }
     });
+
+    ws.send(command);
   }
 
   if (context.me.shutdown) {

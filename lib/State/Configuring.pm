@@ -4,25 +4,26 @@ use strict;
 use warnings;
 use parent 'State';
 
-use constant OPTS => {
-    'Conditional Program'   => { cards => 1 },
-    'Flywheel'              => { cards => 1 },
-    'Gyroscopic Stabilizer' => { cards => 0, tap => 1 },
-};
+my @OPTS = (
+    ['Conditional Program'  , 1, 0],
+    ['Flywheel'             , 1, 0],
+    ['Gyroscopic Stabilizer', 0, 1],
+);
 
 sub on_enter {
     my ( $self, $game ) = @_;
-    $self->{choices} = {};
+    $self->{public} = {};
     my $not_ready                = 0;
     my $can_auto_assign_flywheel = '';
     for my $p ( values %{ $game->{player} } ) {
         my $held = 0;
         $p->{public}{ready} = 1;
         next if $p->{public}{dead} || $p->{public}{shutdown};
-        while ( my ( $name, $opt ) = each %{ OPTS() } ) {
+        for my $opt (@OPTS) {
+            my ($name, $cards, $tap) = @$opt;
             my $option = $p->{public}{options}{$name};
-            if ( defined $option && $p->{private}{cards}->count >= $opt->{cards} ) {
-                $self->{choices}{$name} = ();
+            if ( defined $option && $p->{private}{cards}->count >= $cards ) {
+                $self->{public}{ $p->{id} } = $p->{public}{damage};
                 $p->{public}{ready} = '';
                 $held++;
             }
@@ -43,63 +44,65 @@ sub on_enter {
     if ( $not_ready == 0 || ( $not_ready == 1 && $can_auto_assign_flywheel ) ) {
         $game->set_state('EXECUTE');
     }
+    else {
+        $game->broadcast( { cmd => 'configuring', players => $self->{public} } );
+    }
 }
 
 sub do_configure {
     my ( $self, $game, $c, $msg ) = @_;
 
-    my $name = $msg->{option};
-    if ( !defined $name ) {
-        $c->err('Missing Option');
-        return;
-    }
+    my %used;
+    for my $opt (@OPTS) {
+        my ( $name, $cards, $tap) = @$opt;
+        my $option = $c->{public}{options}{$name};
+        next unless defined $option;
 
-    my $option = $c->{public}{options}{$name};
-    my $config = OPTS->{$name};
-    if ( !( defined $option && defined $config ) ) {
-        $c->err('Invalid Option');
-        return;
-    }
-
-    if ( $config->{cards} ) {
-        if ( !defined $msg->{card} ) {
-            delete $c->{public}{options}{$name}{card};
+        my $config = $msg->{$name};
+        if ( !defined $config ) {
+            $c->err("Missing config for $name");
+            return;
         }
-        else {
-            my $card = $c->{private}{cards}->getMatch( $msg->{card} );
+
+        if ( $cards ) {
+            if ( $config eq 'null' ) {
+                delete $option->{card};
+                next;
+            }
+
+            my $card = $c->{private}{cards}->getMatch( $config );
             unless ( defined $card ) {
                 $c->err("Invalid card");
                 return;
             }
-
-            for my $opt ( keys( %{ OPTS() } ) ) {
-                my $o = $c->{public}{options}{$opt};
-                if (   defined $o
-                    && defined $o->{card}
-                    && $o->{card}{priority} == $card->{priority} )
-                {
-                    delete $o->{card};
-                    $self->{choices}{$opt} = ();
-                }
+            if ( exists $used{ $card->{priority} } ) {
+                $c->err("Attempt to use card twice");
+                return;
             }
 
-            $c->{public}{options}{$name}{card} = $card;
+            $used{ $card->{priority} } = ();
+            $option->{card} = $card;
+        }
+
+        if ( $tap ) {
+            if ($config) {
+                $option->{tapped} = 1;
+            }
+            else {
+                delete $option->{tapped};
+            }
         }
     }
 
-    if ( $config->{tap} ) {
-        if ( $msg->{activate} ) {
-            $option->{tapped} = 1;
-        }
-        else {
-            delete $option->{tapped};
-        }
+    $game->broadcast(
+        { cmd => 'options', player => $c->{id}, options => $c->{public}{options} } );
+
+    unless ( $c->{public}{ready} ) {
+        $c->{public}{ready} = 1;
+        $game->broadcast( { cmd => 'ready', player => $c->{id} } );
     }
 
-    delete $self->{choices}{$name};
-    $c->send( { cmd => 'options', player => $c->{id}, options => $c->{public}{options} } );
-
-    if ( !%{ $self->{choices} } ) {
+    if ( $game->ready ) {
         $game->set_state('EXECUTE');
     }
 }

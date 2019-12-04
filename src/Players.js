@@ -7,10 +7,24 @@ import { GameContext } from './Util';
 export default observer(props => {
   let context = useContext(GameContext);
   const players = context.public.player;
-  const alive = Object.keys(players).filter((p) => !players[p].dead);
+
+  console.log(JSON.parse(JSON.stringify(context.state)));
+  const show = Object.keys(players)
+    .sort()
+    .filter(id => {
+      let player = players[id];
+      if (player.dead) {
+        return false;
+      }
+      if (props.filter) {
+        return props.filter(id);
+      }
+      return true;
+    });
+
   return (
     <Box gap="small">
-      {alive.sort().map((id) => <Player {...props} player={players[id]} key={id} />)}
+      {show.sort().map(id => <Player {...props} player={players[id]} key={id} />)}
     </Box>
   );
 });

@@ -6,19 +6,23 @@ use parent 'State';
 
 sub on_enter {
     my ( $self, $game ) = @_;
+    $self->{public} = {};
     for my $p ( values %{ $game->{player} } ) {
-        if ( ($p->{public}{shutdown} && !$p->{public}{will_shutdown})
-            || (exists $p->{public}{options}{'Emergency Shutdown'} && $p->{public}{damage} > 2)
-        ) {
-            $p->{public}{shutdown} = '';
-            $p->{public}{ready}    = '';
+        if (( $p->{public}{shutdown} && !$p->{public}{will_shutdown} )
+            || ( exists $p->{public}{options}{'Emergency Shutdown'}
+                && $p->{public}{damage} > 2 )
+          )
+        {
+            $p->{public}{shutdown}      = '';
+            $p->{public}{ready}         = '';
+            $self->{public}{ $p->{id} } = $p->{public}{damage};
             $p->send('declare_shutdown');
         }
         else {
             $p->{public}{ready} = 1;
         }
 
-        if ($p->{public}{will_shutdown}) {
+        if ( $p->{public}{will_shutdown} ) {
             $p->{public}{shutdown} = 1;
             delete $p->{public}{will_shutdown};
             $game->broadcast(
@@ -34,6 +38,7 @@ sub on_enter {
         $game->set_state('NEW_CARD');
     }
     else {
+        $game->broadcast( { cmd => 'power_down', players => $self->{public} } );
         $game->timer( 10, \&Game::set_state, $game, 'NEW_CARD' );
     }
 }

@@ -7,6 +7,7 @@ use State::Setup;
 
 sub on_enter {
     my ( $self, $game ) = @_;
+    $self->{public} = {};
     my $all_ready = 1;
     for my $p ( values %{ $game->{player} } ) {
         if ( $p->{public}{dead} && $p->{public}{lives} ) {
@@ -19,21 +20,22 @@ sub on_enter {
             else {
                 $p->{public}{damage} = 2;
             }
+            $self->{public}{ $p->{id} } = $p->{public}{damage};
             $p->{public}{registers} = State::Setup::CLEAN();
             delete $p->{public}{will_shutdown};
-            $game->broadcast(
-                {   cmd    => 'revive',
-                    player => $p->{id},
-                    damage => $p->{public}{damage}
-                }
-            );
             $all_ready = 0;
         }
         else {
             $p->{public}{ready} = 1;
         }
     }
-    $game->set_state('POWER') if $all_ready;
+
+    if ($all_ready) {
+        $game->set_state('POWER');
+    }
+    else {
+        $game->broadcast( { cmd => 'revive', players => $self->{public} } );
+    }
 }
 
 sub do_ready {

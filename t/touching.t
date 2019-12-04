@@ -43,7 +43,6 @@ subtest 'normal' => sub {
     done;
 };
 
-use Data::Dumper;
 subtest 'fifth register phase' => sub {
     my ( $rally, @p ) = Game( {}, 4 );
     $rally->{public}{register} = 4;

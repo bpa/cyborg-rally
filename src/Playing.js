@@ -34,6 +34,16 @@ var STATE = {
 
 export default observer(() => {
     let context = useContext(GameContext);
+    let setSelectedPlayers = (msg) => {
+        context.state = msg.players;
+        for (var id in msg.players) {
+            let p = context.public.player[id];
+            p.dead = false;
+            p.damage = msg.players[id];
+            p.ready = false;
+        }
+    };
+
     let player = (msg) => context.public.player[msg.player];
     useMessages({
         ready: (msg) => player(msg).ready = true,
@@ -47,11 +57,9 @@ export default observer(() => {
         },
         option: (msg) => player(msg).options[msg.option.name] = msg.option,
         options: (msg) => player(msg).options = msg.options,
-        revive: (msg) => {
-            let p = player(msg);
-            p.dead = false;
-            p.damage = msg.damage;
-        },
+        configuring: setSelectedPlayers,
+        revive: setSelectedPlayers,
+        power_down: setSelectedPlayers,
         join: (msg) => context.public.player[msg.id] = msg.player,
         quit: (msg) => delete context.public.player[msg.id],
         setup: (msg) => context.public = msg.public,
@@ -59,7 +67,7 @@ export default observer(() => {
             context.state = {};
             context.public.state = msg.state;
             var players = context.public.player;
-            Object.keys(players).map((p) => players[p].ready = 0);
+            Object.keys(players).map((p) => players[p].ready = false);
 
             if (msg.state === 'PowerDown') {
                 Object.keys(players).forEach((p) => {

@@ -5,6 +5,11 @@ import { Button } from './UI';
 
 export default observer(props => {
     let context = useContext(GameContext);
+
+    if (props.filter && !props.filter(context.id)) {
+        return <Button>Waiting...</Button>
+    }
+
     if (!context.me.ready) {
         return (
             <Button ready onClick={() => ws.send({ cmd: 'ready' })}>
