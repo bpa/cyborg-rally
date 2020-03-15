@@ -94,7 +94,7 @@ export default observer(() => {
 
     let quit = () => ws.send({ cmd: 'quit' });
 
-    const State = (context.public.state != 'Revive' && context.me.dead) ? Dead : STATE[context.public.state] || Waiting;
+    const State = (context.public.state !== 'Revive' && context.me.dead) ? Dead : STATE[context.public.state] || Waiting;
     var progress
         = context.public.register !== undefined
             ? <Registers active={context.public.register} />
