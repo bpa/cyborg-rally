@@ -24,7 +24,7 @@ export default observer(props => {
   let [help, setHelp] = useState(undefined);
   let [choices, choose] = useReducer(select, {}, () => {
     let state = {};
-    if (context.me.options[stabilizer].tapped) {
+    if (context.me.options[stabilizer] && context.me.options[stabilizer].tapped) {
       context.state[context.id] = 1;
     }
 
